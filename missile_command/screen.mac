@@ -1,0 +1,18 @@
+          mac tallchar        
+          ;; activate 16 high chars
+          lda $9003
+          ora #1
+          sta $9003             
+          endm
+
+          mac chbase
+          lda $9005
+          and #$F0
+          ora #%1101            ;$1400
+          sta $9005
+          ;; screen memory, default $1000
+          ;; fedcba9876543210
+          ;;    xxxy
+          endm
+
+

@@ -1,18 +1,57 @@
+SCRROWS   equ       23/2
+SCRCOLS   equ       22
+CHBASE1   equ       $1000
+
+
           mac tallchar        
+CHARHT    equ       16
           ;; activate 16 high chars
-          lda $9003
+          lda SCRROWS
           ora #1
           sta $9003             
+          endm
+
+          mac setrows
+          ;; bits 1-6 are row
+          lda #[SCRROWS & %00111111] << 1
+          ora $9003 
+          sta $9003
+          endm
+
+          ;; screen memory, default $1000
+          ;; fedcba9876543210
+          ;;  00xxxy000000000
+          ;; y lives as bit 7 in register
+          ;; 36866
+          mac screenmem
+          #if {1} & %001111000000000 > 0
+          #error_bad_screen_mem
+          #else
+SCREEN    equ       {1}
+.bit9     equ [{1} & %000001000000000] >> 2
+.bit10_12 equ [{1} & %001110000000000] >> 6
+          lda 36866
+          and #%01111111
+          ora #.bit9
+          sta 36866
+          lda 36869
+          and #%10001111
+          ora #.bit10_12
+          sta 36869
+          #if .bit9==$80
+CLRRAM    equ       38400
+          #else
+CLRRAM    equ       37888
+          #endif
+          #endif
+          
           endm
 
           mac chbase
           lda $9005
           and #$F0
-          ora #%1101            ;$1400
+          ora #{1} & $0F
           sta $9005
-          ;; screen memory, default $1000
-          ;; fedcba9876543210
-          ;;    xxxy
           endm
 
 

@@ -1,8 +1,12 @@
 SCADDR
-;;; column start addresses for hi-res screen
+;;; screen column addresses for chargen ram
+;;; on the hi-res screen
+;;; column 0 would be start in chram for 'A'
+;;; column 1 would be start in chram for letter 'A' + SCRROWS
+;;; etc.
 COL       set 0
           repeat SCRCOLS
-          dc.w SCREEN + (COL * SCRROWS)
+          dc.w CHBASE1 + (COL * SCRROWS * CHARHT)
 COL       set COL + 1
           repend
 SCADDR_SZ equ * - SCADDR 
@@ -28,3 +32,11 @@ COL         set COL + 1
 ROW       set ROW + 1          
           repend
 SCRMAP_SZ equ * - SCRMAP
+
+BMASKS    
+BPOS      set 128
+          repeat 8
+          dc.b BPOS
+BPOS      set BPOS >> 1
+          repend          
+BMASKS_SZ

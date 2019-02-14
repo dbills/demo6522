@@ -1,34 +1,75 @@
           processor 6502
-          org $2000
+          org $3000
+
+          include   "screen.mac"
+          include   "timer.mac"
+          include   "zerop.equ"
+
+          jsr i_pltbl           
+          jsr i_hires
+          jsr i_chrset
+          chbase %1100
+          screenmem $0200
+          lda $900f
+          ora #2
+          sta $900f
+          lda #0
+          sta pl_y
+          sta pl_x
+l1
+          jsr plot
+          inc pl_x
+          inc pl_y
+          lda #172
+          cmp pl_x
+          beq loop
+          jmp l1
+          
+
+loop
+          jmp loop
+          rts
 
           include   "macros16.asm"
-          include   "zerop.asm"
+          include   "colors.equ"
 
-SCREEN    equ       1000
 
-          mac for
-          mov_wi {1}, lpbeg_w
-          mov_wi {2}, lpend_w
-          endm
-
-          mac next
-          inc_w lpbeg_w
-          cmp_w lpbeg_w, lpend_w
-          beq .done
-          jmp {1}
-.done
-          endm
 
 i_hires   subroutine
-          ;; activate 16 high chars
-          lda #1
-          and $9003
-          sta $9003
+          setrows
+          tallchar              
+          ldy #SCRMAP_SZ
+          ;; fill screen with chars tile
+          ;; pattern 
+.loop
+          lda #BLUE
+          sta CLRRAM-1,y
+          lda SCRMAP-1,y
+          sta SCREEN-1,y
+          dey
+          bne .loop
+.done
+          rts
+
           
+i_chrset  subroutine
+          mov_wi CHBASE1, ptr_0
           ldy #0
-          ldx #0
-          ;; fill screen with chars
-          for SCREEN, mov_w 1,2
+          ldx #16               ;# of pages
+          lda #0                ;AA is nice
+.loop
+          sta (ptr_0),y
+          iny
+          beq .inch
+          bne .loop
+.inch
+          inc ptr_0h
+          dex
+          beq .done
+          bne .loop
+.done
+          rts
 
-
-          
+          include "screen.asm"
+          include "timer.asm"
+          include "screen.dat"

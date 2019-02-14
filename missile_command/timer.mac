@@ -1,0 +1,7 @@
+JIFFYL    equ       $a2          
+          ;; wait for number seconds in {1}
+          ;; no more than 255/60 seconds possible
+          mac sleep
+          lda #60*{1}               ;seconds
+          jsr sleep_
+          endm

@@ -1,0 +1,6 @@
+
+suffixes:
+
+_SZ : size of a table
+_w : word
+_h : high byte of word variable

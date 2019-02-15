@@ -20,12 +20,12 @@ union {
 } lsb_load_address;
 
 uint8_t read6502(uint16_t address) {
-  const uint8_t data = ram_read_callbacks[address] ? 
+  const uint8_t data = ram_read_callbacks[address] ?
       ram_read_callbacks[address]() :
       ram[address];
   if(address <= 0xff && ram_write_count[address] == 0) {
-    printf("uninitialized read 0x%hx pc = 0x%hx\n", address, pc);
-    exit(0);
+    fprintf(stderr, "uninitialized read 0x%hx pc = 0x%hx\n", address, pc);
+    //exit(1);
   }
   ram_read_count[address]++;
   //printf("\tread 0x%hx = 0x%hhx\n", address, data);
@@ -56,7 +56,7 @@ void load_image(const char *const filename) {
 void hook6502() {
   //printf("hook pc = 0x%x\n", pc);
   // check if we are at a debug break point
-  if(break_address && (pc == break_address))
+  if(pc == break_address)
     break_now = 1;
   // fake behaviors that would happen during interrupt
   // assume 1Mhz - update jiffy clock
@@ -110,12 +110,18 @@ uint8_t press_joystick_button() {
   return 0x0f;
 }
 
+void dump_line_data() {
+  uint16_t i;
+  for(i = 0x2000;i < 0x2000+160;i++) {
+    printf("0x%hx = 0x%hhx\n", i , ram[i]);
+  }
+}
 // when the interrupt triggers, we go to the irq
 int main(int argc, char **argv) {
   assert(sizeof(ram) == 65536);
   load_kernel();
-  load_image("../pac.p00");
-  printf("irq/brk = %hx\nnmi = %hx\nreset = %hx\nuser irq($314) = %hx\n", 
+  load_image("a.p00");
+  printf("irq/brk = %hx\nnmi = %hx\nreset = %hx\nuser irq($314) = %hx\n",
          get_word(0xfffe),
          get_word(0xfffa),
          get_word(0xfffc),
@@ -123,16 +129,14 @@ int main(int argc, char **argv) {
          );
   // install a hook so we can break at certain PC values
   hookexternal(hook6502);
-  //break_address = 0x249c;
-  break_address = 0x22ae;
+  break_address = 0x0;
   reset6502();
 
-  // try to set up a simple test
-  ram_read_callbacks[JOY0] = press_joystick_button;
-  //
   while(!break_now) {
     printf("pc = 0x%x a=%hhx\n", pc, a);
     step6502();
   }
+
+  dump_line_data();
   return 0;
 }

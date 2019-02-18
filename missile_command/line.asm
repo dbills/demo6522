@@ -1,6 +1,13 @@
-LSTORE    equ       $2000
-          include "line.equ"
-          SEG       MAIN
+          ;; public line symbols
+;          include "line.equ"
+          ;; private line symbols
+          SEG.U     ZEROP
+err       dc.b
+n         dc.b
+dx        dc.b
+dy        dc.b
+          SEG       CODE
+
 main
           lda #0
           sta x1
@@ -30,7 +37,7 @@ line1     subroutine
           ldx dy                        ;for j=dx
 .loop
           lda x1
-          sta LSTORE,x
+          sta lstore,x
           lda err                       ;err+=dx
           clc
           adc dx

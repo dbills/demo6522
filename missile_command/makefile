@@ -6,15 +6,12 @@
 # oh well, I have to use c1541 I reckon
 #C1541=c:\winvice3\c1541 -attach disk1.d64 -write a.p00 a 
 C1541=/mnt/c/winvice3/c1541.exe
+EXE=a
 all:
 	rm -f a.p00 a.lst
-	dasm main.asm -oa.p00 && dasm main.asm -la.lst
+	dasm main.asm -oa.p00;dasm main.asm -la.lst
 	sed -rnf build_support/subs.sed < a.lst
+	sed -rnf build_support/labels.sed < a.lst > labels.txt
 	$(C1541) -attach disk1.d64 -delete a -write a.p00 a 
-
-lt:
-	cd c-examples && make
-
-generate_labels:
-	cat a.lst | sed -e 's/\t/    /g' | sed -ne '7p' | cut -c29-33
+	#	cd c-examples && make
 

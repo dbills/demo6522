@@ -5,8 +5,9 @@
           include   "zerop.equ"
           include   "m16.mac"
           include   "colors.equ"
+          include   "line.equ"
 
-          SEG       MAIN
+          SEG       CODE
           org $3000
 
           jsr i_pltbl           
@@ -28,13 +29,10 @@ l1
           cmp pl_x
           beq loop
           jmp l1
-          
 
 loop
           jmp loop
           rts
-
-
 
 i_hires   subroutine
           setrows
@@ -73,5 +71,6 @@ i_chrset  subroutine
 
           include "screen.asm"
           include "timer.asm"
-          ;;include "line.asm"
+          include "line.asm"
           include "screen.dat"
+

@@ -1,3 +1,5 @@
-all:
-	dasm ../line.asm -oa.p00;dasm ../line.asm -la.lst
-	gcc -D WSL -g tester.c && ./a.out
+SOURCE = labels.c tester.c fake6502.c vic_os.c
+PRIVATE_SOURCE = machine.c
+all: makeheaders 
+	./makeheaders $(SOURCE)
+	gcc -D WSL -g $(SOURCE) $(PRIVATE_SOURCE) -o tester && ./tester

@@ -1,6 +1,10 @@
 ;;; initialize the plot table
 ;;; ram starting location for all hires
 ;;; screen columns
+          seg       ZEROP
+.blargo    dc.b 0          
+          seg       CODE
+          lda .blargo
 i_pltbl   subroutine
           lda #SCADDR_SZ - 1
           tay

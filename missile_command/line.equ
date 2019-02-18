@@ -1,11 +1,8 @@
-          SEG     ZEROP
-dx        ds.w
-dy        ds.w
-x1        ds.w
-x2        ds.w
-y1        ds.w
-y2        ds.w
-err       ds.w
-n         ds.w
-
+          SEG.U     ZEROP
+x1        dc.b 0
+x2        dc.b 0
+y1        dc.b 0
+y2        dc.b 0
+;;; location to store line data at
+lstore    dc.w 0
 

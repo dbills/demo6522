@@ -13,6 +13,10 @@ static int ram_read_count[RAM_SIZE];
 static int ram_write_count[RAM_SIZE];
 static int break_now;           /* break as soon as possible */
 static uint16_t break_address;  /* address to break at */
+static struct _labels {
+  char *label;
+  uint16_t address;
+} labels[255];
 
 union {
   uint16_t word;
@@ -36,6 +40,18 @@ void write6502(uint16_t address, uint8_t value) {
   //printf("write 0x%hx = 0x%hhx pc = %hx\n", address, value, pc);
   ram_write_count[address]++;
   ram[address] = value;
+}
+// %[*][width][modifiers]type
+void load_labels() {
+  FILE *const fd = fopen("../labels.txt", "rb");
+  assert(fd);
+  int i = 0;
+  while(!feof(fd)) {
+    char *label;
+    uint16_t address;
+    fscanf(fd, "%ms %hx\n", &labels[i].label, &labels[i].address);
+    i++;
+  }
 }
 
 void load_image(const char *const filename) {
@@ -81,8 +97,17 @@ void interactive_step() {
 
 void load_kernel() {
   // E000-FFFF   57344-65535        8K KERNAL ROM
-  FILE *const fd = fopen("/usr/lib/vice/VIC20/kernal", "rb");
-  assert(fd);
+#ifdef WSL                      /* linux on windows */
+  char *path = "/mnt/c/winvice3/VIC20/kernal";
+#else
+  char *path = "/usr/lib/vice/VIC20/kernal";
+#endif
+  FILE *const fd = fopen(path, "rb");
+  if(!fd) {
+    fprintf(stderr,"failed to open kernel file %s\n", path);
+    perror("Error");
+    exit(1);
+  }
   const int rtn = fread(&ram[57344], 1, 8192, fd);
   assert(rtn == 8192);
   fclose(fd);
@@ -136,7 +161,7 @@ int main(int argc, char **argv) {
     printf("pc = 0x%x a=%hhx\n", pc, a);
     step6502();
   }
-
+  printf("HEEEEEEEEEEEEEELO\n");
   dump_line_data();
   return 0;
 }

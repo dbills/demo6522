@@ -20,6 +20,7 @@ main
           sta Y2
           lda #2
           sta X2
+          
           jsr line1
           brk
 

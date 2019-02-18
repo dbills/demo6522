@@ -4,6 +4,8 @@
           include   "screen.mac"
           include   "timer.mac"
           include   "zerop.equ"
+          include   "m16.mac"
+          include   "colors.equ"
 
           jsr i_pltbl           
           jsr i_hires
@@ -29,9 +31,6 @@ l1
 loop
           jmp loop
           rts
-
-          include   "macros16.asm"
-          include   "colors.equ"
 
 
 

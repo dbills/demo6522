@@ -1,0 +1,11 @@
+          SEG     ZEROP
+dx        ds.w
+dy        ds.w
+x1        ds.w
+x2        ds.w
+y1        ds.w
+y2        ds.w
+err       ds.w
+n         ds.w
+
+

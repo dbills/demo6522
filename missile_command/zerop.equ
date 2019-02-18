@@ -1,12 +1,15 @@
+          SEG.U     ZEROP
+          org       0
 ;;; pltbl: table of CHRAM columns
 ;;; 0 = address of CHRAM for column 0
 ;;; 2 = address of CHRAM for column 1
 ;;; ... SCRCOLS
-pltbl     equ       0                
-ptr_0     equ       SCRCOLS * 2
-ptr_0h    equ       ptr_0 + 1
-ptr_1     equ       ptr_0h + 1
-pl_x      equ       ptr_1 + 1           ;plot x
-pl_y      equ       pl_x + 1            ;plot y
 
+pltbl     repeat SCRCOLS
+          dc.w 0
+          repend
+ptr_0     dc.w 0
+ptr_1     dc.w 0
+pl_x      dc.b 0
+pl_y      dc.b 0
 

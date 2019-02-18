@@ -1,11 +1,13 @@
           processor 6502
-          org $3000
 
           include   "screen.mac"
           include   "timer.mac"
           include   "zerop.equ"
           include   "m16.mac"
           include   "colors.equ"
+
+          SEG       MAIN
+          org $3000
 
           jsr i_pltbl           
           jsr i_hires
@@ -62,7 +64,7 @@ i_chrset  subroutine
           beq .inch
           bne .loop
 .inch
-          inc ptr_0h
+          inc ptr_0 + 1
           dex
           beq .done
           bne .loop
@@ -71,4 +73,5 @@ i_chrset  subroutine
 
           include "screen.asm"
           include "timer.asm"
+          ;;include "line.asm"
           include "screen.dat"

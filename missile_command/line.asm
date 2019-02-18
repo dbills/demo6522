@@ -1,57 +1,46 @@
-          org $1000
-          processor 6502
-
-DX        equ       0
-DY        equ       1
-X1        equ       2
-X2        equ       3
-Y1        equ       4
-Y2        equ       5
-ERR       equ       6
-N         equ       7
-
 LSTORE    equ       $2000
-
+          include "line.equ"
+          SEG       MAIN
 main
           lda #0
-          sta X1
-          sta Y1
+          sta x1
+          sta y1
           lda #160
-          sta Y2
+          sta y2
           lda #2
-          sta X2
+          sta x2
           
           jsr line1
           brk
 
 line1     subroutine
           lda #0
-          sta ERR
-          lda X2
+          sta err
+          lda x2
           sec
-          sbc X1
-          sta DX
-          lda Y2
+          sbc x1
+          sta dx
+          lda y2
           sec
-          sbc Y1
-          sta DY
+          sbc y1
+          sta dy
           lsr
-          sta N
+          sta n
 
-          ldx DY                        ;for j=DX
+          ldx dy                        ;for j=dx
 .loop
-          lda X1
+          lda x1
           sta LSTORE,x
-          lda ERR                       ;ERR+=DX
+          lda err                       ;err+=dx
           clc
-          adc DX
-          sta ERR
-          cmp N
+          adc dx
+          sta err
+          cmp n
           bcc .noshift                  ;move pixel
-          inc X1
+          inc x1
           lda #0
-          sta ERR
+          sta err
 .noshift
-          ;; plot x,y : x=X1 y=x
+          ;; plot x,y : x=x1 y=x
           dex
           bne .loop

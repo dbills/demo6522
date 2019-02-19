@@ -6,6 +6,9 @@
 #include "vic_os.h"
 
 
+static void line_test() {
+}
+
 static void dump_line_data() {
   uint16_t i;
   for(i = 0x2000;i < 0x2000+160;i++) {
@@ -14,18 +17,24 @@ static void dump_line_data() {
 }
 // when the interrupt triggers, we go to the irq
 int main(int argc, char **argv) {
-  load_labels();
-  print_label("dy");
-  exit(0);
+
   assert(sizeof(ram) == 65536);
   load_kernel();
-  load_image("a.p00");
+  load_image("../a.p00");
+
+  load_labels();
+  uint16_t address;
+  assert(find_label("main", &address) != -1);
+  assert(write_zp_ptr("lstore", 0x2000) != -1);
+  set_nmi(address);
+
   printf("irq/brk = %hx\nnmi = %hx\nreset = %hx\nuser irq($314) = %hx\n",
          get_word(0xfffe),
          get_word(0xfffa),
          get_word(0xfffc),
          get_word(0x314)
          );
+
   // install a hook so we can break at certain PC values
   hookexternal(hook6502);
   break_address = 0x0;

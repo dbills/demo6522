@@ -8,7 +8,7 @@ dx        dc.b
 dy        dc.b
           SEG       CODE
 
-main
+main      subroutine
           lda #0
           sta x1
           sta y1
@@ -34,10 +34,10 @@ line1     subroutine
           lsr
           sta n
 
-          ldx dy                        ;for j=dx
+          ldy dy                        ;for j=dx
 .loop
           lda x1
-          sta lstore,x
+          sta (lstore),y
           lda err                       ;err+=dx
           clc
           adc dx
@@ -49,5 +49,5 @@ line1     subroutine
           sta err
 .noshift
           ;; plot x,y : x=x1 y=x
-          dex
+          dey
           bne .loop

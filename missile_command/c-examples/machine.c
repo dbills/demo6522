@@ -1,7 +1,12 @@
 #include "include.h"
 #include "fake6502.h"
 #include "machine.h"
-
+/*
+  infrastructure needed for the 6502 
+  emulator: fake6502.c
+  and my limited 'testing' framework which allows 
+  callbacks/breakpoints, etc.
+*/
 char ram[RAM_SIZE];
 ram_read_callback ram_read_callbacks[RAM_SIZE];
 static int ram_read_count[RAM_SIZE];

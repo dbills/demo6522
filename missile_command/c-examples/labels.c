@@ -21,7 +21,7 @@ void load_labels() {
 int find_label(const char *const label, uint16_t *const address) {
   int i;
   for(i=0;i<countof(labels);i++) {
-    if(strcmp(labels[i].label, label) == 0) {
+    if(labels[i].label && strcmp(labels[i].label, label) == 0) {
       *address = labels[i].address;
       return i;
     }

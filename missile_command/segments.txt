@@ -1,3 +1,2 @@
-DATA  : initalized data
 CODE  : program code
 ZEROP : zero page labels ( no data )

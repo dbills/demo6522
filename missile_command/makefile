@@ -10,8 +10,8 @@ EXE=a
 all:
 	rm -f a.p00 a.lst
 	dasm main.asm -oa.p00;dasm main.asm -la.lst
-	sed -rnf build_support/subs.sed < a.lst
-	sed -rnf build_support/labels.sed < a.lst > labels.txt
+	sed -rnf build_support/subs.sed < a.lst > labels.txt
+	sed -rnf build_support/labels.sed < a.lst >> labels.txt
 	$(C1541) -attach disk1.d64 -delete a -write a.p00 a 
-	#	cd c-examples && make
+	cd c-examples && make
 

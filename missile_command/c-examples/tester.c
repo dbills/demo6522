@@ -2,31 +2,33 @@
 #include "fake6502.h"
 #include "machine.h"
 #include "labels.h"
-
+#include "machine.h"
 #include "vic_os.h"
 
 
 static void line_test() {
+  uint16_t line_data = 0x2000;
+  uint8_t height = 160;
+  write16("lstore", line_data);
+  write8("x1", 0);
+  write8("y1", 0);
+  write8("y2", height);
+  write8("x2", 2);
+  call_label("line1");
+
 }
 
-static void dump_line_data() {
+static void dump_line_data(const uint16_t line_data,const uint8_t height) {
   uint16_t i;
-  for(i = 0x2000;i < 0x2000+160;i++) {
-    printf("0x%hx = 0x%hhx\n", i , ram[i]);
+  for(i = line_data;i < line_data + height;i++) {
+    printf("0x%hx = 0x%hhx\n", i , read6502(i));
   }
 }
-// when the interrupt triggers, we go to the irq
+
 int main(int argc, char **argv) {
 
-  assert(sizeof(ram) == 65536);
   load_kernel();
-  load_image("../a.p00");
-
-  load_labels();
-  uint16_t address;
-  assert(find_label("main", &address) != -1);
-  assert(write_zp_ptr("lstore", 0x2000) != -1);
-  set_nmi(address);
+  load_p00("../a.p00");
 
   printf("irq/brk = %hx\nnmi = %hx\nreset = %hx\nuser irq($314) = %hx\n",
          get_word(0xfffe),
@@ -38,13 +40,17 @@ int main(int argc, char **argv) {
   // install a hook so we can break at certain PC values
   hookexternal(hook6502);
   break_address = 0x0;
-  reset6502();
+
+  load_labels();
+  //line_test();
+  write16("lstore", 0x2000);
+  call_label("main");
 
   while(!break_now) {
     printf("pc = 0x%x a=%hhx\n", pc, a);
     step6502();
   }
   printf("HEEEEEEEEEEEEEELO\n");
-  dump_line_data();
+  dump_line_data(0x2000,160);
   return 0;
 }

@@ -18,6 +18,21 @@ void load_labels() {
   }
 }
 
+uint16_t get_label(const char *const label) {
+  uint16_t address;
+  assert(find_label(label, &address) != -1);
+  return address;
+}
+
+const char *const find_address(const uint16_t address) {
+  int i;
+  for(i=0;i<countof(labels);i++) {
+    if(labels[i].address == address)
+      return labels[i].label;
+  }
+  return NULL;
+}
+
 int find_label(const char *const label, uint16_t *const address) {
   int i;
   for(i=0;i<countof(labels);i++) {

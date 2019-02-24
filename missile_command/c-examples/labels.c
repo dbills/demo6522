@@ -11,8 +11,6 @@ void load_labels() {
   assert(fd);
   int i = 0;
   while(!feof(fd)) {
-    char *label;
-    uint16_t address;
     fscanf(fd, "%ms %hx\n", &labels[i].label, &labels[i].address);
     i++;
   }
@@ -45,7 +43,7 @@ int find_label(const char *const label, uint16_t *const address) {
 }
 
 void print_label(const char *const label) {
-  int16_t address;
+  uint16_t address;
   if(find_label(label, &address) != -1) {
     printf("%s = %hx\n", label, address);
     }

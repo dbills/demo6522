@@ -4,8 +4,8 @@
 #include "labels.h"
 #include "machine.h"
 #include "vic_os.h"
-
-
+#include "ipc.h"
+/*
 static void line_test() {
   uint16_t line_data = 0x2000;
   uint8_t height = 160;
@@ -17,7 +17,7 @@ static void line_test() {
   call_label("line1");
 
 }
-
+*/
 static void dump_line_data(const uint16_t line_data,const uint8_t height) {
   uint16_t i;
   for(i = line_data;i < line_data + height;i++) {
@@ -26,7 +26,9 @@ static void dump_line_data(const uint16_t line_data,const uint8_t height) {
 }
 
 int main(int argc, char **argv) {
-
+  make_command_pipes();
+  read_command_pipe();
+  exit(0);
   load_kernel();
   load_p00("../a.p00");
 

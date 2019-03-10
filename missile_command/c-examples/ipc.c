@@ -17,7 +17,7 @@ static void make_command_pipe(const char *const pipe_name) {
       failed_errno_1("stat", pipe_name);
   } else {
     if((buf.st_mode & S_IFMT) != S_IFIFO) {
-      fprintf(stderr, "%s is not a named pipe.  Please remove it\n", pipe_name);
+      fprintf(stderr, "%s is not a named pipe.  Please remove it.\n", pipe_name);
       exit(1);
     }
   }
@@ -29,37 +29,45 @@ void make_command_pipes() {
 }
 
 static int open_input_pipe() {
-  int fd = open(pipe_input, O_RDONLY);
+  const int fd = open(pipe_input, O_RDONLY);
   if(-1 == fd)
     failed_errno("open");
   return fd;
 }
 
 static int open_output_pipe() {
-  int fd = open(pipe_output, O_WRONLY);
+  const int fd = open(pipe_output, O_WRONLY);
   if(-1 == fd)
     failed_errno("open");
   return fd;
 }
 
-void read_command_pipe() {
-  int input_fd = open_input_pipe();
-  printf("read pipe\n");
-  char buf[256];
+void write_response_pipe(const char *const msg) {
+  const int size = strlen(msg);
+  const int output_fd = open_output_pipe();
+  const int rtn = write(output_fd, msg, size);
+  close(output_fd);
+  if(-1 == rtn)
+    warn_errno("write");
+  else if(rtn != size) {
+    fprintf(stderr, "%s incomplete write\n", __func__);
+  } 
+}
+
+// RETURNS: "" or null terminated message
+char *read_command_pipe() {
+  const int input_fd = open_input_pipe();
+  static char buf[256];
+  const int szbuf = sizeof(buf) - 1;
   ssize_t b_read = 0;
   int i = 0;
-  while((b_read = read(input_fd, &buf[i], sizeof(buf) - i)) > 0) {
-    printf("b=%d\n", (int)b_read);
+  while((b_read = read(input_fd, &buf[i], szbuf - i)) > 0) {
     i += b_read;
   }
-  buf[i]=0;
+  close(input_fd);
+  buf[i] = 0;
   if(-1 == b_read) {
     perror("read");
   }
-  close(input_fd);
-  printf("GOT %s\n", buf);
-  int output_fd = open_output_pipe();
-  strcpy(buf,"hello\n");
-  write(output_fd, buf, strlen(buf));
-  close(output_fd);
+  return buf;
 }

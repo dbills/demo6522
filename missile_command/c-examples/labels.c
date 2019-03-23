@@ -6,8 +6,8 @@ static struct _labels {
   uint16_t address;
 } labels[255];
 
-void load_labels() {
-  FILE *const fd = fopen("../labels.txt", "rb");
+void load_labels(const char *const file) {
+  FILE *const fd = fopen(file, "rb");
   assert(fd);
   int i = 0;
   while(!feof(fd)) {
@@ -39,6 +39,7 @@ int find_label(const char *const label, uint16_t *const address) {
       return i;
     }
   }
+  *address = 0;
   return -1;
 }
 

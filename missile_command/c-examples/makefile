@@ -1,6 +1,7 @@
 CC=gcc
 INCLUDES=-I/usr/include/guile/2.0
-CFLAGS=-DWSL -Wall -fPIC -g $(INCLUDES)
+#CFLAGS=-DWSL -Wall -fPIC -g $(INCLUDES)
+CFLAGS=-Wall -fPIC -g $(INCLUDES)
 SOURCE = labels.c fake6502.c vic_os.c errors.c ipc.c commands.c
 PRIVATE_SOURCE = machine.c
 OBJS = $(subst .c,.o,$(SOURCE) $(PRIVATE_SOURCE))
@@ -18,3 +19,5 @@ shared_lib: $(OBJS)
 
 clean: 
 	rm -f $(OBJS)
+
+$(OBJS): makefile

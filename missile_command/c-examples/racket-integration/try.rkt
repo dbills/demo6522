@@ -1,5 +1,6 @@
 #lang racket/base
 (require ffi/unsafe)
+(require ffi/unsafe/define)
 (define library-name "../libfake6502.so")
 (define (concat head . tail ) (apply string-append (cons head tail)))
 ;; (define borda-in-c
@@ -11,7 +12,7 @@
 (define (make-ffi c-name f-signature)
   (get-ffi-obj c-name library-name f-signature
                (lambda () (raise-arguments-error "foreign function not found" "exported name" c-name))))
-(define hook-external (make-ffi "hookexternal" (_fun (_fun -> void) -> _void)))
+(define hook-external (make-ffi "hookexternal" (_fun (_fun -> _void) -> _void)))
 (define read-6502 (make-ffi "read6502" (_fun _uint16 -> _uint8)))
 (define write-6502 (make-ffi "write6502" (_fun _uint16 _uint8 -> _void)))
 (define load-image (make-ffi "load_image" (_fun _string _uint16 _uint16 -> _void)))
@@ -20,10 +21,18 @@
 (define get-word (make-ffi "get_word" (_fun _uint16 -> _uint16)))
 (define standard-hook (make-ffi "hook6502" (_fun -> _void)))
 (define write-word (make-ffi "write16" (_fun _string _uint16 -> _void)))
-(define load-labels (make-ffi "load_labels" (_fun -> _void)))
+(define load-labels (make-ffi "load_labels" (_fun _string -> _void)))
 (define write8 (make-ffi "write8" (_fun _string _uint8 -> _void)))
 (define call-label (make-ffi "call_label" (_fun _string -> _void)))
 (define step-6502 (make-ffi "step6502" (_fun -> _void)))
+(define get-label (make-ffi "get_label" (_fun _string -> _uint16)))
+(define a_blarg _uint16)
+(define find-label (make-ffi "find_label" (_fun _string 
+                                                (r : (_ptr r a_blarg))
+                                                -> (r : _uint16)
+                                                -> (values r))))
+
+(define-ffi-definer define-curses (ffi-lib "../libfake6502.so"))
 
 (define get-pc (get-ffi-obj "pc" library-name _uint16))
 (define get-break-now (get-ffi-obj "break_now" library-name _int))
@@ -59,10 +68,13 @@
                       accum
                       (loop (+ start 1) end (cons (read-6502 start) accum))))
   (loop start_addr (+ start_addr len) null))
-  
+(define-curses find_label (_fun _string (o : (_ptr o _uint16))
+                               -> (r : _uint16)
+                               -> (values o r)))
 (define (setup)
   (load-kernel)
   (load-p00 "../../a.p00")
+  (load-labels "../../labels.txt")
   (printf "irq/brk = ~x\n" (get-word #xfffe))
   (printf "nmi = ~x\n" (get-word #xfffa))
   (printf "reset = ~x\n" (get-word #xfffc))
@@ -70,8 +82,6 @@
   (hook-external my6502hook)
   (set-break-now 0)
   (set-bp 0)
-  (write-word #x2000)
-  ;;(call-label "main")
   (line-test)
   (run-till-break)
   (dump-line-data #x2000 160)

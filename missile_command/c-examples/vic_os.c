@@ -8,13 +8,19 @@
 */
 static union {
   uint16_t word;
-  char bytes[2];
+  unsigned char bytes[2];
 } lsb_address;
 
 static void write_word(const uint16_t address,const uint16_t value) {
   lsb_address.word = htole16(value);
   write6502(address, lsb_address.bytes[0]);
   write6502(address + 1, lsb_address.bytes[1]);
+}
+
+uint16_t get_word(const uint16_t address) {
+  lsb_address.bytes[0] = read6502(address);
+  lsb_address.bytes[1] = read6502(address+1);
+  return le16toh(lsb_address.word);
 }
 
 void set_reset(const uint16_t address) {
@@ -26,12 +32,20 @@ void call_label(const char *const label) {
   reset6502();
 }
 
+uint8_t read8(const char *const label) {
+  return read6502(get_label(label));
+}
+
 void write8(const char *const label, const uint8_t value) {
     write6502(get_label(label), value);
 }
 
 void write16(const char *const label, const uint16_t address) {
     write_word(get_label(label), address);
+}
+
+uint16_t read16(const char *const label, const uint16_t address) {
+  return get_word(get_label(label));
 }
 
 void uninitialized_read(uint16_t pc,uint16_t address) {

@@ -37,7 +37,7 @@ void write6502(const uint16_t address, const uint8_t value) {
 }
 
 void hook6502() {
-  //printf("hook pc = 0x%x\n", pc);
+  printf("hook pc = 0x%x\n", pc);
   // check if we are at a debug break point
   if(pc == break_address)
     break_now = 1;
@@ -46,10 +46,6 @@ void hook6502() {
   if((clockticks6502 % (1000000/60)) == 0) {
     irq6502();
   }
-}
-
-uint16_t get_word(const uint16_t address) {
-  return le16toh(*(uint16_t *)&ram[address]);
 }
 
 void interactive_step() {

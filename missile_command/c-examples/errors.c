@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+int _warn_msg(const char *const file, const char *const func, const int line, const char *const msg) {
+  fprintf(stderr, "%s:%d:0: %s Warning: %s\n", file, line, func, msg);
+  return 0;
+}
 void _warn_errno(const char *const file, const char *const func, const int line, const char *const msg) {
   fprintf(stderr, "%s:%d:0: %s Warning:", file, line, func);
   perror(msg);

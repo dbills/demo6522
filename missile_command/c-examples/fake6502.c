@@ -164,13 +164,6 @@
         else clearoverflow();\
 }
 
-// custom additions for testing/debugging (dhb)
-int read_instruction = 0;
-uint16_t read_address = 0;
-uint8_t value_read = 0;
-//
-
-
 //6502 CPU registers
 uint16_t pc;
 uint8_t sp, a, x, y, status;

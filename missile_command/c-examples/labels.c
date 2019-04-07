@@ -8,7 +8,10 @@ static struct _labels {
 
 void load_labels(const char *const file) {
   FILE *const fd = fopen(file, "rb");
-  assert(fd);
+  if(!fd) {
+    fprintf(stderr, "cannot open %s\n", file);
+    exit(1);
+  }
   int i = 0;
   while(!feof(fd)) {
     fscanf(fd, "%ms %hx\n", &labels[i].label, &labels[i].address);
@@ -18,8 +21,11 @@ void load_labels(const char *const file) {
 
 uint16_t get_label(const char *const label) {
   uint16_t address;
-  assert(find_label(label, &address) != -1);
-  return address;
+  if(find_label(label, &address) != -1) {
+    return address;
+  } else {
+    return warn_msg("can't find label");
+  }
 }
 
 const char *const find_address(const uint16_t address) {

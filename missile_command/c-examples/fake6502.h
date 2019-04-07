@@ -20,7 +20,4 @@ extern uint16_t oldpc,ea,reladdr,value,result;
 extern uint32_t clockticks6502;
 extern uint32_t instructions;
 extern uint16_t pc;
-extern uint8_t value_read;
-extern uint16_t read_address;
-extern int read_instruction;
 extern uint8_t sp,a,x,y,status;

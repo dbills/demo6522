@@ -7,7 +7,7 @@
 #include "commands.h"
 
 
-/*
+
 static void line_test() {
   uint16_t line_data = 0x2000;
   uint8_t height = 160;
@@ -15,11 +15,11 @@ static void line_test() {
   write8("x1", 0);
   write8("y1", 0);
   write8("y2", height);
-  write8("x2", 2);
+  write8("x2", 4);
   call_label("line1");
 
 }
-*/
+
 static void dump_line_data(const uint16_t line_data,const uint8_t height) {
   uint16_t i;
   for(i = line_data;i < line_data + height;i++) {
@@ -43,10 +43,10 @@ int main(int argc, char **argv) {
   hookexternal(hook6502);
   break_address = 0x0;
 
-  load_labels();
-  //line_test();
-  write16("lstore", 0x2000);
-  call_label("main");
+  load_labels("../labels.txt");
+  line_test();
+  //write16("lstore", 0x2000);
+  //call_label("main");
 
   while(!break_now) {
     printf("pc = 0x%x a=%hhx\n", pc, a);

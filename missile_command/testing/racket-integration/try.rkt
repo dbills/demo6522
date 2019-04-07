@@ -56,9 +56,9 @@
       
 (define (line-test)
   (write16 "lstore" #x2000)
-  (write8 "x1" 0)
-  (write8 "y1" 0)
-  (write8 "y2" 160)
+  (write8 "x1" 1)
+  (write8 "y1" 1)
+  (write8 "y2" 2)
   (write8 "x2" 2)
   (call-label "line1"))
 
@@ -97,5 +97,5 @@
   (set-bp 0)
   (line-test)
   (run-till-break)
-  (dump-line-data #x2000 160))
+  (dump-line-data #x2000 2))
      

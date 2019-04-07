@@ -3,9 +3,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-int log_base_b(int b, int n) {
-  return log10(n) / log10(b);
-}
 void print_xaxis(int x1) {
   // skip over Y axis 
   printf("    ");
@@ -13,9 +10,7 @@ void print_xaxis(int x1) {
   char labels[x1][places+1];
   for(int i=0;i<x1;i++) {
     sprintf(&labels[i][0], "%-3d", i+1);
-    //printf("%s\n",&labels[i][0]);
   }
-  //exit(0);
   for(int j=0;j<places+1;j++) {
     for(int i=0;i<x1;i++) {
         printf("%c",labels[i][j]);

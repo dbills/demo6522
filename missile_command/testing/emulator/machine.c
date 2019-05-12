@@ -58,21 +58,26 @@ void interactive_step() {
   }
 }
 
-void load_image(const char *const path, const uint16_t address, const uint16_t size) {
+BOOL load_image(const char *const path, const uint16_t address, const uint16_t size) {
   FILE *const fd = fopen(path, "rb");
   if(!fd) {
     fprintf(stderr,"failed to open file %s\n", path);
     perror("Error");
-    exit(1);
+    return FALSE;
   }
   const int rtn = fread(&ram[57344], 1, 8192, fd);
   assert(rtn == size);
   fclose(fd);
+  return TRUE;
 }
 
-void load_p00(const char *const filename) {
+BOOL load_p00(const char *const filename) {
   FILE *const fd = fopen(filename, "rb");
-  assert(fd);
+  if(!fd) {
+    fprintf(stderr,"failed to open file %s\n", filename);
+    perror("Error");
+    return FALSE;
+  }
   uint16_t lsb_address;
   size_t bytes_read = fread(&lsb_address, 1, sizeof(lsb_address), fd);
   assert(bytes_read == sizeof(lsb_address));
@@ -80,5 +85,6 @@ void load_p00(const char *const filename) {
   bytes_read = fread(&ram[address], 1, sizeof(ram) - address, fd);
   printf("loaded %zd bytes at 0x%x\n", bytes_read, (int)address);
   fclose(fd);
+  return TRUE;
 }
 

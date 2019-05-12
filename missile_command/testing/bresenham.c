@@ -18,16 +18,8 @@ void print_xaxis(int x1) {
     printf("\n    ");
   }
 }
-/*
-  some doodling in C to help me understand
-  a line drawing algo that might work for me
-*/
-
-int main(int argc, char **argv) {
-  printf("enter x x1 y y1\n");
-  int x,x1,y,y1;
-  scanf("%d%d%d%d",&x,&x1,&y,&y1);
-  assert(x!=0 && x1!=0 && y!=0 && y1!=0);
+// Quadrant 4 line, DY > DX
+void quadrant4_acute(int x,int x1,int y,int y1,int *x_out, int *y_out) {
   int dy = y1-y+1;
   int dx = x1-x+1;
   printf("dx=%d dy=%d\n",dx,dy);
@@ -43,6 +35,18 @@ int main(int argc, char **argv) {
       e-=dy;
     }
   }
+}
+/*
+  some doodling in C to help me understand
+  a line drawing algo that might work for me
+*/
+
+int main(int argc, char **argv) {
+  printf("enter x x1 y y1\n");
+  int x,x1,y,y1;
+  scanf("%d%d%d%d",&x,&x1,&y,&y1);
+  assert(x!=0 && x1!=0 && y!=0 && y1!=0);
+  quadrant4_acute(x,x1,y,y1
   print_xaxis(x1);
 }
   

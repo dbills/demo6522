@@ -6,17 +6,19 @@ static struct _labels {
   uint16_t address;
 } labels[255];
 
-void load_labels(const char *const file) {
+BOOL load_labels(const char *const file) {
   FILE *const fd = fopen(file, "rb");
   if(!fd) {
     fprintf(stderr, "cannot open %s\n", file);
-    exit(1);
+    perror("Error");
+    return FALSE;
   }
   int i = 0;
   while(!feof(fd)) {
     fscanf(fd, "%ms %hx\n", &labels[i].label, &labels[i].address);
     i++;
   }
+  return TRUE;
 }
 
 uint16_t get_label(const char *const label) {

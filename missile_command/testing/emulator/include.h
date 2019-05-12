@@ -1,3 +1,5 @@
+#ifndef _INCLUDE_H
+#define _INCLUDE_H
 #include <stdio.h>
 #include <endian.h>
 #include <assert.h>
@@ -12,3 +14,7 @@
 #define failed_errno(MSG) _failed_errno(__FILE__, __func__, __LINE__ , MSG)
 #define failed_errno_1(MSG, MSG1) _failed_errno_1(__FILE__, __func__, __LINE__, MSG, MSG1)
 
+typedef int BOOL;
+#define FALSE (0)
+#define TRUE (1)
+#endif

@@ -3,24 +3,14 @@
           ;; private line symbols
           SEG.U     ZEROP
 err       dc.b
-n         dc.b
 dx        dc.b
 dy        dc.b
           SEG       CODE
 
-main      subroutine
-          lda #0
-          sta x1
-          sta y1
-          lda #160
-          sta y2
-          lda #2
-          sta x2
-          
-          jsr line1
-          brk
-
 line1     subroutine
+          ;; initialize error counter
+          ;; and delta Y, delta X
+          ;; 
           lda #0
           sta err
           lda x2
@@ -31,23 +21,21 @@ line1     subroutine
           sec
           sbc y1
           sta dy
-          lsr
-          sta n
-
-          ldy dy                        ;for j=dx
-.loop
+          ldy dy                     
+.loop                                   ;while(y>0)
           lda x1
           sta (lstore),y
-          lda err                       ;err+=dx
-          clc
-          adc dx
-          sta err
-          cmp n
-          bcc .noshift                  ;move pixel
-          inc x1
-          lda #0
-          sta err
-.noshift
+          add err,dx
+          cmp dy                        ;if(err<dy)
+          bcc .noshift                  ;{
+          inc x1                        ;  x++
+          sub err,dy                    ;  err-=dx
+.noshift                                ;}
           ;; plot x,y : x=x1 y=x
           dey
-          bne .loop
+          bne .loop                     ;
+;;; hmm, we should try counting up?
+;;; let X is the indirect addressing register 
+;;; sneaky eh, so we'd start at X+255 = address + DY
+;;; address - 255 + DY = X
+;;; but that requires runtime calculation, so that sucks

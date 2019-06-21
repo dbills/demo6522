@@ -18,3 +18,17 @@
           sta [{1}]+1             ;... and store the result    clc
           endm
 
+
+          mac add
+          clc 
+          lda {1}
+          adc {2}
+          sta {1}
+          endm
+
+          mac sub
+          sec
+          lda {1}
+          sbc {2}
+          sta {1}
+          endm

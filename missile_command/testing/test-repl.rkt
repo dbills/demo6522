@@ -4,25 +4,34 @@
 (require "emulator_ffi.rkt")
 
 (define (run-till-break)
-  (step-6502)
+  (step-6502) 
   (if (= 0 (get-break-now))
       (run-till-break)
       #f))
       
 (define (line-test)
-  (write16 "lstore" #x2000)
-  (write8 "x1" 1)
-  (write8 "y1" 1)
-  (write8 "y2" 3)
-  (write8 "x2" 3)
-  (call-label "line1"))
-
+  "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
+  (init-breakpoints)
+  (let* ((lstore #x2000)
+         (y1 1)
+         (y2 29)
+         (x1 11)
+         (x2 21)
+         (dy (+ 1 (- y2 y1))))
+    (write16 "lstore" (- lstore 1))
+    (write8 "x1" x1)
+    (write8 "y1" y1)
+    (write8 "y2" y2)
+    (write8 "x2" x2)
+    (call-label "line1")
+    (run-till-break)
+    (dump-line-data lstore dy)))
 
 (define (my6502hook)
   ;(display (format "6502hook pc=~x\n" get-pc))
   (if (= (get-pc) (get-bp))
       (begin
-       (display "breaking now")
+        ;;(display "breaking now")
        (set-break-now 1))
       #t))
 
@@ -49,9 +58,3 @@
   (set-bp 0)
   (set-break-now 0))
   
-(define (test1)
-  (init-breakpoints)
-  (line-test)
-  (run-till-break)
-  (dump-line-data #x2000 2))
-     

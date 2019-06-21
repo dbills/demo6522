@@ -1,3 +1,4 @@
+// -*- compile-command: "gcc bresenham.c && ./a.out" -*-
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
   int x,x1,y,y1;
   scanf("%d%d%d%d",&x,&x1,&y,&y1);
   assert(x!=0 && x1!=0 && y!=0 && y1!=0);
-  quadrant4_acute(x,x1,y,y1
+  quadrant4_acute(x,x1,y,y1,0,0);
   print_xaxis(x1);
 }
   

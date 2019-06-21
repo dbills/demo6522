@@ -6,6 +6,7 @@
           include   "m16.mac"
           include   "colors.equ"
           include   "line.equ"
+          include   "math.asm"
 
           SEG       CODE
           org $3000

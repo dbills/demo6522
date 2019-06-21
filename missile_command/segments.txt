@@ -1,2 +1,5 @@
 CODE  : program code
 ZEROP : zero page labels ( no data )
+
+private variables are mentioned only in the asm translation unit
+public variables are placed into an equ file

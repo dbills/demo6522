@@ -16,12 +16,14 @@ line1     subroutine
           lda x2
           sec
           sbc x1
-          sta dx
+          adc #0                      
+          sta dx                        ;dx=x2-x1+1
           lda y2
           sec
           sbc y1
-          sta dy
-          ldy dy                     
+          adc #0    
+          sta dy                        ;dy=y2-y1+1
+          tay
 .loop                                   ;while(y>0)
           lda x1
           sta (lstore),y

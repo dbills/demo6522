@@ -1,4 +1,4 @@
-// -*- compile-command: "gcc bresenham.c && ./a.out" -*-
+// -*- compile-command: "gcc bresenham.c -lm && ./a.out" -*-
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>

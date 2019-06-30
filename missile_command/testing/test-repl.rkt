@@ -11,21 +11,22 @@
       
 (define (line-test)
   "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
-  (init-breakpoints)
+;  (init-breakpoints)
   (let* ((lstore #x2000)
          (y1 1)
-         (y2 29)
+         (y2 11)
          (x1 11)
-         (x2 21)
+         (x2 17)
          (dy (+ 1 (- y2 y1))))
     (write16 "lstore" (- lstore 1))
     (write8 "x1" x1)
     (write8 "y1" y1)
     (write8 "y2" y2)
     (write8 "x2" x2)
-    (call-label "line1")
-    (run-till-break)
-    (dump-line-data lstore dy)))
+    (memset lstore 160)
+    (define elapsed (time-label "line1"))
+;    (run-till-break)
+    (list elapsed (dump-line-data lstore dy))))
 
 (define (my6502hook)
   ;(display (format "6502hook pc=~x\n" get-pc))
@@ -35,6 +36,15 @@
        (set-break-now 1))
       #t))
 
+
+(define (memset start_addr len)
+  (define end (+ start_addr len))
+  (define (loop start)
+                  (if (= start end) #t
+                      (begin
+                        (write-6502 start #xff)
+                        (loop (+ start 1)))))
+  (loop start_addr))
 
 (define (dump-line-data start_addr len)
   (define end (+ start_addr len))

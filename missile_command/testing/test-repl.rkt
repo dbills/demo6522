@@ -68,3 +68,10 @@
   (set-bp 0)
   (set-break-now 0))
   
+(define (test-assert expected actual message)
+  (unless (equal? expected actual) (printf "~s failed ~s != ~s" message expected actual)))
+
+(define (all-tests)
+  (setup) 
+  (test-assert '(17 16 16 15 14 14 13 12 12 11 11) (cadr (line-test)) "line1 test"))
+

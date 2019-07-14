@@ -1,0 +1,46 @@
+;;; reduce column size with word wrap on until
+;;; sprite definitions become vertically aligned
+BIT_EYES
+          dc.b %00000000
+          dc.b %00000000
+          dc.b %00000000
+          dc.b %11100111
+          dc.b %10100101
+          dc.b %11100111
+          dc.b %00000000
+          dc.b %00000000
+
+;;; left and right right byte of a shift
+sh_left   eqm [.. >> .SHIFT]
+sh_right  eqm [.. << [8 - .SHIFT]]
+
+
+          mac sh_shift
+.SHIFT    set 0
+          repeat 8
+          dv.b sh_left  {1} 
+          dv.b sh_right {1}
+          dv.b sh_left  {2} 
+          dv.b sh_right {2}
+          dv.b sh_left  {3} 
+          dv.b sh_right {3}
+          dv.b sh_left  {4} 
+          dv.b sh_right {4}
+          dv.b sh_left  {5} 
+          dv.b sh_right {5}
+          dv.b sh_left  {6} 
+          dv.b sh_right {6}
+          dv.b sh_left  {7} 
+          dv.b sh_right {7}
+          dv.b sh_left  {8} 
+          dv.b sh_right {8}
+.SHIFT    set .SHIFT + 1
+          repend
+          endm
+
+BORDA
+          sh_shift %00000000,                                %00000000,                                %00000000,                                %11100111,                                %10100101,                                %11100111,                                %00000000,                                %00000000
+
+
+
+      

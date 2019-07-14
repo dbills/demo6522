@@ -1,10 +1,9 @@
 SCRROWS   equ       23/2
 SCRCOLS   equ       22
 CHBASE1   equ       $1000
-
+CHARHT    equ       16
 
           mac tallchar        
-CHARHT    equ       16
           ;; activate 16 high chars
           lda SCRROWS
           ora #1

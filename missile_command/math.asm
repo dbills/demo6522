@@ -18,7 +18,6 @@
           sta [{1}]+1             ;... and store the result    clc
           endm
 
-
           mac add
           clc 
           lda {1}
@@ -31,4 +30,9 @@
           lda {1}
           sbc {2}
           sta {1}
+          endm
+          ;; modulo 8
+          mac modulo8
+          lda #%00000111
+          and {1}
           endm

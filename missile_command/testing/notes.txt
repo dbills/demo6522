@@ -1,0 +1,83 @@
+assuming we had the byte patterns what would the algorithm maybe look like?
+
+let a line be described by rise/run
+
+e.g: 2/17
+
+let's think about the data storage choice we've made and how they actually effect the rendering routine:
+with Y oriented lines, we've elected to put the X coords in ascending memory
+so a simple indexed loop
+and plot the X
+every new byte IS guaranteed to be a new byte on the screen given the 
+AD
+BE
+CF
+
+existing columnular layout
+so such optimizations could be that the byte contains
+the offset from a screen row start table
+i.e. if I have a table in RAM ( and I do ) or column 0 address for each row
+then the byte could contain the offset from that, plus a byte to OR in
+
+for Y based lines move down bytes and include a offset and bit pattern byte
+for X based lines move across including a 
+I think we can always assume that a single byte offset from screen origin would be enough
+
+base offset would always be column of the line start?
+but then you'd have to reload for each line
+
+possible line storage formats:
+
+byte: origin 1 or 2
+byte: offset from screen origin 
+byte: bit pattern to or in 
+
+3 variables
+X coord
+pointer to storage in ram
+offset from screen base
+
+Y = offset
+dex
+beq increment_offset
+
+when drawing: we could use X to walk through the line data table
+
+ah yes, don't confuse code with the actual program in memory!  you could make a macro that would duplicate the line
+drawing routine N times in memory if needed
+that said, I could have 20 line drawing routines each for the different start loc
+
+why can't I use the X offset as some kind of lookup in a table
+e.g.
+when x = 0 then I need to add COLHEIGHT to the screen offset
+sta offset,Y
+
+
+
+
+
+
+
+sprite drawing on the bitmapped screen for the cross hair and killer sattelites and stuff
+ok, let's waste ram and have preshifted images for everything
+draw sprite x,y
+draw at upper left
+x / 8 = column start
+x mod 8 = frame start
+
+moving the sprite we want to avoid the division each time
+how can we do this?
+let's think about the api
+there's 'drawsprite' - which puts a sprite on the screen
+there's 'movesprite'' - which can assume that some data is calculated and it only has to do some limited calculations
+
+sprite object might look like this:
+column_base: screen column base pointer
+frame_number: offset of frames for the sprite
+background_data - the bytes on the screen before the sprite was drawn
+
+now how do we deal with sprites that are drawn before this sprite?
+
+lda, sta
+vs lda, rotate, sta
+vs ror on the screen

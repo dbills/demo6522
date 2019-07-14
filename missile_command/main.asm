@@ -22,6 +22,8 @@
           lda #0
           sta pl_y
           sta pl_x
+          ;; jsr sp_draw
+          ;jmp loop
 l1
           jsr plot
           inc pl_x
@@ -73,5 +75,6 @@ i_chrset  subroutine
           include "screen.asm"
           include "timer.asm"
           include "line.asm"
+          include "sprite.asm"
           include "screen.dat"
-
+          include "shapes.dat"

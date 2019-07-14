@@ -32,7 +32,9 @@ COL         set COL + 1
 ROW       set ROW + 1          
           repend
 SCRMAP_SZ equ * - SCRMAP
-
+;;; predefined bytes for each of the 8
+;;; possible bit positions, starting with
+;;; bit 7 -> bit 0 on
 BMASKS    
 BPOS      set 128
           repeat 8

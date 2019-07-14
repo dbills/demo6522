@@ -1,6 +1,25 @@
+.dat: files with purely assembler generated data in them
+.mac: files with only macros in them
+.asm: source code files
+.equ: public variables for routines
+
+pick a one or two charcter prefix for subroutines
+and public variables
+e.g.
+
+prefixes:
+
+i_xxxx is an initialization routine
+pl_x : x for the plot routine
+BIT_ : a bitmap
 
 suffixes:
 
 _SZ : size of a table
 _w : word
 _h : high byte of word variable
+
+naming:
+
+constants (equates) caps
+no mixed case

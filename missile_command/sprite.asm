@@ -1,22 +1,8 @@
-;;; initialize the plot table
-;;; ram starting location for all hires
-;;; screen columns
-          seg       ZEROP
-.blargo    dc.b 0          
-          seg       CODE
-          lda .blargo
-i_pltbl   subroutine
-          ldy #SCADDR_SZ - 1
-          mov_wi SCADDR, ptr_0
-.loop
-          lda (ptr_0),y
-          sta pltbl,y
-          dey
-          bpl .loop
-          rts
-;;; pl_x, pl_y
-;;; a = color
-plot      subroutine
+          SEG.U     ZEROP
+sp_shape  dc.w
+          SEG       CODE
+;;; draw sprite at pl_x, pl_y
+sp_draw   subroutine
           ;; grab X % 8 for
           ;; bit offset in byte
           lda #%00000111
@@ -35,17 +21,31 @@ plot      subroutine
           asl
           tay
           ;; copy correct ptr to ptr_0
-          lda pltbl,y
+          lda pltbl,y                   ;
           sta ptr_0
           iny
           lda pltbl,y
           sta ptr_0 + 1
           ;; ptr_0 is location in CHRAM
           ;; of the correct character column
-          txa                   ;bitmask to A
-          ldy pl_y
-          eor (ptr_0),y
+          iny
+          lda pltbl,y
+          sta ptr_1
+          iny
+          lda pltbl,y
+          sta ptr_1 + 1
+          ;; ptr_1 is right half of sprite
+          ldy #0
+          ldx #16
+.loop1
+          lda BORDA-1,X
           sta (ptr_0),y
-          
+          dex
+          lda BORDA-1,X
+          sta (ptr_1),y
+          dex
+          bne .loop1
+          rts
 
+sp_move   subroutine
           rts

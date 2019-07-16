@@ -1,0 +1,15 @@
+VICRASTER   equ $9004
+VICSCRN     equ $9005             ; vic chip character generator pointer
+LIGHPENX    equ $9006             ; used for random number
+VIA1DDR     equ $9113
+VIA2DDR     equ $9122             ; ?
+JOY0        equ $9111
+JOY0B       equ $9120             ; output register B VIA #2
+JOYUP       equ $4                ; joy up bit
+JOYDWN      equ $8                ; joy down
+JOYL        equ $10               ; joy left
+JOYT        equ $20               ; joy fire
+JOYR        equ $80               ; joy right bit
+JIFFYL      equ $a2          
+DEFISR      equ $eabf             ; os default IRQ
+MINISR      equ $eb15             ; the minimum isr ( no keyboard polling o

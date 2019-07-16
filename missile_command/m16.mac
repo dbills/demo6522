@@ -26,10 +26,10 @@
           endm
 
           mac mov_wi
-          lda #[{1}] & $ff    ; load low byte
+          lda #[{1} & $ff]    ; load low byte
           sta {2}             ; store low byte
-          lda #[{1}] >> 8     ; load high byte
-          sta [{2}]+1         ; store high byte
+          lda #[{1} >> 8]     ; load high byte
+          sta {2}+1           ; store high byte
           endm
 
           mac cmp_w

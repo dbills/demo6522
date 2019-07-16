@@ -10,6 +10,7 @@ pltbl     repeat SCRCOLS
           repend
 ptr_0     dc.w 0
 ptr_1     dc.w 0
+ptr_2     dc.w 0
 pl_x      dc.b 0
 pl_y      dc.b 0
 

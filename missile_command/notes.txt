@@ -23,3 +23,7 @@ naming:
 
 constants (equates) caps
 no mixed case
+
+problems:
+using underscore is dumb unless you widen you margins, you only have 9 chars right now
+use X register for counter ( save the Y for indirect Y)

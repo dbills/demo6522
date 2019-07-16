@@ -3,12 +3,25 @@ sp_shape  dc.w
           SEG       CODE
 ;;; draw sprite at pl_x, pl_y
 sp_draw   subroutine
-          ;; grab X % 8 for
-          ;; bit offset in byte
-          lda #%00000111
-          and pl_x
-          tay
-          ldx BMASKS,y          ;y=bitmask
+          mov_w BORDA-1,ptr_2
+
+          lda pl_x
+          and #7
+          clc
+          adc #1
+          asl                           ;(x%8+1)*16 to get
+          asl                           ;preshifted
+          asl                           ;image offset
+          asl
+          asl                           
+
+          clc
+          adc ptr_2
+          sta BORDA-1
+          lda #0
+          adc ptr_2+1
+          sta ptr_2+1
+
           lda pl_x
           ;; divide by 8
           ;; to get screen character column
@@ -35,14 +48,20 @@ sp_draw   subroutine
           lda pltbl,y
           sta ptr_1 + 1
           ;; ptr_1 is right half of sprite
-          ldy #0
+          ldy pl_y
           ldx #16
 .loop1
-          lda BORDA-1,X
+N         equ 2
+          lda (ptr_0),y
+          eor [BORDA-1]+16*[8-N],X
           sta (ptr_0),y
           dex
-          lda BORDA-1,X
+
+          lda (ptr_1),y
+          eor [BORDA-1]+16*[8-N],X
           sta (ptr_1),y
+
+          iny
           dex
           bne .loop1
           rts

@@ -11,12 +11,16 @@ BIT_EYES
           dc.b %00000000
 
 ;;; left and right right byte of a shift
-sh_left   eqm [.. >> .SHIFT]
-sh_right  eqm [.. << [8 - .SHIFT]]
+;;; expands 'in place' as an expression where used
+;;; thus .SHIFT refers to some local variable
+;;; where this is exa
+sh_left   eqm [.. >> [.SHIFT-1]]
+sh_right  eqm [.. << [7 - [.SHIFT-1]]]
 
-
+;;; used the generate the preshifted bytes
+;;; of a 16x8 bit sprite
           mac sh_shift
-.SHIFT    set 0
+.SHIFT    set 8
           repeat 8
           dv.b sh_left  {1} 
           dv.b sh_right {1}
@@ -34,7 +38,7 @@ sh_right  eqm [.. << [8 - .SHIFT]]
           dv.b sh_right {7}
           dv.b sh_left  {8} 
           dv.b sh_right {8}
-.SHIFT    set .SHIFT + 1
+.SHIFT    set .SHIFT - 1
           repend
           endm
 

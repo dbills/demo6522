@@ -5,15 +5,22 @@ CHARHT    equ       16
 
           mac tallchar        
           ;; activate 16 high chars
-          lda SCRROWS
+          lda $9003
           ora #1
           sta $9003             
           endm
 
+          mac shortchar
+          lda $9003
+          and #~1
+          sta $9003             
+          endm      
+
           mac setrows
           ;; bits 1-6 are row
-          lda #[SCRROWS & %00111111] << 1
-          ora $9003 
+          lda $9003
+          and #%10000001
+          ora #[SCRROWS & %00111111] << 1
           sta $9003
           endm
 
@@ -21,7 +28,7 @@ CHARHT    equ       16
           ;; fedcba9876543210
           ;;  00xxxy000000000
           ;; y lives as bit 7 in register
-          ;; 36866
+          ;; 36866 ($9002)
           mac screenmem
           #if {1} & %001111000000000 > 0
           #error_bad_screen_mem

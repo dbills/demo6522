@@ -8,7 +8,7 @@
 .done
           endm
           mac mov_r
-          lda #[SCRCOLS*8]-8
+          lda #[SCRCOLS*8]-8-1
           cmp pl_x
           bcc .done
           inc pl_x

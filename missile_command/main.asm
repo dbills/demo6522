@@ -1,4 +1,4 @@
-         processor 6502
+          processor 6502
 
           include   "screen.mac"
           include   "timer.mac"
@@ -8,6 +8,7 @@
           include   "line.equ"
           include   "math.asm"
           include   "system.equ"
+          include   "jstick.mac"
 
           SEG       CODE
           org $3000
@@ -21,6 +22,7 @@
           jsr i_pltbl           
           jsr i_hires
           jsr i_chrset
+          jsr i_joy
           chbase %1100                  ;$1000
           screenmem $0200
           ;; border colors
@@ -88,17 +90,21 @@ bounce    subroutine
 .reset
           lda #SCRROWS*16-8
           sta pl_y
-          lda #0
+          lda #160
           sta pl_x
           jsr sp_draw
 .loop
           jsr wait_v
           jsr sp_draw                   ;erase
-          inc pl_x
-          beq .reset
+          jsr moveme
           jsr sp_draw                   ;draw
-          jsr j_wfire                   ;wait fire
           jmp .loop
+          rts
+
+
+bounds    subroutine
+          ;; if we hit a wall reverse direction
+          lda pl_x
           rts
 
 i_intr    subroutine
@@ -131,3 +137,4 @@ fubar    dc.b
           include "jstick.asm"
           include "screen.dat"
           include "shapes.dat"
+          include "target.asm"

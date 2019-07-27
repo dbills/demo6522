@@ -11,6 +11,7 @@ pltbl     repeat SCRCOLS
 ptr_0     dc.w 0
 ptr_1     dc.w 0
 ptr_2     dc.w 0
+ptr_3     dc.w 0
 pl_x      dc.b 0
 pl_y      dc.b 0
-
+LASTJOY   dc.b

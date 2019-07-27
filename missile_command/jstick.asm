@@ -1,5 +1,5 @@
-          SEG ZEROP
-LASTJOY   dc.b
+          include "jstick.mac"
+
           SEG CODE
 i_joy     subroutine
           lda #127
@@ -26,12 +26,21 @@ j_wfire   subroutine
 
 ;;; read joystick value into single byte
 ;;; requires multiple VIA read due to vic20 design
+;;; OUT: A=LASTJOY=joystick value
+;;; joystick bits are clear when the direction
+;;; is pressed
+;;; 
+;;; 10011100
+VALIDMOVE equ $9c
 j_read    subroutine
           lda JOY0
-          and #$7f                ;clear bit 7 ( joy right )
+          and #%111100
           sta LASTJOY
           lda JOY0B
-          and #JOYR
+          and #$80
           ora LASTJOY             ;or in bit 7 as jstick right bit
+
+          ;sta LASTJOY
+
           rts
           

@@ -1,30 +1,28 @@
+          include "comp.mac"
+
           SEG.U     ZEROP
 sp_shape  dc.w
           SEG       CODE
 ;;; draw sprite at pl_x, pl_y
+;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
+;;; sprite source data ( left and right side ) ptr0,1,2,3
+;;; 
 sp_draw   subroutine
-          mov_w BORDA-1,ptr_2
-
-          lda pl_x
-          and #7
-          clc
-          adc #1
-          asl                           ;(x%8+1)*16 to get
-          asl                           ;preshifted
-          asl                           ;image offset
-          asl
-          asl                           
-
+N         equ 1
+          sub_abw BORDA,pl_y,ptr_2
+          modulo8 pl_x
+          mul16
           clc
           adc ptr_2
-          sta BORDA-1
+          sta ptr_2
           lda #0
           adc ptr_2+1
           sta ptr_2+1
+          add_wbw ptr_2,#8,ptr_3
 
-          lda pl_x
           ;; divide by 8
           ;; to get screen character column
+          lda pl_x
           lsr
           lsr
           lsr
@@ -48,18 +46,17 @@ sp_draw   subroutine
           lda pltbl,y
           sta ptr_1 + 1
           ;; ptr_1 is right half of sprite
-          ldy pl_y
-          ldx #16
-.loop1
-N         equ 2
-          lda (ptr_0),y
-          eor [BORDA-1]+16*[8-N],X
-          sta (ptr_0),y
-          dex
 
+          ldy pl_y
+          ldx #8
+.loop1
           lda (ptr_1),y
-          eor [BORDA-1]+16*[8-N],X
+          eor (ptr_3),y
           sta (ptr_1),y
+
+          lda (ptr_0),y
+          eor (ptr_2),y       
+          sta (ptr_0),y
 
           iny
           dex
@@ -68,3 +65,20 @@ N         equ 2
 
 sp_move   subroutine
           rts
+
+          MAC abort
+          lda #$c0
+          sta 9005
+          brk
+          ENDM
+
+;; cbounds   subroutine          
+;;           lda #175
+;;           cmp pl_x            
+;;           bcc .ob
+;;           lda pl_y
+;;           rts
+;; .ob
+;;           lda #0
+;;           sta pl_x
+;;           rts

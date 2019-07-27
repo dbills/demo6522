@@ -1,0 +1,20 @@
+JOY0        equ $9111
+JOY0B       equ $9120             ; output register B VIA #2
+;;; 00000000
+;;; R TLDU
+;;; 00111100
+;;; 10111100 = bc
+;;; 10011100 = 9c
+
+;;; 00101100
+JOYMASK   equ $3c
+;; JOYR      equ JOYMASK & [~$80]
+;; JOYL      equ JOYMASK &~$10
+;; JOYU      equ JOYMASK &~$4
+;; JOYD      equ JOYMASK &~$8
+;; JOYT      equ $20
+JOYD      equ %10110100
+JOYU      equ %10111000
+JOYR      equ %00111100
+JOYL      equ %10101100
+

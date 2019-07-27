@@ -14,37 +14,39 @@ BIT_EYES
 ;;; expands 'in place' as an expression where used
 ;;; thus .SHIFT refers to some local variable
 ;;; where this is exa
-sh_left   eqm [.. >> [.SHIFT-1]]
-sh_right  eqm [.. << [7 - [.SHIFT-1]]]
+sh_left   eqm .. >> .SHIFT
+sh_right  eqm .. << [8 - .SHIFT]
 
 ;;; used the generate the preshifted bytes
 ;;; of a 16x8 bit sprite
           mac sh_shift
-.SHIFT    set 8
+.SHIFT    set 0
           repeat 8
           dv.b sh_left  {1} 
-          dv.b sh_right {1}
           dv.b sh_left  {2} 
-          dv.b sh_right {2}
           dv.b sh_left  {3} 
-          dv.b sh_right {3}
           dv.b sh_left  {4} 
-          dv.b sh_right {4}
           dv.b sh_left  {5} 
-          dv.b sh_right {5}
           dv.b sh_left  {6} 
-          dv.b sh_right {6}
           dv.b sh_left  {7} 
-          dv.b sh_right {7}
           dv.b sh_left  {8} 
+
+          dv.b sh_right {1}
+          dv.b sh_right {2}
+          dv.b sh_right {3}
+          dv.b sh_right {4}
+          dv.b sh_right {5}
+          dv.b sh_right {6}
+          dv.b sh_right {7}
           dv.b sh_right {8}
-.SHIFT    set .SHIFT - 1
+.SHIFT    set .SHIFT + 1
           repend
           endm
-
+ZYBOTO
 BORDA
-          sh_shift %00000000,                                %00000000,                                %00000000,                                %11100111,                                %10100101,                                %11100111,                                %00000000,                                %00000000
+;          sh_shift $80,$80,$80,$80,$80,$80,$80,$80 
+           sh_shift $ff  ,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+
+TST1      dc.b 1 << 8
 
 
-
-      

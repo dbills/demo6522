@@ -64,7 +64,7 @@
           mac sub_abw
           sec
           lda #[{1}] & $ff            ; load low byte
-          sbc [{2}]+0
+          sbc {2},x
           sta [{3}]+0
           lda #[{1}] >> 8             ; load high byte
           sbc #0

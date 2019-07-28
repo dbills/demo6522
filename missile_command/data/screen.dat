@@ -41,4 +41,6 @@ BPOS      set 128
           dc.b BPOS
 BPOS      set BPOS >> 1
           repend          
-BMASKS_SZ
+BMASKS_SZ equ * - BMASKS
+
+

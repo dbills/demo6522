@@ -7,7 +7,7 @@ JOY0B       equ $9120             ; output register B VIA #2
 ;;; 10011100 = 9c
 
 ;;; 00101100
-JOYMASK   equ $3c
+JOYMASK   equ %10111100
 ;; JOYR      equ JOYMASK & [~$80]
 ;; JOYL      equ JOYMASK &~$10
 ;; JOYU      equ JOYMASK &~$4
@@ -17,4 +17,6 @@ JOYD      equ %10110100
 JOYU      equ %10111000
 JOYR      equ %00111100
 JOYL      equ %10101100
-
+JOYT      equ %10011100
+;;; individual bits for switches
+bJOYT     equ %00100000

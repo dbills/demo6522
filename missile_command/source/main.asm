@@ -1,14 +1,15 @@
           processor 6502
 
           include   "screen.mac"
+          include   "zerop.equ"         ;must be near top
           include   "timer.mac"
-          include   "zerop.equ"
           include   "m16.mac"
           include   "colors.equ"
           include   "line.equ"
-          include   "math.asm"
+          include   "math.mac"
           include   "system.equ"
           include   "jstick.mac"
+          include   "kplane.mac"
 
           SEG       CODE
           org $3000
@@ -89,23 +90,26 @@ wait_v    subroutine
 bounce    subroutine
 .reset
           lda #SCRROWS*16-8
-          sta pl_y
+          sta s_y
           lda #160
-          sta pl_x
+          sta s_x
+          ldx #S_TARGET
           jsr sp_draw
 .loop
           jsr wait_v
+          ldx #S_TARGET
           jsr sp_draw                   ;erase
+
+          ldx #S_TARGET
           jsr moveme
+
+          ldx #S_TARGET
           jsr sp_draw                   ;draw
+
           jmp .loop
           rts
 
 
-bounds    subroutine
-          ;; if we hit a wall reverse direction
-          lda pl_x
-          rts
 
 i_intr    subroutine
           sei
@@ -138,3 +142,6 @@ fubar    dc.b
           include "screen.dat"
           include "shapes.dat"
           include "target.asm"
+          include "zerop.asm"           ;must be last
+
+ldata1  

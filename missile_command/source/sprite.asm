@@ -1,16 +1,12 @@
           include "comp.mac"
-
-          SEG.U     ZEROP
-sp_shape  dc.w
-          SEG       CODE
-;;; draw sprite at pl_x, pl_y
+          
+;;; draw sprite at s_x,x s_y,x
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
 ;;; sprite source data ( left and right side ) ptr0,1,2,3
 ;;; 
 sp_draw   subroutine
-N         equ 1
-          sub_abw BORDA,pl_y,ptr_2
-          modulo8 pl_x
+          sub_abw BORDA,s_y,ptr_2
+          modulo8 s_x,x
           mul16
           clc
           adc ptr_2
@@ -22,7 +18,7 @@ N         equ 1
 
           ;; divide by 8
           ;; to get screen character column
-          lda pl_x
+          lda s_x,x
           lsr
           lsr
           lsr
@@ -47,7 +43,7 @@ N         equ 1
           sta ptr_1 + 1
           ;; ptr_1 is right half of sprite
 
-          ldy pl_y
+          ldy s_y,x
           ldx #8
 .loop1
           lda (ptr_1),y
@@ -63,22 +59,9 @@ N         equ 1
           bne .loop1
           rts
 
-sp_move   subroutine
-          rts
-
           MAC abort
           lda #$c0
           sta 9005
           brk
           ENDM
 
-;; cbounds   subroutine          
-;;           lda #175
-;;           cmp pl_x            
-;;           bcc .ob
-;;           lda pl_y
-;;           rts
-;; .ob
-;;           lda #0
-;;           sta pl_x
-;;           rts

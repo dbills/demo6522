@@ -27,3 +27,65 @@ no mixed case
 problems:
 using underscore is dumb unless you widen you margins, you only have 9 chars right now
 use X register for counter ( save the Y for indirect Y)
+-------------------------
+there is a equate/zerop technique for generating tables of objects
+if we know ahead of time how many there will be
+basically each header files "sets" the variables up and up
+and zerop.asm will actually allocate the table using the 'repeat' function
+
+N player interceptor + N enemy icbms + N explosion + 2 killer planes
+
+icbms: only need x,y,speed
+player missile: x,y
+explosions: x,y,frame_num
+            we can do interceptor and secondary explosions and city explosions with this
+planes: x,y,frame_num, speed
+
+thoughts:
+hard code the spots for the 2 planes
+dynamic strcture for icbms and explosions
+
+collisions:
+use a secondary bitmap and check for bit collisions
+said bitmap would only contain explosion particles
+
+total on screen object guesses:
+30 icbm | explosions
+have about at most 50 objects of this type in zero page.
+we got tables and other crap -- zero page is gonna be really cramped
+lets assume we can't put the all the dynamic data into zero page
+
+can we take an early stab at what the hot spots might be for any of these tables that might need to be in the zero page?
+player crosshair for sure
+killer planes ( why not, they are fixed )
+
+sprite routine inputs
+if we use X as an index ( as panicman did )
+lda s_xpos,X
+    s_ypos,X
+    s_speed,X
+    s_frame 
+multiply the frame counter by N and reload the source bitmap pointer
+    s_source,X  ; bitmap source
+
+i might need some kind of scheduler if I'm animating enough objects
+that they can't all get done in one frame
+how do you do that?
+we know we need interrupt driven sound
+
+what needs to be done before each frame.
+anything you wanted to move has to be erased and moved in it's entirety
+you've got to know how many updates you can make before the visible can lines start
+
+----------------------------
+line drawing subroutine
+----------------------------
+we need space for up to 30 lines to be drawn
+because they are going to be put to screen at some slower rate
+cost between using hard coded zp locations vs X indexed array
+
+ZP,X 4 cycles
+2 access to pl_x,pl_y, 4 instruction for 4 extra cycles
+
+vs.
+6 cycles to move * 2 = 12

@@ -20,18 +20,18 @@ line1     subroutine
           sbc y1
           adc #0    
           sta dy                       
-
           tay                           ;y=dy
-          ldx x1                        ;x=x1
+          ldx x2                        ;x=x2
 .loop                                   ;while(y>0)
           txa
           sta (lstore),y                ;lstore[y]=x
           add err,dx
           cmp dy                        ;if(err<dy)
           bcc .noshift                  ;{
-          inx                           ;  x++
+          dex                           ;  x--
           sub err,dy                    ;  err-=dx
 .noshift                                ;}
           ;; plot x,y : x=x1 y=x
           dey
           bne .loop                     ;
+          rts

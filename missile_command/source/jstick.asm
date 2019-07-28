@@ -24,6 +24,15 @@ j_wfire   subroutine
 .fire
           rts
 
+j_tup     subroutine                    ; trigger up
+.loop1
+          lda JOY0
+          and #bJOYT
+          bne .fire
+          beq .loop1
+.fire
+          rts
+
 ;;; read joystick value into single byte
 ;;; requires multiple VIA read due to vic20 design
 ;;; OUT: A=LASTJOY=joystick value

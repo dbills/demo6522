@@ -60,4 +60,17 @@ CLRRAM    equ       37888
           sta $9005
           endm
 
+          mac scolor_i
+          lda $900f
+          and #    %00000111
+          ora #{1} %11111000
+          sta $900f
+          endm
 
+          mac bcolor_i
+          lda $900f
+          and #      %11111000
+          ora #{1} & %00000111
+          sta $900f
+          endm
+          

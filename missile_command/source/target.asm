@@ -1,33 +1,35 @@
           include "jstick.mac"
+          include   "system.mac"
 
           mac mov_l
           lda #0
-          cmp pl_x
+          cmp s_x,x
           beq .done
-          dec pl_x
+          dec s_x,x
 .done
           endm
+
           mac mov_r
           lda #[SCRCOLS*8]-8-1
-          cmp pl_x
+          cmp s_x,x
           bcc .done
-          inc pl_x
+          inc s_x,x
 .done
           endm
 
           mac mov_d
           lda #SCRROWS*16-8-1
-          cmp pl_y
+          cmp s_y,x
           bcc .done
-          inc pl_y
+          inc s_y,x
 .done
           endm
 
           mac mov_u
           lda #0
-          cmp pl_y
+          cmp s_y,x
           beq .done
-          dec pl_y
+          dec s_y,x
 .done
           endm
           
@@ -35,20 +37,22 @@ moveme    subroutine
           jsr j_read
           cmp #JOYU
           beq .joyu
-          cmp #JOYL
-          beq .joyl
           cmp #JOYD
           beq .joyd
-          cmp #JOYL&JOYU
-          beq .joyul
+          cmp #JOYL
+          beq .joyl
           cmp #JOYR
           beq .joyr
-          cmp #JOYL&JOYD
-          beq .joydl
-          cmp #JOYR&JOYD
-          beq .joyrd
-          cmp #JOYR&JOYU
+          cmp #JOYR & JOYU
           beq .joyru
+          cmp #JOYL & JOYU
+          beq .joyul
+          cmp #JOYL & JOYD
+          beq .joydl
+          cmp #JOYR & JOYD
+          beq .joyrd
+          cmp #JOYT
+          beq .joyt
           rts
 .joyrd
           mov_r
@@ -77,5 +81,34 @@ moveme    subroutine
           rts
 .joyl
           mov_l
-.skip
+          rts
+.joyt
+          ;jsr j_tup
+          jsr lineto
+          rts
+
+lineto    subroutine
+          saveall
+          lda #0
+          sta x1
+          sta y1
+          lda s_x,x
+          sta x2
+          lda s_y,x
+          sta y2
+          mov_wi ldata1-1,lstore
+          jsr line1
+          jsr renderl
+          resall
+          rts
+
+renderl   subroutine
+          ldy dy
+.loop
+          lda (lstore),y
+          sta pl_x
+          sty pl_y
+          jsr plot
+          dey
+          bne .loop
           rts

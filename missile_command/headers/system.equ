@@ -5,7 +5,6 @@ VIA1DDR     equ $9113
 VIA2DDR     equ $9122             ; ?
 JOY0        equ $9111
 JOY0B       equ $9120             ; output register B VIA #2
-JOYT        equ $20               ; joy fire
 JIFFYL      equ $a2          
 DEFISR      equ $eabf             ; os default IRQ
 MINISR      equ $eb15             ; the minimum isr ( no keyboard polling o

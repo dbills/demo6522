@@ -1,10 +1,19 @@
+;;; after ZPS, individual mac,equ ( header) files may
+;;; begin adding to known system tables
+;;; by increment the *_COUNT variables
+;;; and assigning equates for their index into those
+;;; tables.  I.e. the tables are usually accessed via indexed X
+;;; register mode
+;;; ldx k_plane ; killer place index
+;;; lda s_coordx,x
+;;; lda s_coordy,x
           SEG.U     ZEROP
           org       0
 ;;; pltbl: table of CHRAM columns
 ;;; 0 = address of CHRAM for column 0
 ;;; 2 = address of CHRAM for column 1
 ;;; ... SCRCOLS
-
+S_COUNT   set 0                         ;sprite index counter
 pltbl     repeat SCRCOLS
           dc.w 0
           repend
@@ -12,6 +21,16 @@ ptr_0     dc.w 0
 ptr_1     dc.w 0
 ptr_2     dc.w 0
 ptr_3     dc.w 0
+;;; sprite object
+s_x       dc.b 0,0,0 
+s_y       dc.b 0,0,0
+s_src     dc.b 0,0,0
+;;; end sprite object
 pl_x      dc.b 0
 pl_y      dc.b 0
+S_TARGET  equ 0
+S_KPLANE  equ 1
+S_KSAT    equ 2
+
 LASTJOY   dc.b
+;ZPS       dc.b                          ;zero page static end

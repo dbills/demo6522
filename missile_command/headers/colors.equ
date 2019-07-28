@@ -6,7 +6,7 @@ PURPLE       equ 4
 GREEN        equ 5
 BLUE         equ 6
 YELLOW       equ 7
-ORANGE       equ 8
+ORANGE       equ 8                      ;8-15 screen or aux only
 LTORANGE     equ 9
 PINK         equ 10
 LTCYAN       equ 11

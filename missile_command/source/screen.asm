@@ -17,12 +17,6 @@ i_pltbl   subroutine
 ;;; pl_x, pl_y
 ;;; a = color
 plot      subroutine
-          ;; grab X % 8 for
-          ;; bit offset in byte
-          lda #%00000111
-          and pl_x
-          tay
-          ldx BMASKS,y          ;y=bitmask
           lda pl_x
           ;; divide by 8
           ;; to get screen character column
@@ -34,18 +28,22 @@ plot      subroutine
           ;; and place in Y
           asl
           tay
-          ;; copy correct ptr to ptr_0
+          ;; ptr_0 will belocation in CHRAM
+          ;; of the correct character column
           lda pltbl,y
           sta ptr_0
           iny
           lda pltbl,y
           sta ptr_0 + 1
-          ;; ptr_0 is location in CHRAM
-          ;; of the correct character column
-          txa                   ;bitmask to A
+          ;; grab X % 8 for
+          ;; bit offset in byte
+          lda #%00000111
+          and pl_x
+          tay
+          lda BMASKS,y          ;y=bitmask
+
           ldy pl_y
           eor (ptr_0),y
           sta (ptr_0),y
-          
 
           rts

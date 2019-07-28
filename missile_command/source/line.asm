@@ -7,7 +7,12 @@ dx        dc.b
 dy        dc.b
           SEG       CODE
 
-line1     subroutine
+          ;; calculate dy,dx and err for
+          ;; a line
+          ;; inputs: x1,x2,y1,y12
+          ;; outputs: dy,dx,err
+          ;; A=dy on exit
+          mac calc_dydx
           lda #0                        ;err=0
           sta err
           lda x2                        ;dx=x2-x1+1
@@ -20,6 +25,10 @@ line1     subroutine
           sbc y1
           adc #0    
           sta dy                       
+          endm
+
+line1     subroutine
+          calc_dydx
           tay                           ;y=dy
           ldx x2                        ;x=x2
 .loop                                   ;while(y>0)
@@ -31,7 +40,6 @@ line1     subroutine
           dex                           ;  x--
           sub err,dy                    ;  err-=dx
 .noshift                                ;}
-          ;; plot x,y : x=x1 y=x
           dey
           bne .loop                     ;
           rts

@@ -43,3 +43,13 @@ line1     subroutine
           dey
           bne .loop                     ;
           rts
+
+line2     subroutine
+          calc_dydx
+          lda dx                        ;we can optimize this away ...
+          tay
+.loop
+          
+          dey
+          bne .loop
+          rts

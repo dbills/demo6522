@@ -17,6 +17,7 @@ i_pltbl   subroutine
 ;;; pl_x, pl_y
 ;;; a = color
 plot      subroutine
+          sty save_y
           lda pl_x
           ;; divide by 8
           ;; to get screen character column
@@ -45,5 +46,5 @@ plot      subroutine
           ldy pl_y
           eor (ptr_0),y
           sta (ptr_0),y
-
+          ldy save_y
           rts

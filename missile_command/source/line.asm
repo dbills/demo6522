@@ -29,7 +29,7 @@ dy        dc.b
           ;; integer 'bresenham' like
           ;; line drawing routine
           ;; 1 = short axis line length
-          ;; 2 = long axies line length
+          ;; 2 = long axis line length
           ;; for 1 or 2, e.g. dx or dy
           ;; shift is when the short axis
           ;; must 'shift' due to the error
@@ -37,19 +37,14 @@ dy        dc.b
           ;; inputs: Y = current long axis
           ;; position
           mac increment_long_axis
-.loop
           add err, {1}
           cmp {2}
           bcc .noshift
           dex
-          sub err,dy
+          sub err,{2}
 .noshift
           dey
           endm
-
-t1        subroutine
-          
-          rts
 
 line1     subroutine
           calc_dydx
@@ -58,13 +53,7 @@ line1     subroutine
 .loop                                   ;while(y>0)
           txa
           sta (lstore),y                ;lstore[y]=x
-          add err,dx                    ;err+=dx
-          cmp dy                        ;if(err<dy)
-          bcc .noshift                  ;{
-          dex                           ;  x--
-          sub err,dy                    ;  err-=dx
-.noshift                                ;}
-          dey
+          increment_long_axis dx,dy
           bne .loop                     ;
           rts
 
@@ -75,13 +64,7 @@ line2     subroutine
 .loop                                   ;while(y>0)
           txa
           sta (lstore),y                ;lstore[y]=x
-          add err,dy
-          cmp dx                        ;if(err<dx)
-          bcc .noshift                  ;{
-          dex                           ;  y--
-          sub err,dx                    ;  err-=dx
-.noshift                                ;}
-          dey
+          increment_long_axis dy,dx
           bne .loop                     ;
           rts
 

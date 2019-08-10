@@ -97,8 +97,10 @@ lineto    subroutine
           lda s_y,x
           sta y2
           mov_wi ldata1-1,lstore
-          jsr line1
-          jsr renderl
+;          jsr line1
+;          jsr renderl
+          jsr line2
+          jsr render2
           resall
           rts
 

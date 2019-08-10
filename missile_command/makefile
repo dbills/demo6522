@@ -9,11 +9,12 @@ C1541=/mnt/c/winvice3/c1541.exe
 EXE=a
 MAIN=source/main.asm
 FLAGS=-I./headers/ -I./data/ -I./source/
-all:
+all: tests
 	rm -f a.p00 a.lst
 	dasm $(MAIN) $(FLAGS) -oa.p00;dasm $(MAIN) $(FLAGS) -la.lst
 	sed -rnf build_support/subs.sed < a.lst > labels.txt
 	sed -rnf build_support/labels.sed < a.lst >> labels.txt
 	#$(C1541) -attach disk1.d64 -delete a -write a.p00 a 
 
-
+tests:
+	cd testing && make

@@ -1,7 +1,6 @@
 CC=gcc
 INCLUDES=
-CFLAGS=-DWSL -Werror -Wall -fPIC -g $(INCLUDES)
-#CFLAGS=-Wall -fPIC -g $(INCLUDES)
+CFLAGS=-Werror -Wall -fPIC -g $(INCLUDES)
 SOURCE = labels.c fake6502.c vic_os.c errors.c ipc.c commands.c
 PRIVATE_SOURCE = machine.c
 OBJS = $(subst .c,.o,$(SOURCE) $(PRIVATE_SOURCE))

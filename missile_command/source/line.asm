@@ -26,6 +26,30 @@ dy        dc.b
           adc #0    
           sta dy                       
           endm
+          ;; integer 'bresenham' like
+          ;; line drawing routine
+          ;; 1 = short axis line length
+          ;; 2 = long axies line length
+          ;; for 1 or 2, e.g. dx or dy
+          ;; shift is when the short axis
+          ;; must 'shift' due to the error
+          ;; rate getting too high
+          ;; inputs: Y = current long axis
+          ;; position
+          mac increment_long_axis
+.loop
+          add err, {1}
+          cmp {2}
+          bcc .noshift
+          dex
+          sub err,dy
+.noshift
+          dey
+          endm
+
+t1        subroutine
+          
+          rts
 
 line1     subroutine
           calc_dydx
@@ -34,7 +58,7 @@ line1     subroutine
 .loop                                   ;while(y>0)
           txa
           sta (lstore),y                ;lstore[y]=x
-          add err,dx
+          add err,dx                    ;err+=dx
           cmp dy                        ;if(err<dy)
           bcc .noshift                  ;{
           dex                           ;  x--
@@ -46,10 +70,29 @@ line1     subroutine
 
 line2     subroutine
           calc_dydx
-          lda dx                        ;we can optimize this away ...
-          tay
-.loop
-          
+          ldy dx                        ;y=dx
+          ldx y2                        ;x=y2
+.loop                                   ;while(y>0)
+          txa
+          sta (lstore),y                ;lstore[y]=x
+          add err,dy
+          cmp dx                        ;if(err<dx)
+          bcc .noshift                  ;{
+          dex                           ;  y--
+          sub err,dx                    ;  err-=dx
+.noshift                                ;}
           dey
-          bne .loop
+          bne .loop                     ;
           rts
+
+;;; cache the screen column pointer somehow
+;;; if oldx!=x then recalc
+
+
+;;; move Y down one line when drawing
+;;; a dx>dy line
+increment_y         subroutine
+                    ldx xbmask_pidx
+                    lda XBMASKS_OFFSET_TBL,x
+                    sta xbmask_pidx
+                    rts

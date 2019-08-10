@@ -89,3 +89,88 @@ ZP,X 4 cycles
 
 vs.
 6 cycles to move * 2 = 12
+x axis lines
+
+what are the basic parts of this  X based line algo?
+
+
+inputs x1,x2,y1,y2
+variables: x_bmask_p : hold the current x pixel byte we are iterating through
+           lstore_p : pointer to where to store line data in ram
+it looks like we are going to need several 'index' bytes in zero page that will act as Y register offets
+x_bmask_pidx: offset from xm_bmask_ptr
+lstore_pidx: offset from lstore
+dx,dy : dx can be the accumulator
+cx: current x value
+start_offset: bit position offset to start drawing bits
+              after a Y shift this would be important for example
+              
+
+general routines needed ( not in any particular order )
+calculate dx,dy values
+calculate x%8 and 
+increment x bit pointer
+iterate along long axis
+shift Y position ( may be up or down , macros will write subs for both )
+write to screen
+
+calcdydx  : already written
+modulo8
+
+decrement_x subroutine
+            ldx x_bmask_pidx
+            dex
+            bne .done
+            jsr reload            
+.done
+
+reload      subroutine
+            mov_wi xbmask_tbl xbmask_tbl
+            lda #0
+            sta x_bmask_pidx
+            rts
+
+
+iterate_long_axis   subroutine
+                    sub dx,dy
+                    bcc shift_y
+                    rts
+shift_y
+                    jsr shift_y
+                    rts
+
+shift_y             subroutine
+                    iny
+                    lda x_bmask_pidx
+                    tax
+                    clc
+                    adc x_bmask_offset,x
+                    sta x_bmask_offset,x
+                    rts
+
+imagine we start at bit position 4
+we'd load the x bit mask pointer for "bytes with bits starting at offset 4"
+
+and move to the right twice 2
+we are now at bit position 6
+so our x_bmask_pidx = 2
+
+when we increment Y we can use the table i created to find
+the next bitmask offset
+
+
+byte1
+byte2
+byte3
+0
+byte1
+byte2
+
+drawing algo
+initialize ptr0
+lda (lstore),y
+beq .shift
+sta (ptr0),y
+.shift
+
+what if i do nothing but just write the x value

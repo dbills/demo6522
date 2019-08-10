@@ -26,7 +26,9 @@ uint16_t get_label(const char *const label) {
   if(find_label(label, &address) != -1) {
     return address;
   } else {
-    return warn_msg("can't find label");
+    char buf[256];
+    sprintf(buf,"can't find label:%s", label);
+    return warn_msg(buf);
   }
 }
 

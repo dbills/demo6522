@@ -3,16 +3,39 @@
 #lang racket/base
 (require "emulator_ffi.rkt")
 
+(define (time-label label)
+  (init-breakpoints)
+  (call-label label)
+  (define cycle-start (get-cycle-count))
+  (run-till-break)
+  (define cycle-end (get-cycle-count))
+;  (printf "s=~s e=~s\n" cycle-start cycle-end)
+  (- cycle-end cycle-start))
+
 (define (run-till-break)
   (step-6502) 
   (if (= 0 (get-break-now))
       (run-till-break)
       #f))
-      
+
+(define (incy number)
+  (define var "xbmask_pidx")
+  (write8 var number)
+  (time-label "increment_y")
+  (read8 var))
+
+(define (incy-test)
+  "tests moving the the next Y coordinate when drawing a line where DX > DY"
+  (define (loop accum)
+    (define number (car accum))
+    (if (= number 0) accum
+        (loop (cons (incy number) accum))))
+  (reverse (loop (list 8))))
+
 (define (line-test)
   "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
 ;  (init-breakpoints)
-  (let* ((lstore #x2000)
+  (let* ((lstore #x4000)
          (y1 1)
          (y2 11)
          (x1 11)
@@ -25,15 +48,32 @@
     (write8 "x2" x2)
     (memset lstore 160)
     (define elapsed (time-label "line1"))
-;    (run-till-break)
-    (list elapsed (dump-line-data lstore dy))))
+    (cons elapsed (dump-line-data lstore dy))))
+
+(define (line-test2)
+  "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
+;  (init-breakpoints)
+  (let* ((lstore #x4000)
+         (y1 10)
+         (y2 15)
+         (x1 1)
+         (x2 11)
+         (dx (+ 1 (- x2 x1))))
+    (write16 "lstore" (- lstore 1))
+    (write8 "x1" x1)
+    (write8 "y1" y1)
+    (write8 "y2" y2)
+    (write8 "x2" x2)
+    (memset lstore 160)
+    (define elapsed (time-label "line2"))
+    (cons elapsed (dump-line-data lstore dx))))
 
 (define (my6502hook)
-  ;(display (format "6502hook pc=~x\n" get-pc))
+  ;(display (format "6502hook pc=~x\n" (get-pc)))
   (if (= (get-pc) (get-bp))
       (begin
-        ;;(display "breaking now")
-       (set-break-now 1))
+        ;(display "breaking now")
+        (set-break-now 1))
       #t))
 
 
@@ -61,7 +101,11 @@
   (printf "nmi = ~x\n" (get-word #xfffa))
   (printf "reset = ~x\n" (get-word #xfffc))
   (printf "user = ~x\n" (get-word #x314))
-  (hook-external my6502hook))
+  (hook-external my6502hook)
+  (reset-6502)
+)
+
+
 ;(hook-external standard-hook)
 
 (define (init-breakpoints)
@@ -73,5 +117,6 @@
 
 (define (all-tests)
   (setup) 
-  (test-assert '(17 16 16 15 14 14 13 12 12 11 11) (cadr (line-test)) "line1 test"))
-
+  (test-assert '(11 12 12 13 14 14 15 16 16 17 17) (cdr (line-test)) "line1 test")
+  (test-assert '(8 15 21 26 30 33 35 0) (incy-test) "incy"))
+  

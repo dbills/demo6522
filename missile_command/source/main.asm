@@ -139,9 +139,10 @@ fubar    dc.b
           include "line.asm"
           include "sprite.asm"
           include "jstick.asm"
-          include "screen.dat"
-          include "shapes.dat"
           include "target.asm"
           include "zerop.asm"           ;must be last
+          include "screen.dat"
+          include "shapes.dat"
+          include "line.dat"
 
 ldata1  

@@ -112,3 +112,14 @@ renderl   subroutine
           dey
           bne .loop
           rts
+;;; dx>dy line
+render2   subroutine
+          ldy dx
+.loop
+          lda (lstore),y
+          sta pl_y
+          sty pl_x
+          jsr plot
+          dey
+          bne .loop
+          rts

@@ -37,14 +37,14 @@ void write6502(const uint16_t address, const uint8_t value) {
 }
 
 void hook6502() {
-  printf("hook pc = 0x%x\n", pc);
+  //printf("hook pc = 0x%x\n", pc);
   // check if we are at a debug break point
   if(pc == break_address)
     break_now = 1;
   // fake behaviors that would happen during interrupt
   // assume 1Mhz - update jiffy clock
   if((clockticks6502 % (1000000/60)) == 0) {
-    irq6502();
+    //irq6502();
   }
 }
 
@@ -87,4 +87,3 @@ BOOL load_p00(const char *const filename) {
   fclose(fd);
   return TRUE;
 }
-

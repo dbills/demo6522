@@ -3,6 +3,8 @@ x1        dc.b 0
 x2        dc.b 0
 y1        dc.b 0
 y2        dc.b 0
+xbmask_pidx         dc.b 0
+
 ;;; location to store line data at
 lstore    dc.w 0
 

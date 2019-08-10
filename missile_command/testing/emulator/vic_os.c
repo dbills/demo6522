@@ -28,8 +28,11 @@ void set_reset(const uint16_t address) {
 }
 
 void call_label(const char *const label) {
-  set_reset(get_label(label));
-  reset6502();
+  // place a jsr to this address in the cass buffer
+  write6502(0x003c, 0x20);      /* jsr */
+  write_word(0x003d, get_label(label));
+  write6502(0x003c+3,0);        /* brk instruction */
+  pc=0x003c;
 }
 
 uint8_t read8(const char *const label) {

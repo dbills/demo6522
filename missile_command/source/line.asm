@@ -46,6 +46,19 @@ dy        dc.b
           dey
           endm
 
+genline   subroutine
+          calc_dydx
+          ;; dy is in A
+          cmp dx
+          bcc .line2                     ;dx>dy
+          jsr line1
+          jsr render1
+          rts
+.line2
+          jsr line2
+          jsr render2
+          rts
+
 line1     subroutine
           calc_dydx
           tay                           ;y=dy
@@ -79,3 +92,25 @@ increment_y         subroutine
                     lda XBMASKS_OFFSET_TBL,x
                     sta xbmask_pidx
                     rts
+
+render1   subroutine
+          ldy dy
+.loop
+          lda (lstore),y
+          sta pl_x
+          sty pl_y
+          jsr plot
+          dey
+          bne .loop
+          rts
+;;; dx>dy line
+render2   subroutine
+          ldy dx
+.loop
+          lda (lstore),y
+          sta pl_y
+          sty pl_x
+          jsr plot
+          dey
+          bne .loop
+          rts

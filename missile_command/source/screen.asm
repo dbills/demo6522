@@ -24,6 +24,10 @@ plot      subroutine
           lsr
           lsr
           lsr
+          ;; check if same as last column and avoid some work
+          cmp last_x                    
+          beq .samecol
+          sta last_x
           ;; multiply by 2 to get zp address
           ;; of screen column CHRAM ptr
           ;; and place in Y
@@ -36,6 +40,7 @@ plot      subroutine
           iny
           lda pltbl,y
           sta ptr_0 + 1
+.samecol
           ;; grab X % 8 for
           ;; bit offset in byte
           lda #%00000111

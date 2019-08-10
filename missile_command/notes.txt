@@ -174,3 +174,7 @@ sta (ptr0),y
 .shift
 
 what if i do nothing but just write the x value
+16666 cycles per frame
+small x line, 918 cycles
+jesus, i can only render about 18 lines a frame
+f*ck

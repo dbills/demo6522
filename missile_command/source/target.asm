@@ -53,6 +53,8 @@ moveme    subroutine
           beq .joyrd
           cmp #JOYT
           beq .joyt
+          cmp #JOYT & JOYR
+          beq .joyrt
           rts
 .joyrd
           mov_r
@@ -86,9 +88,15 @@ moveme    subroutine
           ;jsr j_tup
           jsr lineto
           rts
+.joyrt
+          jsr lineto
+          mov_r
+          rts
 
+;;; inputs: x sprite to draw line to
 lineto    subroutine
           saveall
+          ;; set x1,x2,y1,y2
           lda #0
           sta x1
           sta y1
@@ -96,32 +104,13 @@ lineto    subroutine
           sta x2
           lda s_y,x
           sta y2
+
           mov_wi ldata1-1,lstore
+          jsr genline
 ;          jsr line1
 ;          jsr renderl
-          jsr line2
-          jsr render2
+;          jsr line2
+;          jsr render2
           resall
           rts
 
-renderl   subroutine
-          ldy dy
-.loop
-          lda (lstore),y
-          sta pl_x
-          sty pl_y
-          jsr plot
-          dey
-          bne .loop
-          rts
-;;; dx>dy line
-render2   subroutine
-          ldy dx
-.loop
-          lda (lstore),y
-          sta pl_y
-          sty pl_x
-          jsr plot
-          dey
-          bne .loop
-          rts

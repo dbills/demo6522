@@ -68,6 +68,11 @@
     (define elapsed (time-label "line2"))
     (cons elapsed (dump-line-data lstore dx))))
 
+(define (line-draw2) 
+  (line-test2)
+  (time-label "render2"))
+
+
 (define (my6502hook)
   ;(display (format "6502hook pc=~x\n" (get-pc)))
   (if (= (get-pc) (get-bp))

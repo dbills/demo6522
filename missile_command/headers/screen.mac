@@ -59,14 +59,20 @@ CLRRAM    equ       37888
           ora #{1} & $0F
           sta $9005
           endm
-
-          mac scolor_i
+          ;; inverted mode 0=off 1=on
+          mac invmode
           lda $900f
-          and #    %00000111
-          ora #{1} %11111000
+          ora #{1} & %00001000
           sta $900f
           endm
-
+          ;; screen background
+          mac scolor_i
+          lda $900f
+          and #      %00001111
+          ora #{1} & %11110000
+          sta $900f
+          endm
+          ;; border
           mac bcolor_i
           lda $900f
           and #      %11111000

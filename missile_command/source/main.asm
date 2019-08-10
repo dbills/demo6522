@@ -27,9 +27,9 @@
           chbase %1100                  ;$1000
           screenmem $0200
           ;; border colors
-          lda $900f
-          ora #2
-          sta $900f
+          invmode 0
+          bcolor_i BLACK
+          scolor_i BLACK
           ;jsr rotate1
 
           jsr bounce

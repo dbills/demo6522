@@ -60,6 +60,7 @@ cdelta    subroutine
           ;; line drawing routine
           ;; 1 = short axis line length
           ;; 2 = long axis line length
+          ;; 3 inx or dex 
           ;; for 1 or 2, e.g. dx or dy
           ;; shift is when the short axis
           ;; must 'shift' due to the error
@@ -79,9 +80,8 @@ cdelta    subroutine
           sec
           sbc {2}
           sta err
-          dex
+          {3}
 .noshift
-          dey
           endm
 
 genline   subroutine
@@ -90,32 +90,32 @@ genline   subroutine
           cmp dx
           bcc .line2                     ;dx>dy
           jsr line1
-          jsr render1
+          ;jsr render1
           rts
 .line2
           jsr line2
-          jsr render2                   ;
+          ;yjsr render2                   ;
           rts
 
 line1     subroutine
-          calc_dydx
           tay                           ;y=dy
           ldx x2                        ;x=x2
 .loop                                   ;while(y>0)
+          increment_long_axis dx,dy,dex
           txa
           sta (lstore),y                ;lstore[y]=x
-          increment_long_axis dx,dy
+          dey
           bne .loop
           rts
 
 line2     subroutine
-          calc_dydx
           ldy dx                        ;y=dx
           ldx y2                        ;x=y2
 .loop                                   ;while(y>0)
+          increment_long_axis dy,dx,dex
           txa
           sta (lstore),y                ;lstore[y]=x
-          increment_long_axis dy,dx
+          dey
           bne .loop                     ;
           rts
 

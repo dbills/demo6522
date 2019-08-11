@@ -134,3 +134,15 @@ if x incremented then load second byte
 thought - change layout in memory?
 every byte in the 'line' is an x coord
 y only changes once in a while
+
+---------------------------------------------------
+implementing gen line
+right now, y2>y1
+and x2>x1
+
+so what kind of line will we be drawing
+player launching from his base are:
+from left of base, no problem x1,y1 = crosshair x2,y2 = missile base - and draw in reverse
+from right of base - hmm
+y1 = crosshair, y2=base
+same routine but would need to increment X reg instead

@@ -146,6 +146,10 @@
 
 (define (all-tests)
   (setup) 
-  (test-assert '(11 12 12 13 14 14 15 16 16 17 17) (cdr (line-test1)) "line1 test")
+  (test-assert '(0 0 0 0 0 0 0 0 0 0 0) (cdr (line-test 0 0 0 10 "genline")) "vertical")
+  (test-assert '(0 0 0 0 0 0 0 0 0 0 0) (cdr (line-test 0 10 0 0 "genline")) "horizonal")
+  (test-assert '(0 1 2 3 4 5 6 7 8 9 10)  (cdr (line-test 0 10 0 10 "genline")) "diagonal2")
+  (test-assert '(0 1 2 3 4 5 6 7 8 9 10) (cdr (line-test 0 10 0 10 "genline")) "diagonal")
+  (test-assert '(11 11 12 12 13 14 14 15 16 16 17) (cdr (line-test 11 17 1 11 "genline")) "line1 test")
   (test-assert '(8 15 21 26 30 33 35 0) (incy-test) "incy"))
   

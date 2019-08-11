@@ -16,6 +16,8 @@ i_pltbl   subroutine
           rts
 ;;; pl_x, pl_y
 ;;; a = color
+;;; 0 based 0,0 is upper left
+;;; 175,175 lower right
 plot      subroutine
           sty save_y
           lda pl_x

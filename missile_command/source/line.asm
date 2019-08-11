@@ -28,14 +28,25 @@ dy        dc.b
           endm
 
 test1     subroutine
+          lda #175
+          sta pl_x
+          sta pl_y
           lda #1
-          sta x1
-          sta y1
-          lda #100
-          sta x2
-          lda #168
-          sta y2
-          jsr line1
+          jsr plot
+          ;; lda #1
+          ;; sta x1
+          ;; lda #1
+          ;; sta x2
+
+          ;; lda #0
+          ;; sta y1
+          ;; lda #175
+          ;; sta y2
+          ;; mov_wi ldata1-1,lstore
+          ;; jsr line1
+          ;; jsr render1
+.loop:     
+          jmp .loop
           rts
 
 borda     subroutine

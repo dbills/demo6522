@@ -1,5 +1,5 @@
-SCRROWS   equ       23/2
-SCRCOLS   equ       22
+SCRROWS   equ       23/2                ;176
+SCRCOLS   equ       22                  ;176
 CHBASE1   equ       $1000
 CHARHT    equ       16
 
@@ -69,7 +69,7 @@ CLRRAM    equ       37888
           mac scolor_i
           lda $900f
           and #      %00001111
-          ora #{1} & %11110000
+          ora #[{1} << 4] & %11110000
           sta $900f
           endm
           ;; border

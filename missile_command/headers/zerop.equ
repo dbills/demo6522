@@ -25,7 +25,7 @@ save_y    dc.b 0
 save_x    dc.b 0
 last_x    dc.b 0
 ;;; 3 sprite objects
-s_x       dc.b 0,0,0 
+s_x       dc.b 0,0,0
 s_y       dc.b 0,0,0
 s_src     dc.b 0,0,0
 ;;; end sprite object

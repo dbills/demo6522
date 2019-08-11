@@ -86,6 +86,7 @@ moveme    subroutine
           rts
 .joyt
           ;jsr j_tup
+          jsr j_tup
           jsr lineto
           rts
 .joyrt
@@ -108,7 +109,7 @@ lineto    subroutine
           mov_wi ldata1-1,lstore
           jsr genline
 ;          jsr line1
-;          jsr renderl
+;          jsr render1
 ;          jsr line2
 ;          jsr render2
           resall

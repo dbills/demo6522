@@ -26,6 +26,25 @@ dy        dc.b
           adc #0    
           sta dy                       
           endm
+
+test1     subroutine
+          lda #1
+          sta x1
+          sta y1
+          lda #100
+          sta x2
+          lda #168
+          sta y2
+          jsr line1
+          rts
+
+borda     subroutine
+          lda #$42
+          rts
+
+cdelta    subroutine
+          calc_dydx
+          rts
           ;; integer 'bresenham' like
           ;; line drawing routine
           ;; 1 = short axis line length
@@ -37,11 +56,19 @@ dy        dc.b
           ;; inputs: Y = current long axis
           ;; position
           mac increment_long_axis
-          add err, {1}
+          lda err
+          clc 
+          adc {1}
+          bcs .shift
+          sta err
           cmp {2}
           bcc .noshift
+          beq .noshift
+.shift
+          sec
+          sbc {2}
+          sta err
           dex
-          sub err,{2}
 .noshift
           dey
           endm
@@ -56,7 +83,7 @@ genline   subroutine
           rts
 .line2
           jsr line2
-          jsr render2
+          jsr render2                   ;
           rts
 
 line1     subroutine
@@ -67,7 +94,7 @@ line1     subroutine
           txa
           sta (lstore),y                ;lstore[y]=x
           increment_long_axis dx,dy
-          bne .loop                     ;
+          bne .loop
           rts
 
 line2     subroutine

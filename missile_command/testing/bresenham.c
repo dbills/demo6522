@@ -82,9 +82,9 @@ void any_quadrant(int x,int x1,int y,int y1,int *x_out, int *y_out) {
   int dx = delta_n(x,x1);
   if(dy>dx) {
     if(y1>y) {
-      if(x1>x)
+      if(x1>x) { 
         acute4_param(x,x1,y,y1,x_out,y_out,nplus,nplus,dx,dy);
-      else {
+      } else {
         acute4_param(x,x1,y,y1,x_out,y_out,nplus,nminus,dx,dy);
       }
     } else {

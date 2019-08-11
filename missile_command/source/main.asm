@@ -28,10 +28,11 @@
           screenmem $0200
           ;; border colors
           invmode 0
-          bcolor_i BLACK
+          bcolor_i PURPLE
           scolor_i BLACK
           ;jsr rotate1
 
+          ;jsr test1
           jsr bounce
           jmp loop
 l1

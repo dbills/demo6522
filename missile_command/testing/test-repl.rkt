@@ -32,8 +32,16 @@
         (loop (cons (incy number) accum))))
   (reverse (loop (list 8))))
 
-(define (line-test)
-  "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
+(define (set-linevar x1 x2 y1 y2)
+  (write8 "x1" x1)
+  (write8 "y1" y1)
+  (write8 "y2" y2)
+  (write8 "x2" x2)
+  (time-label "cdelta")
+  (list (read8 "dx") (read8 "dy")))
+
+(define (line-test1)
+  "a basic line test for one of the 8 quadrants in bresenham, this would be quadrant 1, dy > dx "
 ;  (init-breakpoints)
   (let* ((lstore #x4000)
          (y1 1)
@@ -43,12 +51,27 @@
          (dy (+ 1 (- y2 y1))))
     (write16 "lstore" (- lstore 1))
     (write8 "x1" x1)
+    (write8 "x2" x2)
+    (write8 "y1" y1)
+    (write8 "y2" y2)
+    (memset lstore dy)
+    (define elapsed (time-label "line1"))
+    (cons elapsed (dump-line-data lstore dy))))
+;;; both routines appear to work for diagonal lines
+(define (line-test x1 x2 y1 y2 algo)
+  "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
+;  (init-breakpoints)
+  (let* ((lstore #x4000)
+         (dy (+ 1 (- y2 y1)))
+         (dx (+ 1 (- x2 x1))))
+    (write16 "lstore" (- lstore 1))
+    (write8 "x1" x1)
     (write8 "y1" y1)
     (write8 "y2" y2)
     (write8 "x2" x2)
-    (memset lstore 160)
-    (define elapsed (time-label "line1"))
-    (cons elapsed (dump-line-data lstore dy))))
+    (memset lstore 176)
+    (define elapsed (time-label algo))
+    (cons elapsed (dump-line-data lstore (max dx dy)))))
 
 (define (line-test2)
   "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
@@ -64,7 +87,7 @@
     (write8 "y1" y1)
     (write8 "y2" y2)
     (write8 "x2" x2)
-    (memset lstore 160)
+    (memset lstore 176)
     (define elapsed (time-label "line2"))
     (cons elapsed (dump-line-data lstore dx))))
 
@@ -74,7 +97,7 @@
 
 
 (define (my6502hook)
-  ;(display (format "6502hook pc=~x\n" (get-pc)))
+  (display (format "~x: A=~x X=~x Y=~x D=~x\n" (get-pc) (get-a) (get-x) (get-y) (read-6502 61)))
   (if (= (get-pc) (get-bp))
       (begin
         ;(display "breaking now")
@@ -122,6 +145,6 @@
 
 (define (all-tests)
   (setup) 
-  (test-assert '(11 12 12 13 14 14 15 16 16 17 17) (cdr (line-test)) "line1 test")
+  (test-assert '(11 12 12 13 14 14 15 16 16 17 17) (cdr (line-test1)) "line1 test")
   (test-assert '(8 15 21 26 30 33 35 0) (incy-test) "incy"))
   

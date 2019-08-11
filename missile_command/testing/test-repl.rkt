@@ -4,7 +4,6 @@
 (require "emulator_ffi.rkt")
 
 (define (time-label label)
-  (init-breakpoints)
   (call-label label)
   (define cycle-start (get-cycle-count))
   (run-till-break)
@@ -42,7 +41,6 @@
 
 (define (line-test1)
   "a basic line test for one of the 8 quadrants in bresenham, this would be quadrant 1, dy > dx "
-;  (init-breakpoints)
   (let* ((lstore #x4000)
          (y1 1)
          (y2 11)
@@ -60,7 +58,6 @@
 ;;; both routines appear to work for diagonal lines
 (define (line-test x1 x2 y1 y2 algo)
   "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
-;  (init-breakpoints)
   (let* ((lstore #x4000)
          (dy (+ 1 (- y2 y1)))
          (dx (+ 1 (- x2 x1))))
@@ -75,7 +72,6 @@
 
 (define (line-test2)
   "a basic line test for one of the 8 quadrants in besenham, this would be quadrant 1, dy > dx "
-;  (init-breakpoints)
   (let* ((lstore #x4000)
          (y1 10)
          (y2 15)
@@ -96,8 +92,16 @@
   (time-label "render2"))
 
 
+(define (call-label label) 
+  "jsr through the cassette buffer for the vic"
+  (write-6502 #x003c #x20)             ;jsr
+  (write-word #x003d (get-label label))
+  (set-pc #x003c)
+  (set-bp (+ #x003c 3))
+  (set-break-now 0))
+
 (define (my6502hook)
-  (display (format "~x: A=~x X=~x Y=~x D=~x\n" (get-pc) (get-a) (get-x) (get-y) (read-6502 61)))
+  ;(display (format "~x: A=~x X=~x Y=~x D=~x\n" (get-pc) (get-a) (get-x) (get-y) (read-6502 61)))
   (if (= (get-pc) (get-bp))
       (begin
         ;(display "breaking now")
@@ -136,9 +140,6 @@
 
 ;(hook-external standard-hook)
 
-(define (init-breakpoints)
-  (set-bp 0)
-  (set-break-now 0))
   
 (define (test-assert expected actual message)
   (unless (equal? expected actual) (printf "~s failed ~s != ~s" message expected actual)))

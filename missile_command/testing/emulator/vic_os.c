@@ -11,7 +11,7 @@ static union {
   unsigned char bytes[2];
 } lsb_address;
 
-static void write_word(const uint16_t address,const uint16_t value) {
+void write_word(const uint16_t address,const uint16_t value) {
   lsb_address.word = htole16(value);
   write6502(address, lsb_address.bytes[0]);
   write6502(address + 1, lsb_address.bytes[1]);
@@ -26,7 +26,7 @@ uint16_t get_word(const uint16_t address) {
 void set_reset(const uint16_t address) {
   write_word(65532, address);
 }
-
+#if 0
 void call_label(const char *const label) {
   // place a jsr to this address in the cass buffer
   write6502(0x003c, 0x20);      /* jsr */
@@ -34,7 +34,7 @@ void call_label(const char *const label) {
   write6502(0x003c+3,0);        /* brk instruction */
   pc=0x003c;
 }
-
+#endif
 uint8_t read8(const char *const label) {
   return read6502(get_label(label));
 }

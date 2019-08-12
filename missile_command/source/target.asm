@@ -98,8 +98,10 @@ moveme    subroutine
 lineto    subroutine
           saveall
           ;; set x1,x2,y1,y2
-          lda #0
+          ;lda #0
+          lda #175/2
           sta x1
+          lda #0
           sta y1
           lda s_x,x
           sta x2

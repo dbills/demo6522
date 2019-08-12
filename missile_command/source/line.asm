@@ -17,7 +17,7 @@ dy        dc.b
           rts
 .dxline
           jsr line4
-          jsr render2
+          jsr render4
           endm
           ;; x1<x2
           ;; inputs A=dx
@@ -67,24 +67,27 @@ genline   subroutine
           line_choice
           rts
 
-test1     subroutine
-          lda #175
-          sta pl_x
-          sta pl_y
-          lda #1
-          jsr plot
-          ;; lda #1
-          ;; sta x1
-          ;; lda #1
-          ;; sta x2
+          mac linevars
+          lda #{1}
+          sta x1
+          lda #{2}
+          sta x2
 
-          ;; lda #0
-          ;; sta y1
+          lda #{3}
+          sta y1
+          lda #{4}
+          sta y2
+          endm
+
+test1     subroutine
           ;; lda #175
-          ;; sta y2
-          ;; mov_wi ldata1-1,lstore
-          ;; jsr line1
-          ;; jsr render1
+          ;; sta pl_x
+          ;; sta pl_y
+          ;; lda #1
+          ;; jsr plot
+          linevars $ae,$87,$00,$25
+          mov_wi ldata1-1,lstore
+          jsr genline
 .loop:     
           jmp .loop
           rts
@@ -185,10 +188,12 @@ increment_y         subroutine
 
 render1   subroutine
           ldy dy
+          ldx y2
 .loop
           lda (lstore),y
           sta pl_x
-          sty pl_y
+          stx pl_y
+          dex       
           jsr plot
           dey
           bne .loop
@@ -196,10 +201,25 @@ render1   subroutine
 ;;; dx>dy line
 render2   subroutine
           ldy dx
+          ldx x2
 .loop
           lda (lstore),y
           sta pl_y
-          sty pl_x
+          stx pl_x
+          dex
+          jsr plot
+          dey
+          bne .loop
+          rts
+
+render4   subroutine
+          ldy dx
+          ldx x1
+.loop
+          lda (lstore),y
+          sta pl_y
+          stx pl_x
+          dex
           jsr plot
           dey
           bne .loop

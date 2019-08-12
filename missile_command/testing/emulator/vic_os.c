@@ -52,8 +52,8 @@ uint16_t read16(const char *const label, const uint16_t address) {
 }
 
 void uninitialized_read(uint16_t pc,uint16_t address) {
-  const char *const label = find_address(address);
-  fprintf(stderr, "uninitialized read 0x%hx(label:%s) pc = 0x%hx\n", address, label ? label : "n/a", pc);
+  //const char *const label = find_address(address);
+  //fprintf(stderr, "uninitialized read 0x%hx(label:%s) pc = 0x%hx\n", address, label ? label : "n/a", pc);
 }
 
 void load_kernel() {

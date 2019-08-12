@@ -22,8 +22,9 @@ uint8_t read6502(const uint16_t address) {
   if(address <= 0xff && ram_write_count[address] == 0) {
     if(uninitialized_read_callback)
       (*uninitialized_read_callback)(pc, address);
-    else
-      fprintf(stderr, "uninitialized read 0x%hx pc = 0x%hx\n", address, pc);
+    else {
+      //fprintf(stderr, "uninitialized read 0x%hx pc = 0x%hx\n", address, pc); 
+    }
   }
   ram_read_count[address]++;
   //printf("\tread 0x%hx = 0x%hhx\n", address, data);

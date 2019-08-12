@@ -7,25 +7,65 @@ dx        dc.b
 dy        dc.b
           SEG       CODE
 
-          ;; calculate dy,dx and err for
-          ;; a line
-          ;; inputs: x1,x2,y1,y12
-          ;; outputs: dy,dx,err
-          ;; A=dy on exit
-          mac calc_dydx
-          lda #0                        ;err=0
-          sta err
-          lda x2                        ;dx=x2-x1+1
-          sec
-          sbc x1
-          adc #0                      
-          sta dx                      
+          ;; inputs A=dx
+          ;; x1>x2
+          mac line_choice2
+          cmp dy
+          bcs .dxline                   ;dx>dy
+          jsr line3
+          jsr render1
+          rts
+.dxline
+          jsr line4
+          jsr render2
+          endm
+          ;; x1<x2
+          ;; inputs A=dx
+          mac line_choice
+          cmp dy
+          bcs .dxline                   ;dx>dy
+          jsr line1
+          jsr render1
+          rts
+.dxline
+          jsr line2
+          jsr render2
+          endm
+
+          mac calcdy
           lda y2                        ;dy=y2-y1+1
           sec
           sbc y1
           adc #0    
           sta dy                       
           endm
+
+          ;; calculate dy,dx and err for
+          ;; a line
+          ;; inputs: x1,x2,y1,y12
+          ;; outputs: dy,dx,err
+          ;; A=dy on exit
+          ;; preconditions: y2>y1
+genline   subroutine
+          lda #0                        ;err=0
+          sta err
+
+          calcdy
+          lda x2                        ;dx=x2-x1+1
+          sec
+          sbc x1
+          bcs .normal                   ;x2<x1
+.reversed
+          eor #$ff                      ;switch to x1-x2
+          adc #2
+          sta dx
+          line_choice2
+          rts
+.normal
+          adc #0                        ;C is set
+          sta dx                      
+          line_choice
+          rts
 
 test1     subroutine
           lda #175
@@ -53,9 +93,6 @@ borda     subroutine
           lda #$42
           rts
 
-cdelta    subroutine
-          calc_dydx
-          rts
           ;; integer 'bresenham' like
           ;; line drawing routine
           ;; 1 = short axis line length
@@ -84,21 +121,9 @@ cdelta    subroutine
 .noshift
           endm
 
-genline   subroutine
-          calc_dydx
-          ;; dy is in A
-          cmp dx
-          bcc .line2                     ;dx>dy
-          jsr line1
-          ;jsr render1
-          rts
-.line2
-          jsr line2
-          ;yjsr render2                   ;
-          rts
-
+;;; lstore: pointer to line storage
 line1     subroutine
-          tay                           ;y=dy
+          ldy dy
           ldx x2                        ;x=x2
 .loop                                   ;while(y>0)
           increment_long_axis dx,dy,dex
@@ -109,12 +134,37 @@ line1     subroutine
           rts
 
 line2     subroutine
+          ;; might be able to replace below with tay
           ldy dx                        ;y=dx
           ldx y2                        ;x=y2
 .loop                                   ;while(y>0)
           increment_long_axis dy,dx,dex
           txa
           sta (lstore),y                ;lstore[y]=x
+          dey
+          bne .loop                     ;
+          rts
+
+;;; dy>dx and x2<x1
+;;; lstore: pointer to line storage
+line3     subroutine
+          ldy dy
+          ldx x2                        ;x=x2
+.loop                                   ;while(y>0)
+          txa
+          sta (lstore),y                ;lstore[y]=x
+          increment_long_axis dx,dy,inx
+          dey
+          bne .loop
+          rts
+;;; dx>dy and x2<x1
+line4     subroutine
+          ldy dx                        ;y=dx
+          ldx y1                        ;x=y2
+.loop                                   ;while(y>0)
+          txa
+          sta (lstore),y                ;lstore[y]=x
+          increment_long_axis dy,dx,inx
           dey
           bne .loop                     ;
           rts

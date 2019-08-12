@@ -32,7 +32,7 @@
           scolor_i PURPLE
           ;jsr rotate1
 
-          jsr test1
+          ;jsr test1
           jsr bounce
           jmp loop
 l1

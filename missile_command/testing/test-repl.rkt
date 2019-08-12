@@ -156,7 +156,7 @@
   (test-assert '(0 0 0 0 0 0 0 0 0 0 0) (cdr (line-test 10 0 0 0 "genline")) "horizonal")
   (let ((seq '(0 1 2 3 4 5 6 7 8 9 10)))
     (test-assert  seq (cdr (line-test 0 10 0 10 "genline")) "diagonal x1<x2")
-    ;(test-assert  (reverse seq) (cdr (line-test 10 0 0 10 "genline")) "diagonal x1>x2")
+    (test-assert  (reverse seq) (cdr (line-test 10 0 0 10 "genline")) "diagonal x1>x2")
     )
   (test-assert '(0 1 2 3 4 5 6 7 8 9 10) (cdr (line-test 0 10 0 10 "genline")) "diagonal")
   (let ((seq '(11 11 12 12 13 14 14 15 16 16 17)))

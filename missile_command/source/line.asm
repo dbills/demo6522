@@ -120,7 +120,7 @@ borda     subroutine
           {3}
 .noshift
           endm
-
+;;; note: diagonals don't end up here
 ;;; lstore: pointer to line storage
 line1     subroutine
           ldy dy
@@ -132,7 +132,8 @@ line1     subroutine
           dey
           bne .loop
           rts
-
+;;; note: diagonal lines fall here
+;;; dx>dy
 line2     subroutine
           ;; might be able to replace below with tay
           ldy dx                        ;y=dx
@@ -158,13 +159,14 @@ line3     subroutine
           bne .loop
           rts
 ;;; dx>dy and x2<x1
+;;; diagonals come in here
 line4     subroutine
           ldy dx                        ;y=dx
           ldx y1                        ;x=y2
 .loop                                   ;while(y>0)
+          increment_long_axis dy,dx,inx
           txa
           sta (lstore),y                ;lstore[y]=x
-          increment_long_axis dy,dx,inx
           dey
           bne .loop                     ;
           rts

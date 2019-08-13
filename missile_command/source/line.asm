@@ -205,9 +205,8 @@ render2   subroutine
 .loop
           lda (lstore),y
           sta pl_y
-          stx pl_x
+          plotm txa
           dex
-          jsr plot
           dey
           bne .loop
           rts
@@ -218,9 +217,8 @@ render4   subroutine
 .loop
           lda (lstore),y
           sta pl_y
-          stx pl_x
+          plotm txa
           dex
-          jsr plot
           dey
           bne .loop
           rts

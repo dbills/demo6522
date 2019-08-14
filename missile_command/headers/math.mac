@@ -61,6 +61,16 @@
           sta [{2}]+1
           endm
 
+          mac sub_wb
+          sec
+          lda [{1}]+0
+          sbc [{2}]+0
+          sta [{1}]+0
+          lda [{1}]+1
+          sbc #0
+          sta [{1}]+1
+          endm
+
           mac sub_abw
           sec
           lda #[{1}] & $ff            ; load low byte

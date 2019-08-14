@@ -144,6 +144,7 @@ fubar    dc.b
           include "zerop.asm"           ;must be last
           include "screen.dat"
           include "shapes.dat"
-          include "line.dat"
+          include "text.dat"
+          ;include "line.dat"
 
 ldata1  

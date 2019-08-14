@@ -5,9 +5,10 @@
 ;;; sprite source data ( left and right side ) ptr0,1,2,3
 ;;; 
 sp_draw   subroutine
-          sub_abw BORDA,s_y,ptr_2
-          modulo8 s_x,x
-          mul16
+          ;sub_abw BORDA,s_y,ptr_2
+          sub_abw LETA,s_y,ptr_2
+          modulo8 s_x,x                 ;find correct bit offset
+          mul16                         ;in preshifted images
           clc
           adc ptr_2
           sta ptr_2
@@ -21,11 +22,7 @@ sp_draw   subroutine
           lda s_x,x
           lsr
           lsr
-          lsr
-          ;; multiply by 2 to get zp address
-          ;; of screen column CHRAM ptr
-          ;; and place in Y
-          asl
+          and #$fe
           tay
           ;; copy correct ptr to ptr_0
           lda pltbl,y                   ;

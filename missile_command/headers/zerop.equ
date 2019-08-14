@@ -17,9 +17,9 @@ S_COUNT   set 0                         ;sprite index counter
 pltbl     repeat SCRCOLS
           dc.w 0
           repend
-ptr_0     dc.w 0
+ptr_0     dc.w 0                        ;plot used
 ptr_1     dc.w 0
-ptr_2     dc.w 0
+ptr_2     dc.w 0                        ;sp_draw
 ptr_3     dc.w 0
 save_y    dc.b 0
 save_x    dc.b 0

@@ -178,13 +178,13 @@ line4     subroutine
 ;;; if oldx!=x then recalc
 
 
-;;; move Y down one line when drawing
-;;; a dx>dy line
-increment_y         subroutine
-                    ldx xbmask_pidx
-                    lda XBMASKS_OFFSET_TBL,x
-                    sta xbmask_pidx
-                    rts
+;; ;;; move Y down one line when drawing
+;; ;;; a dx>dy line
+;; increment_y         subroutine
+;;                     ldx xbmask_pidx
+;;                     lda XBMASKS_OFFSET_TBL,x
+;;                     sta xbmask_pidx
+;;                     rts
 
 render1   subroutine
           ldy dy

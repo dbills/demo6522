@@ -7,8 +7,14 @@
 sp_draw   subroutine
           ;sub_abw BORDA,s_y,ptr_2
           sub_abw LETA,s_y,ptr_2
+
           modulo8 s_x,x                 ;find correct bit offset
           mul16                         ;in preshifted images
+          
+          sec
+          sbc s_y
+          ;; if carry is clear i have a negative number
+          
           clc
           adc ptr_2
           sta ptr_2
@@ -27,16 +33,13 @@ sp_draw   subroutine
           ;; copy correct ptr to ptr_0
           lda pltbl,y                   ;
           sta ptr_0
-          iny
-          lda pltbl,y
+          lda pltbl+1,y
           sta ptr_0 + 1
           ;; ptr_0 is location in CHRAM
           ;; of the correct character column
-          iny
-          lda pltbl,y
+          lda pltbl+2,y
           sta ptr_1
-          iny
-          lda pltbl,y
+          lda pltbl+3,y
           sta ptr_1 + 1
           ;; ptr_1 is right half of sprite
 
@@ -62,3 +65,21 @@ sp_draw   subroutine
           brk
           ENDM
 
+          ;; X = Y offset
+          ;; ptr_0 sprite to draw
+                    mac hard_draw_sprite
+BYTE_OFFSET         set 0
+                    repeat 8
+                    lda {1} + BYTE_OFFSET
+                    sta {2} + BYTE_OFFSET,y
+BYTE_OFFSET         set BYTE_OFFSET + 1
+                    repend
+                    repeat 8
+                    lda {1} + BYTE_OFFSET
+                    sta {2} + BYTE_OFFSET,y
+                    repend
+                    endm
+          
+fast_draw_sprite    subroutine
+                    hard_draw_sprite BORDA,SCADDR
+                    rts

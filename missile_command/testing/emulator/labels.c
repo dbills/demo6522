@@ -6,6 +6,13 @@ static struct _labels {
   uint16_t address;
 } labels[255];
 
+int *borda() {
+  int *i=malloc(8);
+  i[0]=42;
+  i[1]=49;
+  return i;
+}
+
 BOOL load_labels(const char *const file) {
   FILE *const fd = fopen(file, "rb");
   if(!fd) {

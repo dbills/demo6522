@@ -1,17 +1,19 @@
 ;;; prefixes
-;;; w=word
-;;; a=address
-;;; b=bytes
+;;; w=word - a memory location specifying a word
+;;; a=address - an immediate word value
+;;; b=bytes - a memory location specifying a byte
 ;;; addition/subtraction operations are
 ;;; 2 or 3 argument
-;;; here's some examples
+;;; a two argument stores its result in arg1
+;;; a three argument staores its result in arg3
+;;; here's some examples:
 ;;; sub_ww: 2 arg word from word
 ;;; sub_wb: w arg byte from word
 ;;; sub_wbw: 3 args: byte from word, store in output word
 ;;; sub_aw: word from address
 ;;; sub_abw: byte from address, store in a output word
 
-          mac sub_w
+          mac sub_ww
           sec
           lda {1}
           sbc {2}
@@ -21,7 +23,7 @@
           sta {1}+1
           endm
 
-          mac add_w
+          mac add_ww
           clc                     ;ensure carry is clear
           lda [{1}]+0             ;add the two least significant bytes
           adc [{2}]+0             ;
@@ -31,14 +33,14 @@
           sta [{1}]+1             ;... and store the result    clc
           endm
 
-          mac add
+          mac add_bb
           clc 
           lda {1}
           adc {2}
           sta {1}
           endm
 
-          mac sub
+          mac sub_bb
           sec
           lda {1}
           sbc {2}

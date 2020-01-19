@@ -1,5 +1,3 @@
-          ;; public line symbols
-;          include "line.equ"
           ;; private line symbols
           SEG.U     ZEROP
 err       dc.b

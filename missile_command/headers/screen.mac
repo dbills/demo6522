@@ -1,3 +1,10 @@
+;;; screen module
+;;; 
+;;; I define utilities for working with the screen
+;;; hires screen
+;;; tall/short characters
+;;; colormap manipulation
+;;; plotting functions
 SCRROWS   equ       23/2                ;176
 SCRCOLS   equ       22                  ;176
 CHBASE1   equ       $1000
@@ -94,7 +101,7 @@ CLRRAM    equ       37888
           ;; and place in Y
           lsr
           lsr
-          and #$fe
+          and #$fe ; collapse lsr/asl to this
           tay
           ;; ptr_0 will be location in CHRAM
           ;; of the correct character column

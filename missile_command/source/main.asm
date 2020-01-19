@@ -15,7 +15,9 @@
           org $3000
 
           ;; enabling interrupts really pisses the system off with 
-          ;; the scren and character configs I have
+          ;; the screen and character configs I have
+          ;; hesmon launches us with interupts off as far as i can tell
+          sei
           mov_wi MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
           cli

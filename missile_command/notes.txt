@@ -3,7 +3,32 @@
 .asm: source code files
 .equ: public variables for routines
 
-pick a one or two charcter prefix for subroutines
+code is organized into modules
+where an asm file contains the actual code for a module
+and a mac file contains macros for a module
+if you only have equates use a .equ file
+otherwise equates and macros may be mixed in a .mac file
+
+variables that are 'private' to a module are declared 
+under the ZEROP segment in the asm file for that module
+note that there isn't any way to 'enforce' this since we don't have
+a linker, but it provides some structure for the developer
+
+each module should have a brief comment at the top describing
+its responsibities.  This is mostly for the developer to remember
+what the heck belongs in that module when new functions/macros are
+being written
+
+if the function/symbol you creating is 'public' then it should 
+follow the convention of single letter prefix for the subsystem
+l_draw = line draw
+
+if the function/symbol is local to the module (i.e. 'static' in C )
+then use a descriptive function name of your choice
+
+
+
+pick a one or two character prefix for subroutines
 and public variables
 e.g.
 

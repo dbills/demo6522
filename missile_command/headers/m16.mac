@@ -1,16 +1,12 @@
 ;;; 16 bit macros
-;;; suffxes: 
-;;; _w word
-;;; _wi word immediate mode
-;;; 
-          mac inc_w
+          mac incw
           inc [{1}]+0
           bne .done
           inc [{1}]+1
 .done
           endm
 
-          mac dec_w
+          mac decw
           lda  [{1}]+0
           bne .done
           dec [{1}]+1
@@ -18,14 +14,14 @@
           dec [{1}]+0
           endm
 
-          mac mov_w
+          mac mov
           lda [{1}]
           sta [{2}]
           lda [{1}]+1
           sta [{2}]+1
           endm
-
-          mac mov_wi
+;;; move word immediate
+          mac movi
           lda #[{1} & $ff]    ; load low byte
           sta {2}             ; store low byte
           lda #[{1} >> 8]     ; load high byte
@@ -43,7 +39,7 @@
 
 ;;; compare {1} with #{2}
 ;;; you can use beq,bne with this
-          mac cmp_wi
+          mac cmpi
           lda {1}+1
           cmp #{2} >> 8       ; load high byte
           bne .done
@@ -51,8 +47,11 @@
           cmp #[{2}] & $ff    ; load low byte
 .done        
           emdn
-
-          mac mov_w
+;;; move,X source,dest
+;;; equiv C code: 
+;;; word array[]
+;;; array[2] = array[1]
+          mac movx
           txa
           pha
           asl                         ; x*2 since it's a word

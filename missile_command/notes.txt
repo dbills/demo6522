@@ -178,3 +178,13 @@ what if i do nothing but just write the x value
 small x line, 918 cycles
 jesus, i can only render about 18 lines a frame
 f*ck
+
+
+---------------------
+next steps, create table to hold incoming missiles
+need to set aside memory for each incoming missile line
+render* routines are currently hard coded to pull from 
+equate lstore , indirect, Y
+how to paramaterize
+just load the line data into that ZP pointer
+

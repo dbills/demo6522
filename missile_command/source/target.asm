@@ -108,7 +108,7 @@ lineto    subroutine
           lda s_y,x
           sta y2
 
-          mov_wi ldata1-1,lstore
+          movi ldata1-1,lstore
           jsr genline
 ;          jsr line1
 ;          jsr render1

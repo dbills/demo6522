@@ -1,5 +1,7 @@
           ;; public line symbols
-;          include "line.equ"
+          ;; line* routines put the 'line instructions' in ram
+          ;; render* routines take a line instruction set and
+          ;; place on the screen
           ;; private line symbols
           SEG.U     ZEROP
 err       dc.b
@@ -9,7 +11,8 @@ dy        dc.b
 
           ;; inputs A=dx
           ;; x1>x2
-          mac line_choice2
+          ;; figure out if we are drawing in 2 or 4
+          mac quadrant_2or4
           cmp dy
           bcs .dxline                   ;dx>dy
           jsr line3
@@ -21,7 +24,8 @@ dy        dc.b
           endm
           ;; x1<x2
           ;; inputs A=dx
-          mac line_choice
+          ;; figure out if we are drawing in 1 or 3
+          mac quadrant_1or3
           cmp dy
           bcs .dxline                   ;dx>dy
           jsr line1
@@ -57,16 +61,21 @@ genline   subroutine
           bcs .normal                   ;x2<x1
 .reversed
           eor #$ff                      ;switch to x1-x2
-          adc #2
-          sta dx
-          line_choice2
+          ;; we need to add 1 to finish our little 2's complement
+          ;; stunt and get to x1-x2 -- and we also 
+          ;; need to add +1 to dx, so
+          ;; clc implied
+          adc #2                        ;
+          sta dx                     
+          quadrant_2or4
           rts
 .normal
-          adc #0                        ;C is set
+          adc #0                        ;C is set dx+=1
           sta dx                      
-          line_choice
+          quadrant_1or3
           rts
-
+          ;; sets up input for genline
+          ;; linevars(x1,x2,y1,y2)
           mac linevars
           lda #{1}
           sta x1
@@ -86,7 +95,7 @@ test1     subroutine
           ;; lda #1
           ;; jsr plot
           linevars $ae,$87,$00,$25
-          mov_wi ldata1-1,lstore
+          movi ldata1-1,lstore
           jsr genline
 .loop:     
           jmp .loop
@@ -173,18 +182,6 @@ line4     subroutine
           dey
           bne .loop                     ;
           rts
-
-;;; cache the screen column pointer somehow
-;;; if oldx!=x then recalc
-
-
-;; ;;; move Y down one line when drawing
-;; ;;; a dx>dy line
-;; increment_y         subroutine
-;;                     ldx xbmask_pidx
-;;                     lda XBMASKS_OFFSET_TBL,x
-;;                     sta xbmask_pidx
-;;                     rts
 
 render1   subroutine
           ldy dy

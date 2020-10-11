@@ -16,7 +16,7 @@
 
           ;; enabling interrupts really pisses the system off with 
           ;; the scren and character configs I have
-          mov_wi MINISR, $0314
+          movi MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
           cli
 
@@ -64,7 +64,7 @@ i_hires   subroutine
           rts
           
 i_chrset  subroutine
-          mov_wi CHBASE1, ptr_0
+          movi CHBASE1, ptr_0
           ldy #0
           ldx #16               ;# of pages
           lda #0                ;AA is nice

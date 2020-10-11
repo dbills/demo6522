@@ -7,7 +7,7 @@
           lda .blargo
 i_pltbl   subroutine
           ldy #SCADDR_SZ - 1
-          mov_wi SCADDR, ptr_0
+          movi SCADDR, ptr_0
 .loop
           lda (ptr_0),y
           sta pltbl,y

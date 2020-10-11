@@ -12,7 +12,7 @@
 ;;; pltbl: table of CHRAM columns
 ;;; 0 = address of CHRAM for column 0
 ;;; 2 = address of CHRAM for column 1
-;;; ... SCRCOLS
+;;; ... up to SCRCOLS defined in screen.equ
 S_COUNT   set 0                         ;sprite index counter
 pltbl     repeat SCRCOLS
           dc.w 0

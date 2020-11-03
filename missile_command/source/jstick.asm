@@ -1,38 +1,42 @@
-          include "jstick.mac"
-
-          SEG CODE
-i_joy     subroutine
+.export i_joy, j_wfire,  j_tup, j_read
+.include "jstick.mac"
+.include "system.mac"
+          .ZEROPAGE
+LASTJOY:  .byte 4
+          .CODE
+.proc     i_joy 
           lda #127
           sta VIA2DDR             ;setup VIA for joystick read
 
           lda #0
           sta $9113               ;joy VIA to input
           rts
-
+.endproc
 ;;; waits for joystick to be pressed
 ;;; and released
-j_wfire   subroutine
-.loop
+.proc     j_wfire
+loop:       
           lda JOY0                ;read joy register
           and #JOYT               ;was trigger pressed?
-          bne .loop
-.loop1                            ;wait trigger release
+          bne loop
+loop1:                            ;wait trigger release
           lda JOY0
           and #JOYT
-          bne .fire
-          beq .loop1
-.fire
+          bne fire
+          beq loop1
+fire:       
           rts
-
-j_tup     subroutine                    ; trigger up
-.loop1
+.endproc
+;;; wait for trigger up
+.proc     j_tup                   ; trigger up
+loop1:
           lda JOY0
           and #bJOYT
-          bne .fire
-          beq .loop1
-.fire
+          bne fire
+          beq loop1
+fire:       
           rts
-
+.endproc
 ;;; read joystick value into single byte
 ;;; requires multiple VIA read due to vic20 design
 ;;; OUT: A=LASTJOY=joystick value
@@ -40,16 +44,13 @@ j_tup     subroutine                    ; trigger up
 ;;; is pressed
 ;;; 
 ;;; 10011100
-VALIDMOVE equ $9c
-j_read    subroutine
+.proc     j_read 
           lda JOY0
           and #%111100
           sta LASTJOY
           lda JOY0B
           and #$80
           ora LASTJOY             ;or in bit 7 as jstick right bit
-
-          ;sta LASTJOY
-
           rts
-          
+.endproc          
+

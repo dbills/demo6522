@@ -1,0 +1,7 @@
+          ;; wait for {1} seconds
+.IMPORT sleep_
+          .macro sleep _1
+          lda _1      
+          sta tmval
+          jsr sleep_
+          .endmacro

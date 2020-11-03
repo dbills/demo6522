@@ -1,21 +1,68 @@
+.include "zerop.inc"
+.include "m16.mac"
+.include "screen.mac"
+.export plot,i_pltbl,BMASKS
 ;;; initialize the plot table
 ;;; ram starting location for all hires
 ;;; screen columns
-          seg       ZEROP
-.blargo    dc.b 0          
-          seg       CODE
-          lda .blargo
-i_pltbl   subroutine
+.proc     i_pltbl
           ldy #SCADDR_SZ - 1
           movi SCADDR, ptr_0
-.loop
+loop:     
           lda (ptr_0),y
           sta pltbl,y
           dey
-          bpl .loop
+          bpl loop
           rts
+.endproc
 
-plot      subroutine
+.proc     plot 
           plotm lda pl_x
           rts
-
+.endproc
+.EXPORT SCADDR,SCRMAP,SCRMAP_SZ
+.DATA
+SCADDR:     
+;;; screen column addresses for chargen ram
+;;; on the hi-res screen
+;;; column 0 would be start in chram for 'A'
+;;; column 1 would be start in chram for letter 'A' + SCRROWS
+;;; etc.
+COL       .set 0
+          .repeat SCRCOLS
+          .word CHBASE1 + (COL * SCRROWS * CHARHT)
+COL       .set COL + 1
+          .endrep
+SCADDR_SZ = * - SCADDR 
+;;; predefined bytes for each of the 8
+;;; possible bit positions, starting with
+;;; bit 7 -> bit 0 on
+;;; for dy>dx line drawing
+BMASKS:     
+BPOS      .set 128
+          .repeat 8
+          .byte BPOS
+BPOS      .set BPOS >> 1
+          .endrep
+BMASKS_SZ = * - BMASKS
+;;; the character tiles in screen memory
+;;; that comprise the hi-res screen
+;;; as vertical strips i.e.
+;;; the first strip would be:
+;;; column 0123456 ...
+;;;        ----------------------------
+;;;        Axy
+;;;        Bxy
+;;;        Cxy
+;;; etc ...
+SCRMAP:     
+ROW       .set 0
+          .repeat SCRROWS
+COL       .set 0
+            .repeat SCRCOLS
+            .byte ROW + COL * SCRROWS
+COL         .set COL + 1          
+            .endrep
+ROW       .set ROW + 1          
+          .endrep
+SCRMAP_SZ = * - SCRMAP

@@ -1,6 +1,0 @@
-          ;; wait for {1} seconds
-          mac sleep
-          lda {1}              
-          sta tmval
-          jsr sleep_
-          endm

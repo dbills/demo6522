@@ -1,5 +1,0 @@
-kp_x       equ       S_COUNT            ;killer plane
-kp_y       equ       S_COUNT+1 
-ks_x       equ       S_COUNT+1          ;killer satellite
-ks_y       equ       S_COUNT+1 
-S_COUNT   set S_COUNT + 2

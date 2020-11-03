@@ -1,0 +1,16 @@
+BLACK        = 0
+WHITE        = 1
+RED          = 2
+CYAN         = 3
+PURPLE       = 4
+GREEN        = 5
+BLUE         = 6
+YELLOW       = 7
+ORANGE       = 8                      ;8-15 screen or aux only
+LTORANGE     = 9
+PINK         = 10
+LTCYAN       = 11
+LTPURPLE     = 12
+LTGREEN      = 13
+LTBLUE       = 14
+LTYELLOW     = 15

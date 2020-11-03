@@ -1,18 +1,20 @@
-          processor 6502
+          .include   "screen.inc"
+          .include   "zerop.inc"         ;must be near top
+          .include   "timer.inc"
+          .include   "m16.mac"
+          .include   "colors.equ"
+          .include   "line.inc"
+          .include   "math.mac"
+          .include   "system.mac"
+          .include   "jstick.inc"
+          .include   "kplane.mac"
 
-          include   "screen.mac"
-          include   "zerop.equ"         ;must be near top
-          include   "timer.mac"
-          include   "m16.mac"
-          include   "colors.equ"
-          include   "line.equ"
-          include   "math.mac"
-          include   "system.equ"
-          include   "jstick.mac"
-          include   "kplane.mac"
-
-          SEG       CODE
-          org $3000
+          .import moveme                ;from target.asm, consider making header
+          .import sp_draw               ; from sprite.asm
+          .importzp SCADDR,SCRMAP_SZ
+          .import SCRMAP
+          .CODE
+          .org $3000
 
           ;; enabling interrupts really pisses the system off with 
           ;; the scren and character configs I have
@@ -25,7 +27,7 @@
           jsr i_chrset
           jsr i_joy
           chbase %1100                  ;$1000
-          screenmem $0200
+          screenmem $1200
           ;; border colors
           invmode 0
           bcolor_i BLUE
@@ -35,7 +37,7 @@
           ;jsr test1
           jsr bounce
           jmp loop
-l1
+l1:         
           jsr plot
           inc pl_x
           inc pl_y
@@ -44,59 +46,59 @@ l1
           beq loop
           jmp l1
 
-loop
+loop:       
           jmp loop
           rts
 
-i_hires   subroutine
+.proc     i_hires  
           setrows
           tallchar              
           ldy #SCRMAP_SZ
           ;; fill screen with chars tile
           ;; pattern 
-.loop
+loop:       
           lda #BLUE
           sta CLRRAM-1,y
           lda SCRMAP-1,y
           sta SCREEN-1,y
           dey
-          bne .loop
+          bne loop
           rts
-          
-i_chrset  subroutine
+.endproc          
+.proc     i_chrset
           movi CHBASE1, ptr_0
           ldy #0
           ldx #16               ;# of pages
           lda #0                ;AA is nice
-.loop
+loop:       
           sta (ptr_0),y
           iny
-          beq .inch
-          bne .loop
-.inch
+          beq inch
+          bne loop
+inch:       
           inc ptr_0 + 1
           dex
-          beq .done
-          bne .loop
-.done
+          beq done
+          bne loop
+done:       
           rts
-
+.endproc
 ;;; wait vertical blank
-wait_v    subroutine
-.iloop
+.proc       wait_v
+iloop:      
           lda VICRASTER           ;load raster line
-          bne .iloop
+          bne iloop
           rts
-
-bounce    subroutine
-.reset
+.endproc
+.proc       bounce
+reset:      
           lda #SCRROWS*16-8
           sta s_y
           lda #160
           sta s_x
           ldx #S_TARGET
           jsr sp_draw
-.loop
+loop:       
           jsr wait_v
           ldx #S_TARGET
           jsr sp_draw                   ;erase
@@ -107,12 +109,11 @@ bounce    subroutine
           ldx #S_TARGET
           jsr sp_draw                   ;draw
 
-          jmp .loop
+          jmp loop
           rts
+.endproc
 
-
-
-i_intr    subroutine
+.proc     i_intr 
           sei
           lda $bf                       ;eabf
           sta $0314
@@ -120,31 +121,5 @@ i_intr    subroutine
           sta $0315
           cli
           rts
+.endproc
 
-;;; mindless bit pattern to check
-;;; interrupt service routines
-rotate1   subroutine
-.doom
-          lda $a2
-          sta $1000
-          lda fubar
-          sta $1001
-          inc fubar
-          jmp .doom
-fubar    dc.b
-          rts
-
-
-          include "screen.asm"
-          include "timer.asm"
-          include "line.asm"
-          include "sprite.asm"
-          include "jstick.asm"
-          include "target.asm"
-          include "zerop.asm"           ;must be last
-          include "screen.dat"
-          include "shapes.dat"
-          include "text.dat"
-          ;include "line.dat"
-
-ldata1  

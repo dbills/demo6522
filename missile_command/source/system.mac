@@ -1,0 +1,26 @@
+.ifndef _SYSTEM_H
+SYSTEM_H = 1
+VICRASTER   = $9004
+VICSCRN     = $9005             ; vic chip character generator pointer
+LIGHPENX    = $9006             ; used for random number
+VIA1DDR     = $9113
+VIA2DDR     = $9122             ; ?
+JIFFYL      = $a2          
+DEFISR      = $eabf             ; os default IRQ
+MINISR      = $eb15             ; the minimum isr ( no keyboard polling o
+.macro      saveall
+            pha
+            txa
+            pha
+            tya
+            pha
+.endmacro
+
+.macro       resall
+            pla
+            tay
+            pla
+            tax
+            pla
+.endmacro
+.endif

@@ -1,0 +1,101 @@
+;;; prefixes
+;;; w=word
+;;; a=address
+;;; b=bytes
+;;; addition/subtraction operations are
+;;; 2 or 3 argument
+;;; here's some examples
+;;; sub_ww: 2 arg word from word
+;;; sub_wb: w arg byte from word
+;;; sub_wbw: 3 args: byte from word, store in output word
+;;; sub_aw: word from address
+;;; sub_abw: byte from address, store in a output word
+
+.macro sub_w _1,_2
+          sec
+          lda _1
+          sbc _2
+          sta _1
+          lda _1+1
+          sbc _2+1
+          sta _1+1
+.endmacro
+
+.macro    add_w _1,_2
+          clc                     ;ensure carry is clear
+          lda [_1]+0             ;add the two least significant bytes
+          adc [_2]+0             ;
+          sta [_1]+0             ;... and store the result
+          lda [_1]+1             ;add the two most significant bytes
+          adc [_2]+1             ;... and any propagated carry bit
+          sta [_1]+1             ;... and store the result    clc
+          .endmacro
+
+          .macro add _1,_2
+          clc 
+          lda _1
+          adc _2
+          sta _1
+          .endmacro
+
+          .macro sub _1,_2
+          sec
+          lda _1
+          sbc _2
+          sta _1
+          .endmacro
+          ;; modulo 8
+          .macro modulo8 _1
+          lda #%00000111
+          and _1
+          .endmacro
+          ;; move _1 to _2
+          ;; subtracting byte 3
+          .macro sub_wbw _1,_2,_3
+          sec
+          lda [_1]+0
+          sbc [_3]+0
+          sta [_2]+0
+          lda [_1]+1
+          sbc #0
+          sta [_2]+1
+          .endmacro
+
+          .macro sub_wb _1,_2
+          sec
+          lda [_1]+0
+          sbc [_2]+0
+          sta [_1]+0
+          lda [_1]+1
+          sbc #0
+          sta [_1]+1
+          .endmacro
+
+          .macro sub_abw _1,_2,_3
+          sec
+          lda #<_1            ; load low byte
+          sbc _2,x
+          sta _3+0
+          lda #>_1            ; load high byte
+          sbc #0
+          sta _3+1
+          .endmacro
+
+          ;; move _1 to _2
+          ;; adding byte 3
+          .macro add_wbw _1,_2,_3
+          clc                ;ensure carry is clear
+          lda _1+0        ;add the two least significant bytes
+          adc _2            ;
+          sta _3+0        ;... and store the result
+          lda _1+1        ;add the two most significant bytes
+          adc #0             ;... and any propagated carry bit
+          sta _3+1        ;... and store the result    clc
+          .endmacro  
+
+          .macro mul16
+          asl
+          asl
+          asl
+          asl
+          .endmacro

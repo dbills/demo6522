@@ -1,13 +1,15 @@
-          include "comp.mac"
-          
+.include "math.mac"
+.include "shapes.inc"
+.include "zerop.inc"
+.export sp_draw          
 ;;; draw sprite at s_x,x s_y,x
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
 ;;; sprite source data ( left and right side ) ptr0,1,2,3
 ;;; 
-sp_draw   subroutine
+.proc       sp_draw 
           ;sub_abw BORDA,s_y,ptr_2
           sub_abw LETA,s_y,ptr_2
-          modulo8 s_x,x                 ;find correct bit offset
+          modulo8 s_x                   ;find correct bit offset
           mul16                         ;in preshifted images
           clc
           adc ptr_2
@@ -42,7 +44,7 @@ sp_draw   subroutine
 
           ldy s_y,x
           ldx #8
-.loop1
+loop1:      
           lda (ptr_1),y
           eor (ptr_3),y
           sta (ptr_1),y
@@ -53,12 +55,13 @@ sp_draw   subroutine
 
           iny
           dex
-          bne .loop1
+          bne loop1
           rts
+.endproc
 
-          MAC abort
+.macro    abort
           lda #$c0
           sta 9005
           brk
-          ENDM
+.endmacro
 

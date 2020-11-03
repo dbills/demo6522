@@ -9,12 +9,28 @@ C1541=/mnt/c/winvice3/c1541.exe
 EXE=a
 MAIN=source/main.asm
 FLAGS=-I./headers/ -I./data/ -I./source/
+CA65FIX= sed  -e 's/^\([^(]*\)[(]\([0-9]*\)[)]:/\1:\2:0:/'
 all: tests
 	rm -f a.p00 a.lst
 	dasm $(MAIN) $(FLAGS) -oa.p00;dasm $(MAIN) $(FLAGS) -la.lst
 	sed -rnf build_support/subs.sed < a.lst > labels.txt
 	sed -rnf build_support/labels.sed < a.lst >> labels.txt
-	#$(C1541) -attach disk1.d64 -delete a -write a.p00 a 
+#$(C1541) -attach disk1.d64 -delete a -write a.p00 a 
 
 tests:
 	cd testing && make
+
+foo:
+	cc65 foo.cc -t vic20 -o foo.S
+	ca65 foo.S -o foo.o
+	ld65 -o b.p00 -C vic20-32k.cfg -m foo.map foo.o vic20.lib
+
+port:
+#	ca65 --cpu 6502 -I headers source/jstick.asm
+#	ca65 --cpu 6502 -I headers source/line.asm 2>&1 | $(CA65FIX)
+	for i in *.asm;do ../build_support/assemble.sh $$i;done
+	for i in *.asm;do ../build_support/assemble.sh $$i asm;done
+
+
+foo1:
+	ca65 --cpu 6502 shapes.asm -l foo.lst

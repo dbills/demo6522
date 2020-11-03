@@ -1,0 +1,6 @@
+.ZEROPAGE
+kp_x:       .byte 0
+kp_y:       .byte 0
+ks_x:       .byte 0
+ks_y:       .byte 0      
+.CODE

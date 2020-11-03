@@ -1,26 +1,28 @@
-          SEG       CODE
-tmval     dc.b      
-sleep_    subroutine
-.l1                                     ;one second
+.include "system.mac"
+            .CODE
+tmval:      .byte 0
+.proc     sleep_ 
+l1:                                     ;one second
           ldx #61
-.l2                                     ;one 60th
+l2:                                     ;one 60th
           lda JIFFYL
-.jif1          
+jif1:       
           cmp JIFFYL
-          beq .jif1
+          beq jif1
 
           dex
-          bne .l2                       ;wait another jiffy
+          bne l2                       ;wait another jiffy
           dec tmval
-          bne .l1                       ;wait another sec
+          bne l1                       ;wait another sec
           rts
-
-          mac updjiffy
+.endproc
+          .macro updjiffy
+            .local dd
 ;        clc
           INC JIFFYL
-          BNE .dd
+          BNE dd
           INC JIFFYM
-          BNE .dd
+          BNE dd
           INC JIFFYH
-.dd
-          endm
+dd:         
+            .endmacro

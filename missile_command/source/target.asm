@@ -1,101 +1,110 @@
-          include "jstick.mac"
-          include   "system.mac"
+.include "jstick.inc"
+.include "system.mac"
+.include "line.inc"
+.include "m16.mac"
+.include "zerop.inc"
+.include "screen.inc"
+.export   moveme           
 
-          mac mov_l
+          .macro mov_l
+            .local done
           lda #0
           cmp s_x,x
-          beq .done
+          beq done
           dec s_x,x
-.done
-          endm
+done:       
+          .endmacro
 
-          mac mov_r
-          lda #[SCRCOLS*8]-8-1
+          .macro mov_r
+          .local done
+          lda #(SCRCOLS*8)-8-1
           cmp s_x,x
-          bcc .done
+          bcc done
           inc s_x,x
-.done
-          endm
+done:       
+          .endmacro
 
-          mac mov_d
+          .macro mov_d
+          .local done
           lda #SCRROWS*16-8-1
           cmp s_y,x
-          bcc .done
+          bcc done
           inc s_y,x
-.done
-          endm
+done:       
+          .endmacro
 
-          mac mov_u
+          .macro mov_u
+            .local done
           lda #0
           cmp s_y,x
-          beq .done
+          beq done
           dec s_y,x
-.done
-          endm
+done:       
+          .endmacro
           
-moveme    subroutine
+.proc     moveme
           jsr j_read
           cmp #JOYU
-          beq .joyu
+          beq joyu
           cmp #JOYD
-          beq .joyd
+          beq joyd
           cmp #JOYL
-          beq .joyl
+          beq joyl
           cmp #JOYR
-          beq .joyr
+          beq joyr
           cmp #JOYR & JOYU
-          beq .joyru
+          beq joyru
           cmp #JOYL & JOYU
-          beq .joyul
+          beq joyul
           cmp #JOYL & JOYD
-          beq .joydl
+          beq joydl
           cmp #JOYR & JOYD
-          beq .joyrd
+          beq joyrd
           cmp #JOYT
-          beq .joyt
+          beq joyt
           cmp #JOYT & JOYR
-          beq .joyrt
+          beq joyrt
           rts
-.joyrd
+joyrd:      
           mov_r
           mov_d
           rts
-.joyru
+joyru:      
           mov_r
           mov_u
           rts
-.joydl
+joydl:      
           mov_d
           mov_l
           rts
-.joyul
+joyul:      
           mov_u
           mov_l
           rts
-.joyd
+joyd:       
           mov_d
           rts
-.joyu
+joyu:       
           mov_u
           rts
-.joyr
+joyr:       
           mov_r
           rts
-.joyl
+joyl:       
           mov_l
           rts
-.joyt
+joyt:       
           ;jsr j_tup
           jsr j_tup
           jsr lineto
           rts
-.joyrt
+joyrt:      
           jsr lineto
           mov_r
           rts
-
+.endproc
 ;;; inputs: x sprite to draw line to
-lineto    subroutine
+.proc     lineto
           saveall
           ;; set x1,x2,y1,y2
           ;lda #0
@@ -116,4 +125,4 @@ lineto    subroutine
 ;          jsr render2
           resall
           rts
-
+.endproc

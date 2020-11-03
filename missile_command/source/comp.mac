@@ -1,0 +1,3 @@
+          .macro blt
+          bcc {1}
+          .endmacro

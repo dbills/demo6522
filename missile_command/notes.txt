@@ -187,4 +187,70 @@ render* routines are currently hard coded to pull from
 equate lstore , indirect, Y
 how to paramaterize
 just load the line data into that ZP pointer
+hmm, so the line data would need to include information about
+which renderer to use!
+how to model -- do I save the address to call, or use a switch ladder BS?
+or do we put them in buckets such that we know that all lines in such an such a place
+are of type X.  now if the lines are truly random then this might not work well
+I need some amount of dynamic behavior.
 
+I also need the a way to have e.g. render1 just draw 1 point from the line
+-- question, can I invent some ridiculous 'coroutine' thingy?
+i'd need to invent a 'yield' statement
+the advantage to this is I don't need to factor all the state out
+for example that state in that function is y2,dy, Y and lstore
+thoughts: where do you save the context at?
+          zero page would be crowded
+          the stack?  how would you know when you had come back
+          force the user of the coroutine to say?
+          
+          how would this coroutine thingy work?
+          round-robin, everything get's run in order
+          a routine can be remove from the list of tasks to run
+          a routine that reaches its rts removes itself
+          e.g. a line that runs all the way to the end, has hit a city
+          and we explode
+
+          so we're designing a little multi-tasking system
+          where every missile is a task for the purpose of maybe
+          having some easier code to write?
+
+          back to yield
+          yield needs to specify where store, what to store
+          lda context
+          sta dest
+          you'd have to swap out the stack , christ ...
+          jsr missile
+          jsr explosion
+          
+
+          you need to store off the stack and restore it each time from some checkpoint
+          like:
+            save stack pointer
+            do stuff
+            yield 
+              save context in space
+              save everything after stack point in context space
+              move stack pointer back to before coroutine enter
+            select next task
+              store stack point
+              restore from context
+              append to stack for this task
+              update stack pointer
+              jmp to yield+1
+
+              
+           enter_coroutine(id)
+           give every routine 10 bytes say?
+           can a coroutine start another?
+           lda {1}, sta(context),X
+           inx
+           lda {2}
+           
+           now i could write some stupid preprocessor?
+           Hmm, i don't hate that idea
+           otoh, what if the context was just given to you
+           as a ZP pointer?
+           then all your stuff is lda(context), DY
+           speed is the problem, the code generator puts them
+           back into your ZP variables for you

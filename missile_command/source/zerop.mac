@@ -1,0 +1,6 @@
+.ifndef _ZP_H
+_ZP_H = 1
+S_TARGET  = 0
+S_KPLANE  = 1
+S_KSAT    = 2
+.endif

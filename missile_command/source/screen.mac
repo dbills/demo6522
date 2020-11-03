@@ -1,0 +1,130 @@
+.ifndef _SCREEN_H
+_SCREEN_H = 1
+SCRROWS   =       23/2                ;176
+SCRCOLS   =       22                  ;176
+CHBASE1   =       $1000
+CHARHT    =       16
+.INCLUDE  "zerop.mac"
+.macro    tallchar        
+          ;; activate 16 high chars
+          lda $9003
+          ora #1
+          sta $9003             
+.endmacro
+
+.macro    shortchar
+          lda $9003
+          and #~1
+          sta $9003             
+.endmacro      
+
+.macro setrows
+          ;; bits 1-6 are row
+          lda $9003
+          and #%10000001
+          ora #(SCRROWS & %00111111) << 1
+          sta $9003
+.endmacro
+
+          ;;screen memory, default $1000
+          ;;Bits 4-6 of location 36869 are bits 10-12 of the
+          ;;screen's address, and bit 7 of location 36866 is bit 9 of the address
+          ;;of the screen   
+          ;; fedcba9876543210
+          ;; 000xxxy000000000
+          ;; y lives as bit 7 in register
+          ;; 36866 ($9002)
+.macro screenmem addr
+          .local bit9,bit10_12
+          ;;  bit [9-12] inclusive are the screen
+          ;;  any bits on outside that are an error
+          .IF (addr & %1110000111111111) > 0
+          .ERROR "invalid screen address"
+          .ELSE
+SCREEN    = addr
+          ;; move bit 9 to 7
+bit9      = (addr & %0000001000000000) >> 2
+          ;;  move bit 12-10 down to 6-4    
+bit10_12  = (addr & %0001110000000000) >> 6
+          lda 36866
+          and #%01111111
+          ora #bit9
+          sta 36866
+          lda 36869
+          and #%10001111
+          ora #bit10_12
+          sta 36869
+          .IF bit9=$80
+CLRRAM    =  38400
+          .ELSE
+CLRRAM    =  37888
+          .ENDIF
+          .ENDIF
+          
+.endmacro
+
+.macro chbase _1
+          lda $9005
+          and #$F0
+          ora #_1 & $0F
+          sta $9005
+.endmacro
+          ;; inverted mode 0=off 1=on
+.macro invmode _1
+          lda $900f
+          ora #_1 & %00001000
+          sta $900f
+.endmacro
+          ;; screen background
+.macro    scolor_i _1
+          lda $900f
+          and #      %00001111
+          ora #(_1 << 4) & %11110000
+          sta $900f
+.endmacro
+          ;; border
+          .macro bcolor_i _1
+          lda $900f
+          and #%11111000
+          ora #_1 & %00000111
+          sta $900f
+.endmacro
+          
+          ;; pl_x, pl_y
+          ;; a = color
+          ;; 0 based 0,0 is upper left
+          ;; 175,175 lower right
+          ;; x_to_a = instruction to move X into A
+.macro    plotm x_to_a
+          .local samecol
+          sty save_y
+          x_to_a
+          ;; divide by 8
+          ;; multiply by 2 to get zp address
+          ;; of screen column CHRAM ptr
+          ;; and place in Y
+          lsr
+          lsr
+          and #$fe
+          tay
+          ;; ptr_0 will be location in CHRAM
+          ;; of the correct character column
+          lda pltbl,y
+          sta ptr_0
+          lda pltbl+1,y
+          sta ptr_0 + 1
+samecol:    
+          ;; grab X % 8 for
+          ;; bit offset in byte
+          x_to_a
+          and #%00000111
+          tay
+          lda BMASKS,y          ;y=bitmask
+
+          ldy pl_y
+          eor (ptr_0),y
+          sta (ptr_0),y
+          ldy save_y
+.endmacro
+
+.endif

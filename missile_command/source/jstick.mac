@@ -1,0 +1,26 @@
+.ifndef JSTICK_h
+JSTICK_H = 1
+JOY0        = $9111
+JOY0B       = $9120             ; output register B VIA #2
+
+; 00000000
+;;; R TLDU
+;;; 00111100
+;;; 10111100 = bc
+;;; 10011100 = 9c
+
+;;; 00101100
+JOYMASK   = %10111100
+;; JOYR      = JOYMASK & [~$80]
+;; JOYL      = JOYMASK &~$10
+;; JOYU      = JOYMASK &~$4
+;; JOYD      = JOYMASK &~$8
+;; JOYT      = $20
+JOYD      = %10110100
+JOYU      = %10111000
+JOYR      = %00111100
+JOYL      = %10101100
+JOYT      = %10011100
+;;; individual bits for switches
+bJOYT     = %00100000
+.endif

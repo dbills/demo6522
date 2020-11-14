@@ -10,8 +10,9 @@
           .include   "kplane.mac"
           .include   "target.inc"
           .include   "sprite.inc"
+;.segment "STARTUP"
+;          jmp demo
           .CODE
-.export bounce
 .proc     demo
           ;; enabling interrupts really pisses the system off with 
           ;; the scren and character configs I have
@@ -30,7 +31,6 @@
           invmode 0
           bcolor_i BLUE
           scolor_i PURPLE
-          ;jsr rotate1
 
           ;jsr test1
           jsr bounce

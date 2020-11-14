@@ -4,7 +4,7 @@
 .include "m16.mac"
 .include "zerop.inc"
 .include "screen.inc"
-
+.import _ldata1
 .export   moveme           
 
           .macro mov_l

@@ -119,7 +119,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           tay
           lda BMASKS,y          ;y=bitmask
 
-          ldy pl_y
+          ldy _pl_y
           eor (ptr_0),y
           sta (ptr_0),y
           ldy save_y

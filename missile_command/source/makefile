@@ -27,7 +27,7 @@ foo:
 
 OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o
 port:
-	rm *.o
+	rm -f *.o
 #	ca65 --cpu 6502 -I headers source/jstick.asm
 #	ca65 --cpu 6502 -I headers source/line.asm 2>&1 | $(CA65FIX)
 	cc65 -Oi -O -Or -Os -T --cpu 6502 test.c -o test.asm

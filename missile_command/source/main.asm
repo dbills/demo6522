@@ -33,14 +33,16 @@
           scolor_i PURPLE
 
           ;jsr test1
-          jsr bounce
+          ;jsr bounce                    
+.import _c_main
+          jsr _c_main                   
           jmp loop
 l1:         
-          jsr plot
-          inc pl_x
-          inc pl_y
+          jsr _plot
+          inc _pl_x
+          inc _pl_y
           lda #172
-          cmp pl_x
+          cmp _pl_x
           beq loop
           jmp l1
 

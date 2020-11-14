@@ -10,28 +10,111 @@
 	.importzp	sp, sreg, regsave, regbank
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
+	.import		_genline
+	.importzp	_x1
+	.importzp	_x2
+	.importzp	_y1
+	.importzp	_y2
+	.importzp	_lstore
+	.import		_rand
+	.export		_INTERCEPTED
+	.export		_missiles
 	.export		_ldata1
-	.export		_clear_screen
+	.export		_c_main
+
+.segment	"RODATA"
+
+_INTERCEPTED:
+	.byte	$FF
 
 .segment	"BSS"
 
+_missiles:
+	.res	5370,$00
 _ldata1:
-	.res	176,$00
+	.res	765,$00
 
 ; ---------------------------------------------------------------
-; void __near__ clear_screen (void)
+; void __near__ c_main (void)
 ; ---------------------------------------------------------------
 
 .segment	"CODE"
 
-.proc	_clear_screen: near
+.proc	_c_main: near
 
 .segment	"CODE"
 
+;
+; y1=0;
+;
+	jsr     decsp2
+	lda     #$00
+	sta     _y1
+;
+; y2=175;
+;
+	lda     #$AF
+	sta     _y2
+;
+; lstore = missiles[0].line_data.line_points;
+;
+	lda     #>(_missiles+2)
+	sta     _lstore+1
+	lda     #<(_missiles+2)
+	sta     _lstore
+;
+; for(i=0;i<30;++i) {
+;
+	ldy     #$00
+	tya
+	sta     (sp),y
+	iny
+	sta     (sp),y
+L0014:	ldy     #$01
+	lda     (sp),y
+	tax
+	dey
+	lda     (sp),y
+	cmp     #$1E
+	txa
+	sbc     #$00
+	bvc     L001B
+	eor     #$80
+L001B:	bpl     L0015
+;
+; x1 = rand() % 176;
+;
+	jsr     _rand
+	jsr     pushax
+	ldx     #$00
+	lda     #$B0
+	jsr     tosmoda0
+	sta     _x1
+;
+; x2 = rand() % 176;
+;
+	jsr     _rand
+	jsr     pushax
+	ldx     #$00
+	lda     #$B0
+	jsr     tosmoda0
+	sta     _x2
+;
+; genline();
+;
+	ldy     #$00
+	jsr     _genline
+;
+; for(i=0;i<30;++i) {
+;
+	ldx     #$00
+	lda     #$01
+	jsr     addeq0sp
+	jmp     L0014
 ;
 ; }
 ;
-	rts
+L0015:	jmp     incsp2
 
 .endproc
 

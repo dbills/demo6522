@@ -2,7 +2,7 @@
 .include "m16.mac"
 .include "screen.mac"
 .CODE
-.export plot,i_pltbl,BMASKS
+.export _plot,i_pltbl,BMASKS
 ;;; initialize the plot table
 ;;; ram starting location for all hires
 ;;; screen columns
@@ -17,8 +17,8 @@ loop:
           rts
 .endproc
 
-.proc     plot 
-          plotm lda pl_x
+.proc     _plot 
+          plotm lda _pl_x
           rts
 .endproc
 

@@ -1,6 +1,6 @@
 .INCLUDE  "screen.inc"
 .include "zerop.inc"
-.exportzp x1,x2,y1,y2,_lstore
+.exportzp _x1,_x2,_y1,_y2,_lstore
 .export _genline
           ;; public line symbols
           ;; line* routines put the 'line instructions' in ram
@@ -11,15 +11,15 @@
 err:      .res 1
 dx:       .res 1
 dy:       .res 1
-x1:       .res 1
-x2:       .res 1
-y1:       .res 1
-y2:       .res 1
+_x1:       .res 1
+_x2:       .res 1
+_y1:       .res 1
+_y2:       .res 1
 _lstore:   .res 2
 .CODE
 
           ;; inputs A=dx
-          ;; x1>x2
+          ;; _x1>_x2
           ;; figure out if we are drawing in 2 or 4
 .macro    quadrant_2or4
           .local dxline
@@ -32,7 +32,7 @@ dxline:
           jsr line4
           jsr render4
 .endmacro
-          ;; x1<x2
+          ;; _x1<_x2
           ;; inputs A=dx
           ;; figure out if we are drawing in 1 or 3
 .macro    quadrant_1or3
@@ -48,32 +48,32 @@ dxline:
 .endmacro
 
 .macro    calcdy
-          lda y2                        ;dy=y2-y1+1
+          lda _y2                        ;dy=_y2-_y1+1
           sec
-          sbc y1
+          sbc _y1
           adc #0    
           sta dy                       
 .endmacro
 
           ;; calculate dy,dx and err for
           ;; a line
-          ;; inputs: x1,x2,y1,y12
+          ;; inputs: _x1,_x2,_y1,_y12
           ;; outputs: dy,dx,err
           ;; A=dy on exit
-          ;; preconditions: y2>y1
+          ;; preconditions: _y2>_y1
 .proc     _genline
           lda #0                        ;err=0
           sta err
 
           calcdy
-          lda x2                        ;dx=x2-x1+1
+          lda _x2                        ;dx=_x2-_x1+1
           sec
-          sbc x1
-          bcs normal                   ;x2<x1
+          sbc _x1
+          bcs normal                   ;_x2<_x1
 reversed:
-          eor #$ff                      ;switch to x1-x2
+          eor #$ff                      ;switch to _x1-_x2
           ;; we need to add 1 to finish our little 2's complement
-          ;; stunt and get to x1-x2 -- and we also 
+          ;; stunt and get to _x1-_x2 -- and we also 
           ;; need to add +1 to dx, so
           ;; clc implied
           adc #2                        ;
@@ -87,17 +87,17 @@ normal:
           rts
 .endproc
           ;; sets up input for genline
-          ;; linevars(x1,x2,y1,y2)
-.macro    linevars _x1,_x2,_y1,_y2
-          lda #_x1
-          sta x1
-          lda #_x2
-          sta x2
+          ;; linevars(_x1,_x2,_y1,_y2)
+.macro    linevars __x1,__x2,__y1,__y2
+          lda #__x1
+          sta _x1
+          lda #__x2
+          sta _x2
 
-          lda #_y1
-          sta y1
-          lda #_y2
-          sta y2
+          lda #__y1
+          sta _y1
+          lda #__y2
+          sta _y2
 .endmacro
 
 .proc     test1
@@ -145,7 +145,7 @@ noshift:
 ;;; lstore: pointer to line storage
 .proc     line1
           ldy dy
-          ldx x2                        ;x=x2
+          ldx _x2                        ;x=_x2
 loop:                                   ;while(y>0)
           increment_long_axis dx,dy,dex
           txa
@@ -159,7 +159,7 @@ loop:                                   ;while(y>0)
 .proc     line2 
           ;; might be able to replace below with tay
           ldy dx                        ;y=dx
-          ldx y2                        ;x=y2
+          ldx _y2                        ;x=_y2
 loop:                                   ;while(y>0)
           increment_long_axis dy,dx,dex
           txa
@@ -168,11 +168,11 @@ loop:                                   ;while(y>0)
           bne loop                     ;
           rts
 .endproc
-;;; dy>dx and x2<x1
+;;; dy>dx and _x2<_x1
 ;;; lstore: pointer to line storage
 .proc     line3
           ldy dy
-          ldx x2                        ;x=x2
+          ldx _x2                        ;x=_x2
 loop:                                   ;while(y>0)
           txa
           sta (_lstore),y                ;lstore[y]=x
@@ -181,11 +181,11 @@ loop:                                   ;while(y>0)
           bne loop
           rts
 .endproc
-;;; dx>dy and x2<x1
+;;; dx>dy and _x2<_x1
 ;;; diagonals come in here
 .proc     line4
           ldy dx                        ;y=dx
-          ldx y1                        ;x=y2
+          ldx _y1                        ;x=_y2
 loop:                                   ;while(y>0)
           increment_long_axis dy,dx,inx
           txa
@@ -196,13 +196,13 @@ loop:                                   ;while(y>0)
 .endproc
 .proc     render1
           ldy dy
-          ldx y2
+          ldx _y2
 loop:     
           lda (_lstore),y
-          sta pl_x
-          stx pl_y
+          sta _pl_x
+          stx _pl_y
           dex       
-          jsr plot
+          jsr _plot
           dey
           bne loop
           rts
@@ -210,10 +210,10 @@ loop:
 ;;; dx>dy line
 .proc     render2
           ldy dx
-          ldx x2
+          ldx _x2
 loop:     
           lda (_lstore),y
-          sta pl_y
+          sta _pl_y
           plotm txa
           dex
           dey
@@ -222,10 +222,10 @@ loop:
 .endproc
 .proc     render4
           ldy dx
-          ldx x1
+          ldx _x1
 loop:     
           lda (_lstore),y
-          sta pl_y
+          sta _pl_y
           plotm txa
           dex
           dey

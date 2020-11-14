@@ -1,6 +1,6 @@
 .include "screen.inc"
 .include "zerop.mac"
-.exportzp ptr_0,ptr_1,ptr_2,ptr_3,pltbl,save_y,pl_x,pl_y,s_x,s_y
+.exportzp ptr_0,ptr_1,ptr_2,ptr_3,pltbl,save_y,_pl_x,_pl_y,s_x,s_y
 ;;; place me last in the 'main' includes
 ;;; I allocate space for arrays allocated in zp
 ;;; using variables that subsytem modules may have incremented
@@ -24,7 +24,7 @@ s_x:        .res 3
 s_y:        .res 3
 s_src:      .res 3
 ;;; end sprite object
-pl_x:       .res 1
-pl_y:       .res 1
+_pl_x:      .res 1
+_pl_y:      .res 1
 LASTJOY:    .res 1
 .CODE

@@ -110,13 +110,13 @@ joyrt:
           ;; set x1,x2,y1,y2
           ;lda #0
           lda #175/2
-          sta x1
+          sta _x1
           lda #0
-          sta y1
+          sta _y1
           lda s_x,x
-          sta x2
+          sta _x2
           lda s_y,x
-          sta y2
+          sta _y2
 
           movi _ldata1-1,_lstore
           jsr _genline

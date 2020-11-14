@@ -2,7 +2,7 @@
 .include "jstick.mac"
 .include "system.mac"
           .ZEROPAGE
-LASTJOY:  .byte 4
+LASTJOY:  .res 1
           .CODE
 .proc     i_joy 
           lda #127

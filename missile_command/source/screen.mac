@@ -18,7 +18,7 @@ CHARHT    =       16
           sta $9003             
 .endmacro      
 
-.macro setrows
+.macro    setrows
           ;; bits 1-6 are row
           lda $9003
           and #%10000001
@@ -34,14 +34,14 @@ CHARHT    =       16
           ;; 000xxxy000000000
           ;; y lives as bit 7 in register
           ;; 36866 ($9002)
-.macro screenmem addr
+.macro    screenmem addr
           .local bit9,bit10_12
           ;;  bit [9-12] inclusive are the screen
           ;;  any bits on outside that are an error
           .IF (addr & %1110000111111111) > 0
           .ERROR "invalid screen address"
           .ELSE
-SCREEN    = addr
+.define SCREEN addr
           ;; move bit 9 to 7
 bit9      = (addr & %0000001000000000) >> 2
           ;;  move bit 12-10 down to 6-4    
@@ -55,9 +55,9 @@ bit10_12  = (addr & %0001110000000000) >> 6
           ora #bit10_12
           sta 36869
           .IF bit9=$80
-CLRRAM    =  38400
+.DEFINE CLRRAM 38400
           .ELSE
-CLRRAM    =  37888
+.define CLRRAM 37888
           .ENDIF
           .ENDIF
           
@@ -96,7 +96,6 @@ CLRRAM    =  37888
           ;; 175,175 lower right
           ;; x_to_a = instruction to move X into A
 .macro    plotm x_to_a
-          .local samecol
           sty save_y
           x_to_a
           ;; divide by 8
@@ -113,7 +112,6 @@ CLRRAM    =  37888
           sta ptr_0
           lda pltbl+1,y
           sta ptr_0 + 1
-samecol:    
           ;; grab X % 8 for
           ;; bit offset in byte
           x_to_a

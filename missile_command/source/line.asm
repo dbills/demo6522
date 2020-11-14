@@ -1,21 +1,21 @@
 .INCLUDE  "screen.inc"
 .include "zerop.inc"
-.exportzp x1,x2,y1,y2,lstore
-.export ldata1,genline
+.exportzp x1,x2,y1,y2,_lstore
+.export _genline
           ;; public line symbols
           ;; line* routines put the 'line instructions' in ram
           ;; render* routines take a line instruction set and
           ;; place on the screen
           ;; private line symbols
 .ZEROPAGE
-err:      .byte 0
-dx:       .byte 0
-dy:       .byte 0
-x1:       .byte 0
-x2:       .byte 0
-y1:       .byte 0
-y2:       .byte 0
-lstore:   .WORD  0
+err:      .res 1
+dx:       .res 1
+dy:       .res 1
+x1:       .res 1
+x2:       .res 1
+y1:       .res 1
+y2:       .res 1
+_lstore:   .res 2
 .CODE
 
           ;; inputs A=dx
@@ -61,7 +61,7 @@ dxline:
           ;; outputs: dy,dx,err
           ;; A=dy on exit
           ;; preconditions: y2>y1
-.proc     genline
+.proc     _genline
           lda #0                        ;err=0
           sta err
 
@@ -108,7 +108,7 @@ normal:
           ;; jsr plot
           linevars $ae,$87,$00,$25
                                         ;          TODO movi ldata1-1,lstore          
-          jsr genline
+          jsr _genline
 loop:     
           jmp loop
           rts
@@ -149,7 +149,7 @@ noshift:
 loop:                                   ;while(y>0)
           increment_long_axis dx,dy,dex
           txa
-          sta (lstore),y                ;lstore[y]=x
+          sta (_lstore),y                ;lstore[y]=x
           dey
           bne loop
           rts
@@ -163,7 +163,7 @@ loop:                                   ;while(y>0)
 loop:                                   ;while(y>0)
           increment_long_axis dy,dx,dex
           txa
-          sta (lstore),y                ;lstore[y]=x
+          sta (_lstore),y                ;lstore[y]=x
           dey
           bne loop                     ;
           rts
@@ -175,7 +175,7 @@ loop:                                   ;while(y>0)
           ldx x2                        ;x=x2
 loop:                                   ;while(y>0)
           txa
-          sta (lstore),y                ;lstore[y]=x
+          sta (_lstore),y                ;lstore[y]=x
           increment_long_axis dx,dy,inx
           dey
           bne loop
@@ -189,7 +189,7 @@ loop:                                   ;while(y>0)
 loop:                                   ;while(y>0)
           increment_long_axis dy,dx,inx
           txa
-          sta (lstore),y                ;lstore[y]=x
+          sta (_lstore),y                ;lstore[y]=x
           dey
           bne loop                     ;
           rts
@@ -198,7 +198,7 @@ loop:                                   ;while(y>0)
           ldy dy
           ldx y2
 loop:     
-          lda (lstore),y
+          lda (_lstore),y
           sta pl_x
           stx pl_y
           dex       
@@ -212,7 +212,7 @@ loop:
           ldy dx
           ldx x2
 loop:     
-          lda (lstore),y
+          lda (_lstore),y
           sta pl_y
           plotm txa
           dex
@@ -224,7 +224,7 @@ loop:
           ldy dx
           ldx x1
 loop:     
-          lda (lstore),y
+          lda (_lstore),y
           sta pl_y
           plotm txa
           dex
@@ -233,7 +233,7 @@ loop:
           rts
 .endproc
 
-.export XBMASKS_OFFSET_TBL, XBMASKS_0,XBMASKS_1,XBMASKS_2,XBMASKS_3,XBMASKS_4,XBMASKS_5,XBMASKS_6,XBMASKS_7
+.export _ldata1,XBMASKS_OFFSET_TBL, XBMASKS_0,XBMASKS_1,XBMASKS_2,XBMASKS_3,XBMASKS_4,XBMASKS_5,XBMASKS_6,XBMASKS_7
 .DATA
 XBMASKS_OFFSET_TBL: 
           .byte 8
@@ -325,7 +325,5 @@ XBMASKS_6:
 XBMASKS_7:          
           .byte %1
 
-
-.bss
-ldata1:     
+_ldata1:  
           .res 255*3

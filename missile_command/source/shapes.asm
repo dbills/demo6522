@@ -1,4 +1,4 @@
-.export BIT_EYES, ZYBOTO, BORDA, LETA
+.export BIT_EYES, BORDA, LETA
 .listbytes 100
 .DATA
 ;;; reduce column size with word wrap on until
@@ -49,13 +49,10 @@ SHIFT     .set 0
 SHIFT     .set SHIFT + 1
           .endrepeat
           .endmacro
-ZYBOTO:     
-            .repeat 8
-            .byte 255
-            .endrepeat
+
 BORDA:      
 ;          sh_shift $80,$80,$80,$80,$80,$80,$80,$80 
-           sh_shift $ff  ,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+;           sh_shift $ff  ,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 .linecont
            sh_shift %00000000,  \
                     %01000010,  \
@@ -67,4 +64,4 @@ BORDA:
                     %00000000
 
 LETA:       
-;	sh_shift  %00100000,%01010000,%10001000,%11111000,%10001000,%10001000,%10001000,0
+	sh_shift  %00100000,%01010000,%10001000,%11111000,%10001000,%10001000,%10001000,0

@@ -25,12 +25,16 @@ foo:
 	ca65 foo.S -o foo.o
 	ld65 -o b.p00 -C vic20-32k.cfg -m foo.map foo.o vic20.lib
 
+OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o
 port:
+	rm *.o
 #	ca65 --cpu 6502 -I headers source/jstick.asm
 #	ca65 --cpu 6502 -I headers source/line.asm 2>&1 | $(CA65FIX)
 	for i in *.asm;do ../build_support/assemble.sh $$i;done
 	for i in *.asm;do ../build_support/assemble.sh $$i asm;done
-
+	cc65 -Oi -O -Or -Os -T --cpu 6502 test.c -o test.asm
+	cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug  $(OBJS)
+	perl ../build_support/mapfile.pl a.map > a.lst
 
 foo1:
 	ca65 --cpu 6502 shapes.asm -l foo.lst

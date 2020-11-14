@@ -1,6 +1,7 @@
 .include "zerop.inc"
 .include "m16.mac"
 .include "screen.mac"
+.CODE
 .export plot,i_pltbl,BMASKS
 ;;; initialize the plot table
 ;;; ram starting location for all hires
@@ -20,7 +21,7 @@ loop:
           plotm lda pl_x
           rts
 .endproc
-.EXPORT SCADDR,SCRMAP,SCRMAP_SZ
+
 .DATA
 SCADDR:     
 ;;; screen column addresses for chargen ram
@@ -44,7 +45,6 @@ BPOS      .set 128
           .byte BPOS
 BPOS      .set BPOS >> 1
           .endrep
-BMASKS_SZ = * - BMASKS
 ;;; the character tiles in screen memory
 ;;; that comprise the hi-res screen
 ;;; as vertical strips i.e.
@@ -55,6 +55,7 @@ BMASKS_SZ = * - BMASKS
 ;;;        Bxy
 ;;;        Cxy
 ;;; etc ...
+_SCRMAP:  
 SCRMAP:     
 ROW       .set 0
           .repeat SCRROWS
@@ -65,4 +66,6 @@ COL         .set COL + 1
             .endrep
 ROW       .set ROW + 1          
           .endrep
-SCRMAP_SZ = * - SCRMAP
+SCRMAP_SZ:   
+          .byte * - SCRMAP
+.export SCADDR,SCRMAP,_SCRMAP,SCRMAP_SZ

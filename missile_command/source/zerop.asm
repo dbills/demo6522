@@ -10,21 +10,21 @@
 ;;; ... up to SCRCOLS defined in screen.equ
 .ZEROPAGE
 pltbl:      .REPEAT SCRCOLS
-            .word 0
+            .res 2
             .ENDREPEAT
-ptr_0:      .word 0                        ;plot used
-ptr_1:      .word 0
-ptr_2:      .word 0                        ;sp_draw
-ptr_3:      .word 0
-save_y:     .byte 0
-save_x:     .byte 0
-last_x:     .byte 0
+ptr_0:      .res 2                        ;plot used
+ptr_1:      .res 2
+ptr_2:      .res 2                        ;sp_draw
+ptr_3:      .res 2
+save_y:     .res 1
+save_x:     .res 1
+last_x:     .res 1
 ;;; 3 sprite objects
-s_x:        .byte 0,0,0
-s_y:        .byte 0,0,0
-s_src:      .byte 0,0,0
+s_x:        .res 3
+s_y:        .res 3
+s_src:      .res 3
 ;;; end sprite object
-pl_x:       .byte 0
-pl_y:       .byte 0
-LASTJOY:    .byte 0
-
+pl_x:       .res 1
+pl_y:       .res 1
+LASTJOY:    .res 1
+.CODE

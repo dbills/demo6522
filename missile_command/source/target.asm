@@ -4,10 +4,11 @@
 .include "m16.mac"
 .include "zerop.inc"
 .include "screen.inc"
+
 .export   moveme           
 
           .macro mov_l
-            .local done
+          .local done
           lda #0
           cmp s_x,x
           beq done
@@ -117,8 +118,8 @@ joyrt:
           lda s_y,x
           sta y2
 
-          movi ldata1-1,lstore
-          jsr genline
+          movi _ldata1-1,_lstore
+          jsr _genline
 ;          jsr line1
 ;          jsr render1
 ;          jsr line2

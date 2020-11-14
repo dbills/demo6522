@@ -9,10 +9,11 @@ if [ -f $MNAME ]
 then
     echo ".include \"$MNAME\"" >> $INAME
 else
-    echo "no macro $MNAME"
+    :
+    #echo "no macro $MNAME"
 fi
 
 if [ "${2}" == "asm" ]
 then
-    ca65 --cpu 6502 $1 2>&1 | sed  -e 's/^\([^(]*\)[(]\([0-9]*\)[)]:/\1:\2:0:/'
+    ca65 --cpu 6502 --list-bytes 0 -l $BNAME.lst $1 2>&1 | sed  -e 's/^\([^(]*\)[(]\([0-9]*\)[)]:/\1:\2:0:/'
 fi

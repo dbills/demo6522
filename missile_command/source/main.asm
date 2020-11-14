@@ -8,14 +8,11 @@
           .include   "system.mac"
           .include   "jstick.inc"
           .include   "kplane.mac"
-
-          .import moveme                ;from target.asm, consider making header
-          .import sp_draw               ; from sprite.asm
-          .importzp SCADDR,SCRMAP_SZ
-          .import SCRMAP
+          .include   "target.inc"
+          .include   "sprite.inc"
           .CODE
-          .org $3000
-
+.export bounce
+.proc     demo
           ;; enabling interrupts really pisses the system off with 
           ;; the scren and character configs I have
           movi MINISR, $0314
@@ -23,11 +20,12 @@
           cli
 
           jsr i_pltbl           
-          jsr i_hires
           jsr i_chrset
+          jsr i_hires
           jsr i_joy
           chbase %1100                  ;$1000
-          screenmem $1200
+          screenmem $200
+
           ;; border colors
           invmode 0
           bcolor_i BLUE
@@ -49,11 +47,12 @@ l1:
 loop:       
           jmp loop
           rts
+.endproc
 
 .proc     i_hires  
           setrows
           tallchar              
-          ldy #SCRMAP_SZ
+          ldy SCRMAP_SZ
           ;; fill screen with chars tile
           ;; pattern 
 loop:       
@@ -68,8 +67,8 @@ loop:
 .proc     i_chrset
           movi CHBASE1, ptr_0
           ldy #0
-          ldx #16               ;# of pages
-          lda #0                ;AA is nice
+          ldx #16                       ;# of pages
+          lda #0                        ;AA is nice
 loop:       
           sta (ptr_0),y
           iny
@@ -90,11 +89,10 @@ iloop:
           bne iloop
           rts
 .endproc
-.proc       bounce
-reset:      
-          lda #SCRROWS*16-8
+.proc     bounce
+          lda #SCRROWS*16/2
           sta s_y
-          lda #160
+          lda #80
           sta s_x
           ldx #S_TARGET
           jsr sp_draw

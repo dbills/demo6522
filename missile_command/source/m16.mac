@@ -16,11 +16,11 @@ done:
           dec [_1]+0
           .endmacro
 
-.macro      mov src,dst
+.macro      mov src, dst
 .if (.match (.left (1, {src}), #))
-            lda #.LOBYTE(src) 
+            lda #<(.right (.tcount ({src})-1, {src}))
             sta dst           
-            lda #.HIBYTE(src) 
+            lda #>(.right (.tcount ({src})-1, {src}))
             sta dst+1
 .else
             lda src

@@ -1,4 +1,5 @@
 #include "line.h"
+#include "zerop.h"
 #include <stdlib.h>
 const unsigned char INTERCEPTED = -1;
 #define LINE_DATA_MAX 176
@@ -7,6 +8,7 @@ typedef unsigned char uchar;
 typedef struct  {
   uchar dx,dy;
   uchar line_points[LINE_DATA_MAX];
+  void(*f)();
 } line;
 typedef struct {
   // offset in line pixel data
@@ -16,7 +18,7 @@ typedef struct {
 
 missile missiles[30];
 
-unsigned char ldata1[255*3];
+unsigned char ldata1[176];
 extern char pl_x,pl_y;
 #pragma zpsym("pl_x");
 #pragma zpsym("pl_y");
@@ -30,6 +32,13 @@ void c_main() {
     x1 = rand() % 176;
     x2 = rand() % 176;
     genline();
+    (*p_render)();
+    /*
+    missiles[0].line_data.dx = dx;
+    missiles[0].line_data.dy = dy;
+    missiles[0].line_data.f = p_render;
+    (missiles[0].line_data.f)();
+    */
   }
   /*
   x1=50;

@@ -12,10 +12,10 @@
 pltbl:      .REPEAT SCRCOLS
             .res 2
             .ENDREPEAT
-ptr_0:      .res 2                        ;plot used
+ptr_0:      .res 2                      ;plot used
 ptr_1:      .res 2
-ptr_2:      .res 2                        ;sp_draw
-ptr_3:      .res 2
+ptr_2:      .res 2                      ;sp_draw
+ptr_3:      .res 2                      ;sprite
 save_y:     .res 1
 save_x:     .res 1
 last_x:     .res 1

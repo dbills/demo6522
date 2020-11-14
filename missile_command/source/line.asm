@@ -1,7 +1,8 @@
 .INCLUDE  "screen.inc"
 .include "zerop.inc"
+.include "m16.mac"
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline
+.export _genline,_render1,_render2,_render4,_p_render
           ;; public line symbols
           ;; line* routines put the 'line instructions' in ram
           ;; render* routines take a line instruction set and
@@ -16,8 +17,11 @@ _x2:       .res 1
 _y1:       .res 1
 _y2:       .res 1
 _lstore:   .res 2
+.BSS
+;;; point to rendering function
+;;; output param
+_p_render:  .res 2                        
 .CODE
-
           ;; inputs A=_dx
           ;; _x1>_x2
           ;; figure out if we are drawing in 2 or 4
@@ -26,11 +30,13 @@ _lstore:   .res 2
           cmp _dy
           bcs dxline                   ;_dx>_dy
           jsr line3
-          jsr render1
+          ;jsr _render1
+          mov #_render1,_p_render
           rts
 dxline:   
           jsr line4
-          jsr render4
+          ;jsr _render4
+          mov #_render4,_p_render
 .endmacro
           ;; _x1<_x2
           ;; inputs A=_dx
@@ -40,11 +46,13 @@ dxline:
           cmp _dy
           bcs dxline                   ;_dx>_dy
           jsr line1
-          jsr render1
+          ;jsr _render1
+          mov #_render1,_p_render
           rts
 dxline:   
           jsr line2
-          jsr render2
+          mov #_render2,_p_render
+          ;jsr _render2
 .endmacro
 
 .macro    calcdy
@@ -184,18 +192,18 @@ loop:                                   ;while(y>0)
 ;;; dx>_dy and _x2<_x1
 ;;; diagonals come in here
 .proc     line4
-          ldy _dx                        ;y=dx
-          ldx _y1                        ;x=_y2
+          ldy _dx                       ;y=dx
+          ldx _y1                       ;x=_y2
 loop:                                   ;while(y>0)
           increment_long_axis _dy,_dx,inx
           txa
-          sta (_lstore),y                ;lstore[y]=x
+          sta (_lstore),y               ;lstore[y]=x
           dey
-          bne loop                     ;
+          bne loop                      ;
           rts
 .endproc
           ;; inputs: _dy,_y2
-.proc     render1
+.proc     _render1
           ldy _dy
           ldx _y2
 loop:     
@@ -209,7 +217,7 @@ loop:
           rts
 .endproc
 ;;; dx>_dy line
-.proc     render2
+.proc     _render2
           ldy _dx
           ldx _x2
 loop:     
@@ -221,7 +229,7 @@ loop:
           bne loop
           rts
 .endproc
-.proc     render4
+.proc     _render4
           ldy _dx
           ldx _x1
 loop:     

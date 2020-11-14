@@ -70,7 +70,7 @@ _ldata1:
 	sta     (sp),y
 	iny
 	sta     (sp),y
-L0014:	ldy     #$01
+L0016:	ldy     #$01
 	lda     (sp),y
 	tax
 	dey
@@ -78,9 +78,9 @@ L0014:	ldy     #$01
 	cmp     #$1E
 	txa
 	sbc     #$00
-	bvc     L001B
+	bvc     L001D
 	eor     #$80
-L001B:	bpl     L0015
+L001D:	bpl     L0017
 ;
 ; x1 = rand() % 176;
 ;
@@ -110,11 +110,11 @@ L001B:	bpl     L0015
 	ldx     #$00
 	lda     #$01
 	jsr     addeq0sp
-	jmp     L0014
+	jmp     L0016
 ;
 ; }
 ;
-L0015:	jmp     incsp2
+L0017:	jmp     incsp2
 
 .endproc
 

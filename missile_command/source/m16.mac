@@ -16,12 +16,19 @@ done:
           dec [_1]+0
           .endmacro
 
-          .macro mov _1,_2
-          lda [_1]
-          sta [_2]
-          lda [_1]+1
-          sta [_2]+1
-          .endmacro
+.macro      mov src,dst
+.if (.match (.left (1, {src}), #))
+            lda #.LOBYTE(src) 
+            sta dst           
+            lda #.HIBYTE(src) 
+            sta dst+1
+.else
+            lda src
+            sta dst
+            lda src+1
+            sta dst+1
+.endif
+.endmacro
 ;;; move word immediate
 .macro      movi _1,_2
             lda #.LOBYTE(_1)   ; load low byte

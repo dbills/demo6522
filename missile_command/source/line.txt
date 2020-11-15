@@ -1,0 +1,29 @@
+Some notes about the Cartesian quadrant terminology used
+admittedly it is a little abused but bear with me:
+
+There are 3 domains for the Bresenham line drawing algorithm.  Each domain has 2 states, thus 2^3 = 8 different special cases for drawing lines.  The domains are
+
+Let dx = x2 - x1
+Let dy = y1 - y1
+Let slope dy/dx
+
+Let steep = slope > 1
+Let forwardx = x2 > x1
+Let forwardy = y2 > y1
+
+Recall the cartesian coordinate system:
+
+ 2|1
+--+--
+ 3|4
+
+To make the metaphor we normalized line points such that x1,y1 are the origin.  Where x2, y2 falls, determines the quadrant.  Thus:
+
+Quadrant1: forwardx = T, forwardy = T
+Quadrant2: forwardx = F, forwardy = T
+Quadrant3: forwardx = F, forwardy = F
+Quadrant4: forwardx = T, forwardy = F
+
+
+lines in a quadrant may be steep = T or steep = F
+

@@ -30,7 +30,7 @@ port:
 	rm -f *.o
 #	ca65 --cpu 6502 -I headers source/jstick.asm
 #	ca65 --cpu 6502 -I headers source/line.asm 2>&1 | $(CA65FIX)
-	cc65 -Oi -O -Or -Os -T --cpu 6502 test.c -o test.asm
+	cc65 -T --cpu 6502 test.c -o test.asm 2>&1 | ../build_support/fix_errors.sh
 	for i in *.asm;do ../build_support/assemble.sh $$i;done
 	for i in *.asm;do ../build_support/assemble.sh $$i asm;done
 # make sure main is first so the start addr is always the same

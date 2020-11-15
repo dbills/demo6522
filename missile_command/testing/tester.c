@@ -6,8 +6,6 @@
 #include "vic_os.h"
 #include "commands.h"
 
-
-
 static void line_test() {
   uint16_t line_data = 0x2000;
   uint8_t height = 160;

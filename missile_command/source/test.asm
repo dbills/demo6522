@@ -11,15 +11,18 @@
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
 	.import		_genline
+	.import		_p_render
 	.importzp	_x1
 	.importzp	_x2
 	.importzp	_y1
 	.importzp	_y2
 	.importzp	_lstore
-	.import		_rand
 	.export		_INTERCEPTED
 	.export		_missiles
 	.export		_ldata1
+	.importzp	_pl_x
+	.importzp	_pl_y
+	.import		_plot
 	.export		_c_main
 
 .segment	"RODATA"
@@ -30,9 +33,150 @@ _INTERCEPTED:
 .segment	"BSS"
 
 _missiles:
-	.res	5370,$00
+	.res	930,$00
 _ldata1:
-	.res	765,$00
+	.res	176,$00
+
+; ---------------------------------------------------------------
+; void __near__ doom (void)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_doom: near
+
+.segment	"CODE"
+
+;
+; while(1) {
+;
+	jmp     L0012
+;
+; *((char*)0x900f) = 255;
+;
+L0010:	ldx     #$00
+	lda     #$FF
+	sta     $900F
+;
+; while(1) {
+;
+L0012:	jmp     L0010
+;
+; }
+;
+	rts
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ lineto (unsigned char, unsigned char, unsigned char, unsigned char)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_lineto: near
+
+.segment	"CODE"
+
+;
+; {
+;
+	jsr     pusha
+;
+; x1 = ix1;
+;
+	ldy     #$03
+	ldx     #$00
+	lda     (sp),y
+	sta     _x1
+;
+; x2 = ix2;
+;
+	ldy     #$01
+	ldx     #$00
+	lda     (sp),y
+	sta     _x2
+;
+; y1 = iy1;
+;
+	ldy     #$02
+	ldx     #$00
+	lda     (sp),y
+	sta     _y1
+;
+; y2 = iy2;
+;
+	ldy     #$00
+	ldx     #$00
+	lda     (sp),y
+	sta     _y2
+;
+; lstore = ldata1;
+;
+	lda     #<(_ldata1)
+	ldx     #>(_ldata1)
+	sta     _lstore
+	stx     _lstore+1
+;
+; genline();
+;
+	ldy     #$00
+	jsr     _genline
+;
+; (*p_render)();
+;
+	lda     _p_render
+	ldx     _p_render+1
+	ldy     #$00
+	jsr     callax
+;
+; }
+;
+	jsr     incsp4
+	rts
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ lplot (unsigned char, unsigned char)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_lplot: near
+
+.segment	"CODE"
+
+;
+; {
+;
+	jsr     pusha
+;
+; pl_x = x1;
+;
+	ldy     #$01
+	ldx     #$00
+	lda     (sp),y
+	sta     _pl_x
+;
+; pl_y = y1;
+;
+	ldy     #$00
+	ldx     #$00
+	lda     (sp),y
+	sta     _pl_y
+;
+; plot();
+;
+	ldy     #$00
+	jsr     _plot
+;
+; }
+;
+	jsr     incsp2
+	rts
+
+.endproc
 
 ; ---------------------------------------------------------------
 ; void __near__ c_main (void)
@@ -45,76 +189,49 @@ _ldata1:
 .segment	"CODE"
 
 ;
-; y1=0;
+; lineto(0,0,175,175);
 ;
-	jsr     decsp2
 	lda     #$00
-	sta     _y1
+	jsr     pusha
+	lda     #$00
+	jsr     pusha
+	lda     #$AF
+	jsr     pusha
+	lda     #$AF
+	jsr     _lineto
 ;
-; y2=175;
+; lineto(172,0,172,175);
+;
+	lda     #$AC
+	jsr     pusha
+	lda     #$00
+	jsr     pusha
+	lda     #$AC
+	jsr     pusha
+	lda     #$AF
+	jsr     _lineto
+;
+; lineto(170,0,170,175);
+;
+	lda     #$AA
+	jsr     pusha
+	lda     #$00
+	jsr     pusha
+	lda     #$AA
+	jsr     pusha
+	lda     #$AF
+	jsr     _lineto
+;
+; lplot(175,0);
 ;
 	lda     #$AF
-	sta     _y2
-;
-; lstore = missiles[0].line_data.line_points;
-;
-	lda     #>(_missiles+2)
-	sta     _lstore+1
-	lda     #<(_missiles+2)
-	sta     _lstore
-;
-; for(i=0;i<30;++i) {
-;
-	ldy     #$00
-	tya
-	sta     (sp),y
-	iny
-	sta     (sp),y
-L0016:	ldy     #$01
-	lda     (sp),y
-	tax
-	dey
-	lda     (sp),y
-	cmp     #$1E
-	txa
-	sbc     #$00
-	bvc     L001D
-	eor     #$80
-L001D:	bpl     L0017
-;
-; x1 = rand() % 176;
-;
-	jsr     _rand
-	jsr     pushax
-	ldx     #$00
-	lda     #$B0
-	jsr     tosmoda0
-	sta     _x1
-;
-; x2 = rand() % 176;
-;
-	jsr     _rand
-	jsr     pushax
-	ldx     #$00
-	lda     #$B0
-	jsr     tosmoda0
-	sta     _x2
-;
-; genline();
-;
-	ldy     #$00
-	jsr     _genline
-;
-; for(i=0;i<30;++i) {
-;
-	ldx     #$00
-	lda     #$01
-	jsr     addeq0sp
-	jmp     L0016
+	jsr     pusha
+	lda     #$00
+	jsr     _lplot
 ;
 ; }
 ;
-L0017:	jmp     incsp2
+	rts
 
 .endproc
 

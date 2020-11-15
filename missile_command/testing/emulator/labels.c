@@ -15,7 +15,7 @@ BOOL load_labels(const char *const file) {
   }
   int i = 0;
   while(!feof(fd)) {
-    fscanf(fd, "al C:%hx .%ms\n", &labels[i].address, &labels[i].label);
+    fscanf(fd, "al %hx .%ms\n", &labels[i].address, &labels[i].label);
     i++;
   }
   printf("%d labels loaded\n", i);

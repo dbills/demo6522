@@ -1,20 +1,22 @@
 ;;; 16 bit macros
-          .macro incw _1
-          .local done
-          inc [_1]+0
-          bne done
-          inc [_1]+1
+.macro      incw arg
+.local done
+            inc arg
+            bne done
+            inc arg + 1
 done:       
-          .endmacro
+.endmacro
 
-          .macro decw _1
-          .local done
-          lda  [_1]+0
-          bne done
-          dec [_1]+1
+.macro      decw _1
+.local done
+            lda  _1
+            bne done
+            dec _1 + 1
 done:       
-          dec [_1]+0
-          .endmacro
+            sec
+            sbc #1
+            sta _1
+.endmacro
 
 .macro      mov src, dst
 .if (.match (.left (1, {src}), #))
@@ -45,11 +47,11 @@ done:
           lda _1
           cmp #.LOBYTE(_2)     ; load low byte
 done:       
-          .endmacro
+.endmacro
 
 ;;; compare _1 with #_2
 ;;; you can use beq,bne with this
-          .macro cmpi _1,_2
+.macro cmpi _1,_2
           .local done
           lda _1+1
           cmp #_2 >> 8       ; load high byte
@@ -57,12 +59,12 @@ done:
           lda _1
           cmp #[_2] & $ff    ; load low byte
 done:       
-          emdn
+.endmacro
 ;;; move,X source,dest
 ;;; equiv C code: 
 ;;; word array[]
 ;;; array[2] = array[1]
-          .macro movx _1,_2
+.macro movx _1,_2
           txa
           pha
           asl                         ; x*2 since it's a word
@@ -74,4 +76,4 @@ done:
           sta [_2],x
           pla
           tax
-          .endmacro
+.endmacro

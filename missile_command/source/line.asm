@@ -1,25 +1,29 @@
-.INCLUDE  "screen.inc"
+.include  "screen.inc"
 .include "zerop.inc"
 .include "m16.mac"
+;;; public line symbols
+;;; line* routines put the 'line instructions' in ram
+;;; render* routines take a line instruction set and
+;;; place on the screen
+;;; dx: delta x, the x length of a line
+;;; dy: delta y, the y length of a line
+;;; lstore: pointer to location to read or write line data
+;;; x1,x2,y1,y2: the 2 respective endpoints of a line
+;;; NOTE: please see line.txt for
+;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
 .export _genline,_render1,_render2,_render4,_p_render
-          ;; public line symbols
-          ;; line* routines put the 'line instructions' in ram
-          ;; render* routines take a line instruction set and
-          ;; place on the screen
-          ;; private line symbols
 .ZEROPAGE
-err:      .res 1
-_dx:       .res 1
-_dy:       .res 1
-_x1:       .res 1
-_x2:       .res 1
-_y1:       .res 1
-_y2:       .res 1
-_lstore:   .res 2
+err:        .res 1
+_dx:        .res 1
+_dy:        .res 1
+_x1:        .res 1
+_x2:        .res 1
+_y1:        .res 1
+_y2:        .res 1
+_lstore:    .res 2
 .BSS
-;;; point to rendering function
-;;; output param
+;;; pointer to line rendering function
 _p_render:  .res 2                        
 .CODE
           ;; inputs A=_dx
@@ -30,12 +34,10 @@ _p_render:  .res 2
           cmp _dy
           bcs dxline                   ;_dx>_dy
           jsr line3
-          ;jsr _render1
           mov #_render1,_p_render
           rts
 dxline:   
           jsr line4
-          ;jsr _render4
           mov #_render4,_p_render
 .endmacro
           ;; _x1<_x2
@@ -46,13 +48,11 @@ dxline:
           cmp _dy
           bcs dxline                   ;_dx>_dy
           jsr line1
-          ;jsr _render1
           mov #_render1,_p_render
           rts
 dxline:   
           jsr line2
           mov #_render2,_p_render
-          ;jsr _render2
 .endmacro
 
 .macro    calcdy
@@ -62,11 +62,10 @@ dxline:
           adc #0    
           sta _dy                       
 .endmacro
-
           ;; calculate _dy,dx and err for
           ;; a line
           ;; inputs: _x1,_x2,_y1,_y12
-          ;; outputs: _dy,dx,err
+          ;; outputs: _dy,_dx,err
           ;; A=_dy on exit
           ;; preconditions: _y2>_y1
 .proc     _genline
@@ -74,17 +73,17 @@ dxline:
           sta err
 
           calcdy
-          lda _x2                        ;dx=_x2-_x1+1
+          lda _x2                       ;dx=_x2-_x1+1
           sec
           sbc _x1
-          bcs normal                   ;_x2<_x1
-reversed:
-          eor #$ff                      ;switch to _x1-_x2
+          bcs normal    
+          ;; x2 < x1                
+          eor #$ff                      ;take abs of A
           ;; we need to add 1 to finish our little 2's complement
           ;; stunt and get to _x1-_x2 -- and we also 
           ;; need to add +1 to dx, so
-          ;; clc implied
-          adc #2                        ;
+          ;; clc implied or we wouldn't be here
+          adc #2                        
           sta _dx                     
           quadrant_2or4
           rts
@@ -96,37 +95,24 @@ normal:
 .endproc
           ;; sets up input for genline
           ;; linevars(_x1,_x2,_y1,_y2)
-.macro    linevars __x1,__x2,__y1,__y2
-          lda #__x1
+.macro    linevars x1,x2,y1,y2
+          lda #x1
           sta _x1
-          lda #__x2
+          lda #x2
           sta _x2
 
-          lda #__y1
+          lda #y1
           sta _y1
-          lda #__y2
+          lda #y2
           sta _y2
 .endmacro
 
-.proc     test1
-          ;; lda #175
-          ;; sta pl_x
-          ;; sta pl_y
-          ;; lda #1
-          ;; jsr plot
-          linevars $ae,$87,$00,$25
-                                        ;          TODO movi ldata1-1,lstore          
-          jsr _genline
-loop:     
-          jmp loop
-          rts
-.endproc
           ;; integer 'bresenham' like
           ;; line drawing routine
           ;; 1 = short axis line length
           ;; 2 = long axis line length
           ;; 3 inx or dex 
-          ;; for 1 or 2, e.g. dx or _dy
+          ;; for 1 or 2, e.g. dx or dy
           ;; shift is when the short axis
           ;; must 'shift' due to the error
           ;; rate getting too high
@@ -202,10 +188,16 @@ loop:                                   ;while(y>0)
           bne loop                      ;
           rts
 .endproc
-          ;; inputs: _dy,_y2
+;;; inputs: _dy ,_y2
+;;; outputs: none
+;;; render a quadrant 1 line
+;;; i.e. y2 > y1
+;;;      x2 > x1
 .proc     _render1
           ldy _dy
           ldx _y2
+          decw _lstore
+          iny
 loop:     
           lda (_lstore),y
           sta _pl_x
@@ -216,10 +208,13 @@ loop:
           bne loop
           rts
 .endproc
-;;; dx>_dy line
+;;; dx>dy line
+;;; quadrant 1
 .proc     _render2
           ldy _dx
           ldx _x2
+          decw _lstore
+          iny
 loop:     
           lda (_lstore),y
           sta _pl_y
@@ -229,9 +224,13 @@ loop:
           bne loop
           rts
 .endproc
+;;; dx>dy line
+;;; quadrant 2
 .proc     _render4
           ldy _dx
           ldx _x1
+          decw _lstore
+          iny
 loop:     
           lda (_lstore),y
           sta _pl_y

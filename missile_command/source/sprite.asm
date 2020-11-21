@@ -2,7 +2,7 @@
 .include "shapes.inc"
 .include "zerop.inc"
 .include "m16.mac"
-.export sp_draw          
+.export sp_draw,calculate_hires_pointers
 .import LETA
 .proc       sp_draw
             mov #LETA,ptr_0             

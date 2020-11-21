@@ -1,7 +1,124 @@
 ;;; draw letters on the screen
-.export LETTERS
+.include "zerop.inc"
+.include "sprite.inc"
+.include "m16.mac"
+.include "math.mac"
+.export _LETTERS, draw_letter1
 .data
-LETTERS:    
+left_byte:  .byte 0
+right_byte: .byte 0
+scratch:    .byte 0
+shift:      .byte 0
+.code
+            ;; source byte in A
+            ;; output:
+            ;;   left_byte
+            ;;   right_byte
+.proc       create_sprite_line
+            sta left_byte
+            lda #0
+            sta right_byte
+            ldx shift
+            beq done
+loop:       
+            lsr left_byte
+            ror right_byte
+            dex
+            bpl loop
+done:       
+            rts
+.endproc
+
+.data
+string1:    
+.asciiz     "abcdefghijklmnopqrstuvwxyz"
+letter_table:
+OFFSET      .set 0
+.repeat     26
+            .byte OFFSET
+OFFSET      .set OFFSET + 7
+.endrep
+
+string_offset:          
+            .byte 0
+.code
+.proc       _draw_string
+loop:       
+            ldy string_offset
+            lda string1,y
+            beq done
+            sec
+            sbc #'a'
+            tax
+            lda letter_table,x
+
+            clc
+            adc #<(_LETTERS)
+            sta ptr_0
+            lda #>(_LETTERS)
+            adc #0
+            sta ptr_0+1
+
+            jsr draw_letter
+
+            inc string_offset
+            lda #6
+            clc
+            adc s_x
+            sta s_x
+            jmp loop
+done:       
+            rts
+.endproc
+
+.proc draw_letter1
+            lda #83
+            sta s_y
+            lda #0
+            sta s_x
+            jsr _draw_string
+            rts
+.endproc
+
+;; .proc       draw_letter1
+;;             lda #83
+;;             sta s_x
+;;             sta s_y
+;;             mov #_LETTERS, ptr_0
+;;             jsr draw_letter
+;;             rts
+;; .endproc
+
+.proc       draw_letter
+            jsr calculate_hires_pointers
+            ;; ptr_0, ptr_1 hires column  pointers
+            ;; ptr_2 adjusted source bytes
+            ldy s_y
+            ;; calculate loop end in scratch
+            tya
+            clc
+            ;; letters are only 7 tall
+            adc #7
+            sta scratch
+loop:       
+            modulo8 s_x
+            sta shift
+            lda (ptr_2),y
+        	jsr create_sprite_line  
+            lda left_byte
+            eor (ptr_0),y
+            sta (ptr_0),y
+            lda right_byte
+            eor (ptr_1),y
+            sta (ptr_1),y
+            iny
+            cpy scratch
+            bne loop
+            rts
+.endproc
+
+.data
+_LETTERS:    
 	.byte  %00100000,%01010000,%10001000,%11111000,%10001000,%10001000,%10001000
 
 	.byte  %11110000,%10001000,%10001000,%11110000,%10001000,%10001000,%11110000

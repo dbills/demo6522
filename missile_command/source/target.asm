@@ -10,36 +10,36 @@
           .macro mov_l
           .local done
           lda #0
-          cmp s_x,x
+          cmp s_x
           beq done
-          dec s_x,x
+          dec s_x
 done:       
           .endmacro
 
           .macro mov_r
           .local done
           lda #(SCRCOLS*8)-8-1
-          cmp s_x,x
+          cmp s_x
           bcc done
-          inc s_x,x
+          inc s_x
 done:       
           .endmacro
 
           .macro mov_d
           .local done
           lda #SCRROWS*16-8-1
-          cmp s_y,x
+          cmp s_y
           bcc done
-          inc s_y,x
+          inc s_y
 done:       
           .endmacro
 
           .macro mov_u
             .local done
           lda #0
-          cmp s_y,x
+          cmp s_y
           beq done
-          dec s_y,x
+          dec s_y
 done:       
           .endmacro
           
@@ -113,9 +113,9 @@ joyrt:
           sta _x1
           lda #0
           sta _y1
-          lda s_x,x
+          lda s_x
           sta _x2
-          lda s_y,x
+          lda s_y
           sta _y2
 
           movi _ldata1-1,_lstore

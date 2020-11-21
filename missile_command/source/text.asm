@@ -24,14 +24,14 @@ loop:
             lsr left_byte
             ror right_byte
             dex
-            bpl loop
+            bne loop
 done:       
             rts
 .endproc
 
 .data
 string1:    
-.asciiz     "abcdefghijklmnopqrstuvwxyz"
+.asciiz     "abcdefghijklmnopqrstuvwxyz012"
 letter_table:
 OFFSET      .set 0
 .repeat     26
@@ -43,6 +43,8 @@ string_offset:
             .byte 0
 .code
 .proc       _draw_string
+            lda #0
+            sta string_offset
 loop:       
             ldy string_offset
             lda string1,y
@@ -75,19 +77,16 @@ done:
             lda #83
             sta s_y
             lda #0
-            sta sx
+            sta s_x
+
+            jsr _draw_string            
+            lda #73
+            sta s_y
+            lda #1
+            sta s_x
             jsr _draw_string
             rts
 .endproc
-
-;; .proc       draw_letter1
-;;             lda #83
-;;             sta s_x
-;;             sta s_y
-;;             mov #_LETTERS, ptr_0
-;;             jsr draw_letter
-;;             rts
-;; .endproc
 
 .proc       draw_letter
             jsr calculate_hires_pointers

@@ -77,7 +77,7 @@ static void lplot(uchar x1, uchar y1)
 }
 void c_main() {
   unsigned char i;
-  for(i=0;i<175;i+=7) {
+  for(i=0;i<175;i+=6) {
     lineto(i,0,i,175);
   }
 //  lineto(0,0,175,175);

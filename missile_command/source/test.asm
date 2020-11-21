@@ -189,7 +189,7 @@ L0012:	jmp     L0010
 .segment	"CODE"
 
 ;
-; for(i=0;i<175;i+=7) {
+; for(i=0;i<175;i+=6) {
 ;
 	jsr     decsp1
 	ldx     #$00
@@ -217,12 +217,12 @@ L005A:	ldy     #$00
 	lda     #$AF
 	jsr     _lineto
 ;
-; for(i=0;i<175;i+=7) {
+; for(i=0;i<175;i+=6) {
 ;
 	ldy     #$00
 	ldx     #$00
 	clc
-	lda     #$07
+	lda     #$06
 	adc     (sp),y
 	sta     (sp),y
 	jmp     L0057

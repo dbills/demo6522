@@ -28,8 +28,8 @@ _p_render:  .res 2
 .CODE
           ;; inputs A=_dx
           ;; _x1>_x2
-          ;; figure out if we are drawing in 2 or 4
-.macro    quadrant_2or4
+          ;; figure out if we are steep or shallow
+.macro    quadrant_2or3
           .local dxline
           cmp _dy
           bcs dxline                   ;_dx>_dy
@@ -42,8 +42,8 @@ dxline:
 .endmacro
           ;; _x1<_x2
           ;; inputs A=_dx
-          ;; figure out if we are drawing in 1 or 3
-.macro    quadrant_1or3
+          ;; figure out if we steep or shallow
+.macro    quadrant_1or4
           .local dxline
           cmp _dy
           bcs dxline                   ;_dx>_dy
@@ -85,12 +85,12 @@ dxline:
           ;; clc implied or we wouldn't be here
           adc #2                        
           sta _dx                     
-          quadrant_2or4
+          quadrant_2or3
           rts
 normal:   
           adc #0                        ;C is set dx+=1
           sta _dx                      
-          quadrant_1or3
+          quadrant_1or4
           rts
 .endproc
           ;; sets up input for genline

@@ -10,6 +10,7 @@
           .include   "kplane.mac"
           .include   "target.inc"
           .include   "sprite.inc"
+          .include   "text.inc"
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE
@@ -35,6 +36,7 @@
           ;jsr test1
 .import _c_main, draw_letter1
           jsr _c_main                   
+          debug_string "borda"
           jsr draw_letter1
           jsr bounce                    
           jmp loop

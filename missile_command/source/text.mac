@@ -1,0 +1,21 @@
+.macro      debug_string s
+            .local mystring
+.data
+mystring:   
+            .asciiz s
+.code
+            lda #15
+            sta s_y
+            lda #0
+            sta s_x
+            lda ptr_0
+            pha
+            lda ptr_0+1
+            pha
+            mov #mystring, ptr_0    
+            jsr _draw_string
+            pla
+            sta ptr_0+1
+            pla
+            sta ptr_0
+.endmacro

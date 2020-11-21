@@ -77,10 +77,11 @@ static void lplot(uchar x1, uchar y1)
 }
 void c_main() {
   unsigned char i;
-  for(i=0;i<175;i+=6) {
-    lineto(i,0,i,175);
-  }
-//  lineto(0,0,175,175);
+//  for(i=0;i<175;i+=6) {
+//    lineto(i,0,i,175);
+//  }
+  lineto(0,0,175,175);
+  
 //  lineto(172,0,172,175);
 //  lineto(170,0,170,175);
 //  lplot(169,0);

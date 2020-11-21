@@ -189,47 +189,21 @@ L0012:	jmp     L0010
 .segment	"CODE"
 
 ;
-; for(i=0;i<175;i+=6) {
+; lineto(0,0,175,175);
 ;
 	jsr     decsp1
-	ldx     #$00
 	lda     #$00
-	ldy     #$00
-	sta     (sp),y
-L0057:	ldy     #$00
-	ldx     #$00
-	lda     (sp),y
-	cmp     #$AF
-	jsr     boolult
-	jne     L005A
-	jmp     L0058
-;
-; lineto(i,0,i,175);
-;
-L005A:	ldy     #$00
-	lda     (sp),y
 	jsr     pusha
 	lda     #$00
 	jsr     pusha
-	ldy     #$02
-	lda     (sp),y
+	lda     #$AF
 	jsr     pusha
 	lda     #$AF
 	jsr     _lineto
 ;
-; for(i=0;i<175;i+=6) {
-;
-	ldy     #$00
-	ldx     #$00
-	clc
-	lda     #$06
-	adc     (sp),y
-	sta     (sp),y
-	jmp     L0057
-;
 ; lplot(175,0);
 ;
-L0058:	lda     #$AF
+	lda     #$AF
 	jsr     pusha
 	lda     #$00
 	jsr     _lplot

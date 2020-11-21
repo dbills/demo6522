@@ -1,14 +1,64 @@
 .include "math.mac"
 .include "shapes.inc"
 .include "zerop.inc"
+.include "m16.mac"
 .export sp_draw          
+.import LETA
+.proc       sp_draw
+            mov #LETA,ptr_0             
+            ;mov #_LETTERS,ptr_0         
+            jmp draw2
+.endproc
+
+            ;; s_x: X coordinate
+            ;; s_y: Y coordinate
+            ;; input:
+            ;;   ptr_0: point to sprite source data
+            ;; output: 
+            ;;   ptr_0 pointer to CHRAM column left tile
+            ;;   ptr_1 pointer to CHRAM column right tile
+            ;;   ptr_2 adjusted pointer to sprite source
+            ;;         s.t. ptr+2 + s_y = sprite_source data
+.proc       calculate_hires_pointers
+            lda ptr_0
+            sec
+            sbc s_y
+            sta ptr_2
+            lda ptr_0+1
+            sbc #0
+            sta ptr_2+1
+            ;; divide by 8, multiply by 2
+            ;; to get screen character column
+            ;; pointer from table 
+            lda s_x
+            lsr
+            lsr
+            and #$fe
+            tay
+            ;; copy correct ptr to ptr_0
+            lda pltbl,y                   ;
+            sta ptr_0
+            iny
+            lda pltbl,y
+            sta ptr_0 + 1
+            ;; ptr_0 is location in CHRAM
+            ;; of the correct character column
+            iny
+            lda pltbl,y
+            sta ptr_1
+            iny
+            lda pltbl,y
+            sta ptr_1 + 1
+            ;; ptr_1 is right half of sprite
+            rts
+.endproc    
 ;;; draw sprite at s_x,x s_y,x
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
 ;;; sprite source data ( left and right side ) ptr0,1,2,3
 ;;; 
-.proc       sp_draw 
-          ;sub_abw BORDA,s_y,ptr_2
-          sub_abw LETA,s_y,ptr_2
+.proc     draw2
+          jsr calculate_hires_pointers
+
           modulo8 s_x                   ;find correct bit offset
           mul16                         ;in preshifted images
           clc
@@ -18,31 +68,9 @@
           adc ptr_2+1
           sta ptr_2+1
           add_wbw ptr_2,#8,ptr_3
+          ;; ptr_3 contains pointer to preshifted tiles
 
-          ;; divide by 8
-          ;; to get screen character column
-          lda s_x,x
-          lsr
-          lsr
-          and #$fe
-          tay
-          ;; copy correct ptr to ptr_0
-          lda pltbl,y                   ;
-          sta ptr_0
-          iny
-          lda pltbl,y
-          sta ptr_0 + 1
-          ;; ptr_0 is location in CHRAM
-          ;; of the correct character column
-          iny
-          lda pltbl,y
-          sta ptr_1
-          iny
-          lda pltbl,y
-          sta ptr_1 + 1
-          ;; ptr_1 is right half of sprite
-
-          ldy s_y,x
+          ldy s_y
           ldx #8
 loop1:      
           lda (ptr_1),y
@@ -58,10 +86,3 @@ loop1:
           bne loop1
           rts
 .endproc
-
-.macro    abort
-          lda #$c0
-          sta 9005
-          brk
-.endmacro
-

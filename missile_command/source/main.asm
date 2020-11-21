@@ -33,9 +33,9 @@
           scolor_i PURPLE
 
           ;jsr test1
-          ;jsr bounce                    
 .import _c_main
           jsr _c_main                   
+          jsr bounce                    
           jmp loop
 l1:         
           jsr _plot

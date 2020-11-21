@@ -54,7 +54,34 @@ dxline:
           jsr line2
           mov #_render2,_p_render
 .endmacro
-
+          ;; distance beteen _1 and _2
+          ;; return in delta
+          ;; C set for normal
+          ;; clear if _1,_2 are reversed
+.macro    delta _1,_2,distance
+          lda _2
+          sec
+          sbc _1
+          bcs normal
+          ;; x2 was < x1
+          eor #$ff
+          ;; we need to add 1 to finish our little 2's complement
+          ;; stunt and get to x1-x2 -- and we also 
+          ;; need to add +1 to dx, so:
+          ;; clc implied (or we wouldn't be here)
+          adc #2
+normal:   
+          ;; C is already set if we directly branch here
+          ;; otherwise it's not and this does nothing 
+          ;; which is fine
+          adc #0
+          sta distance
+.endmacro
+.proc     jdelta 
+          delta _x1,_x2,_dx
+          rts
+.endproc
+.export jdelta
 .macro    calcdy
           lda _y2                        ;_dy=_y2-_y1+1
           sec

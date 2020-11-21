@@ -86,10 +86,12 @@ normal:
           lda _y2                        ;_dy=_y2-_y1+1
           sec
           sbc _y1
-          adc #0    
+          clc
+          adc #1    
           sta _dy                       
 .endmacro
-          ;; calculate _dy,dx and err for
+          ;; generate line
+          ;; calculate _dy,dx and err for            
           ;; a line
           ;; inputs: _x1,_x2,_y1,_y12
           ;; outputs: _dy,_dx,err
@@ -107,9 +109,9 @@ normal:
           ;; x2 < x1                
           eor #$ff                      ;take abs of A
           ;; we need to add 1 to finish our little 2's complement
-          ;; stunt and get to _x1-_x2 -- and we also 
-          ;; need to add +1 to dx, so
-          ;; clc implied or we wouldn't be here
+          ;; stunt and get to x1-x2 -- and we also 
+          ;; need to add +1 to dx, so:
+          ;; clc implied (or we wouldn't be here)
           adc #2                        
           sta _dx                     
           quadrant_2or3

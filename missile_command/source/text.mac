@@ -6,7 +6,7 @@ mystring:
             .asciiz s
 .code
             saveall
-            lda #15
+            lda #175-7
             sta s_y
             lda #0
             sta s_x

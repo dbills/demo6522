@@ -1,5 +1,5 @@
 Some notes about the Cartesian quadrant terminology used
-admittedly it is a little abused but bear with me:
+admittedly it is a little abused but bear with it:
 
 There are 3 domains for the Bresenham line drawing algorithm.  Each domain has 2 states, thus 2^3 = 8 different special cases for drawing lines.  The domains are
 
@@ -27,3 +27,29 @@ Quadrant4: forwardx = T, forwardy = F
 
 lines in a quadrant may be steep = T or steep = F
 
+
+LINE STORAGE
+
+Let a point be the pair [x,y]
+Let long-axis = max(dx, dy) where dx => x , dy => y
+Let short-axis = min(dx, dy) 
+
+Consider the line [1,1] to [2,10]
+This is what we call a steep line, as the slope is > 1
+The 'long axis' for this line is the Y, and short-axis X
+Lines are stored in memory as a collection of short-axis values
+The number of values is the total length of the long-axis
+For our line example above, the buffer would be 10 byte long
+and each byte would contain an X value for the line.  You can
+see from this example that we have 10 'steps' from which to get 
+from an X value of 1 to an X value of 2.  
+
+When rendering a line we need to now the direction to 
+iterate over the short axis value, the starting value of the long axis
+and what axis the long-axis is ( either x or y ).
+In our example the direction is forward
+
+struct line {
+       unsigned char start_value
+       rendering routine
+}

@@ -180,8 +180,8 @@ loop:                                   ;while(y>0)
 .endproc
 .include "genline.mac"
 .proc     line2
-          ;generate_line_data "shallow", "reverse"
-          generate_line_data "shallow", "forward"
+          generate_line_data "shallow", "reverse"
+          ;generate_line_data "shallow", "forward"
 .endproc          
 ;;; _dy>dx and _x2<_x1
 ;;; lstore: pointer to line storage

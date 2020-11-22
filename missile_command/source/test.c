@@ -80,13 +80,14 @@ void c_main() {
 //  for(i=0;i<175;i+=6) {
 //    lineto(i,0,i,175);
 //  }
-  lineto(0,0,175,175);
+  lplot(0,0);
+  lineto(2,2,4,4);
   
-//  lineto(172,0,172,175);
-//  lineto(170,0,170,175);
-//  lplot(169,0);
-//  lplot(173,0);
-  lplot(175,0);
+  /* lineto(172,0,172,175); */
+  /* lineto(170,0,170,175); */
+  /* lplot(169,0); */
+  /* lplot(173,0); */
+  /* lplot(175,0); */
 #if 0  
   int i;
   sentinel();

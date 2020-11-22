@@ -189,24 +189,24 @@ L0012:	jmp     L0010
 .segment	"CODE"
 
 ;
-; lineto(0,0,175,175);
+; lplot(0,0);
 ;
 	jsr     decsp1
 	lda     #$00
 	jsr     pusha
 	lda     #$00
-	jsr     pusha
-	lda     #$AF
-	jsr     pusha
-	lda     #$AF
-	jsr     _lineto
-;
-; lplot(175,0);
-;
-	lda     #$AF
-	jsr     pusha
-	lda     #$00
 	jsr     _lplot
+;
+; lineto(2,2,4,4);
+;
+	lda     #$02
+	jsr     pusha
+	lda     #$02
+	jsr     pusha
+	lda     #$04
+	jsr     pusha
+	lda     #$04
+	jsr     _lineto
 ;
 ; }
 ;

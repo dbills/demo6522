@@ -19,12 +19,15 @@ ptr_3:      .res 2                      ;sprite
 save_y:     .res 1
 save_x:     .res 1
 last_x:     .res 1
-;;; 3 sprite objects
-s_x:        .res 3
-s_y:        .res 3
-s_src:      .res 3
-;;; end sprite object
 _pl_x:      .res 1
 _pl_y:      .res 1
 LASTJOY:    .res 1
+s_x:        .res 1
+s_y:        .res 1
+s_src:      .res 1
+;;; mysterious padding
+;;; because something is
+;;; attacking zero page?
+unused:     .res 3
+ptr_string: .res 2
 .CODE

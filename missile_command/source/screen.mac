@@ -1,7 +1,9 @@
 .ifndef _SCREEN_H
 _SCREEN_H = 1
-SCRROWS   =       23/2                ;176
-SCRCOLS   =       22                  ;176
+SCRROWS   =       23/2
+YMAX      =       SCRROWS * 16
+SCRCOLS   =       22
+XMAX      =       SCRCOLS * 8
 CHBASE1   =       $1000
 CHARHT    =       16
 .INCLUDE  "zerop.mac"

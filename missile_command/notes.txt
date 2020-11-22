@@ -254,3 +254,10 @@ thoughts: where do you save the context at?
            then all your stuff is lda(context), DY
            speed is the problem, the code generator puts them
            back into your ZP variables for you
+
+
+the rendering routines always draw from high mem to low mem
+that limits them to always drawing quadrants 1 and 2
+and what is the point of the increment long axis doing a dec or inc?
+i think that is important because it's controlling the short axis
+values

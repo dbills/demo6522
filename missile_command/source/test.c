@@ -6,7 +6,7 @@
 #define YMAX 175
 #define XMAX 175
 const unsigned char INTERCEPTED = -1;
-#define LINE_DATA_MAX YMAX+1
+#define LINE_DATA_MAX YMAX+2
 
 typedef unsigned char uchar;
 typedef struct  {

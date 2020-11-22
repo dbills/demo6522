@@ -244,11 +244,9 @@ loop:
 .proc     _render2
           ldy _dx
           ldx _x2
-          decw _lstore
-          iny
-          debug_string "here"
+;          debug_string "here"
 loop:     
-          sleep 60
+;          sleep 60                      
           lda (_lstore),y
           sta _pl_y
           plotm txa

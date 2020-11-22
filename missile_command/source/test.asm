@@ -33,9 +33,9 @@ _INTERCEPTED:
 .segment	"BSS"
 
 _missiles:
-	.res	930,$00
+	.res	935,$00
 _ldata1:
-	.res	176,$00
+	.res	177,$00
 
 ; ---------------------------------------------------------------
 ; void __near__ doom (void)

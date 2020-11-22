@@ -13,7 +13,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_render1,_render2,_render4,_p_render,line23,line2
+.export _genline,_render1,_render2,_render4,_p_render,line2
 .ZEROPAGE
 err:        .res 1
 _dx:        .res 1
@@ -178,24 +178,10 @@ loop:                                   ;while(y>0)
           bne loop
           rts
 .endproc
-;;; note: diagonal lines fall here
-;;; dx>_dy
-.proc     line2 
-          ;debug_string "linetwo"
-          ;; might be able to replace below with tay
-          ldy _dx                        ;y=dx
-          ldx _y2                        ;x=_y2
-loop:                                   ;while(y>0)
-          increment_long_axis _dy,_dx,dex
-          txa
-          sta (_lstore),y                ;lstore[y]=x
-          dey
-          bne loop                     ;
-          rts
-.endproc
 .include "genline.mac"
-.proc     line23
-          generate_line_data "shallow", "reverse"
+.proc     line2
+          ;generate_line_data "shallow", "reverse"
+          generate_line_data "shallow", "forward"
 .endproc          
 ;;; _dy>dx and _x2<_x1
 ;;; lstore: pointer to line storage
@@ -250,6 +236,7 @@ loop:
           ldx _x2
           decw _lstore
           iny
+          debug_string "here"
 loop:     
           lda (_lstore),y
           sta _pl_y

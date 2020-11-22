@@ -1,5 +1,5 @@
 .ifndef _SYSTEM_H
-SYSTEM_H = 1
+_SYSTEM_H = 1
 VICRASTER   = $9004
 VICSCRN     = $9005             ; vic chip character generator pointer
 LIGHPENX    = $9006             ; used for random number
@@ -22,5 +22,17 @@ MINISR      = $eb15             ; the minimum isr ( no keyboard polling o
             pla
             tax
             pla
+.endmacro
+.macro      pushw ptr
+            lda ptr
+            pha 
+            lda ptr+1
+            pha 
+.endmacro
+.macro      popw ptr
+            pla
+            sta ptr
+            pla
+            sta ptr+1
 .endmacro
 .endif

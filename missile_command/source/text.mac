@@ -1,21 +1,18 @@
+.include "system.mac"
 .macro      debug_string s
             .local mystring
 .data
 mystring:   
             .asciiz s
 .code
+            saveall
             lda #15
             sta s_y
             lda #0
             sta s_x
-            lda ptr_0
-            pha
-            lda ptr_0+1
-            pha
+            pushw ptr_0
             mov #mystring, ptr_string
             jsr _draw_string
-            pla
-            sta ptr_0+1
-            pla
-            sta ptr_0
+            popw ptr_0
+            resall
 .endmacro

@@ -35,4 +35,10 @@ MINISR      = $eb15             ; the minimum isr ( no keyboard polling o
             pla
             sta ptr+1
 .endmacro
+.macro      waitv
+            .local iloop
+iloop:      
+            lda VICRASTER           ;load raster line
+            bne iloop
+.endmacro
 .endif

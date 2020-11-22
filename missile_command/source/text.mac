@@ -10,8 +10,8 @@ mystring:
             sta s_y
             lda #0
             sta s_x
-            pushw ptr_0
             mov #mystring, ptr_string
+            pushw ptr_0
             jsr _draw_string
             popw ptr_0
             resall

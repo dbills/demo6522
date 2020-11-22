@@ -229,6 +229,16 @@ loop:
           bne loop
           rts
 .endproc
+.macro sleep t
+          .local loop
+          saveall
+          ldx #t
+loop:     
+          waitv
+          dex
+          bne loop
+          resall
+.endmacro
 ;;; dx>dy line
 ;;; quadrant 1
 .proc     _render2
@@ -238,6 +248,7 @@ loop:
           iny
           debug_string "here"
 loop:     
+          sleep 60
           lda (_lstore),y
           sta _pl_y
           plotm txa

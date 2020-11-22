@@ -1,6 +1,7 @@
 .include  "screen.inc"
 .include "zerop.inc"
 .include "m16.mac"
+.include "text.inc"
 ;;; public line symbols
 ;;; line* routines put the 'line instructions' in ram
 ;;; render* routines take a line instruction set and
@@ -12,7 +13,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_render1,_render2,_render4,_p_render
+.export _genline,_render1,_render2,_render4,_p_render,line23,line2
 .ZEROPAGE
 err:        .res 1
 _dx:        .res 1
@@ -180,6 +181,7 @@ loop:                                   ;while(y>0)
 ;;; note: diagonal lines fall here
 ;;; dx>_dy
 .proc     line2 
+          ;debug_string "linetwo"
           ;; might be able to replace below with tay
           ldy _dx                        ;y=dx
           ldx _y2                        ;x=_y2
@@ -191,6 +193,10 @@ loop:                                   ;while(y>0)
           bne loop                     ;
           rts
 .endproc
+.include "genline.mac"
+.proc     line23
+          generate_line_data "shallow", "reverse"
+.endproc          
 ;;; _dy>dx and _x2<_x1
 ;;; lstore: pointer to line storage
 .proc     line3

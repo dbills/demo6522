@@ -1,23 +1,38 @@
 .macro generate_line_data direction, slope
 .local loop
 .if (.match ({direction}, forward))
+  brk
+  brk
+  brk
+  brk
+
   .define iterator inx
+  .define x_start _x1
+  .define y_start _y1
 .else
   .define iterator dex
+  .define x_start _x2
+  .define y_start _y2
 .endif            
 .if (.match ({slope}, steep))
+  brk
+  brk
+  brk
+  brk
   .define long_axis _dy
   .define short_axis _dx
+  .define start_value x_start
 .else
   .define long_axis _dx 
-  .define short_axis _dy           
+  .define short_axis _dy     
+  .define start_value y_start      
 .endif            
           ldy long_axis
-          ldx short_axis                
+          ldx start_value
 loop:                                   ;while(y>0)
+          increment_long_axis short_axis, long_axis, iterator
           txa
           sta (_lstore),y               ;lstore[y]=short_axis
-          increment_long_axis short_axis, long_axis, iterator
           dey
           bne loop
           rts

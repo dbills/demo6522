@@ -5,7 +5,6 @@
 .include "math.mac"
 .export _LETTERS, draw_letter1, _draw_string
 .data
-ptr_string: .res 2
 left_byte:  .byte 0
 right_byte: .byte 0
 scratch:    .byte 0
@@ -48,7 +47,7 @@ string_offset:
             sta string_offset
 loop:       
             ldy string_offset
-            lda string1,y
+            lda (ptr_string),y
             beq done
             sec
             sbc #'a'

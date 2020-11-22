@@ -12,7 +12,7 @@ mystring:
             pha
             lda ptr_0+1
             pha
-            mov #mystring, ptr_0    
+            mov #mystring, ptr_string
             jsr _draw_string
             pla
             sta ptr_0+1

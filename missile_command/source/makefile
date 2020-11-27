@@ -28,7 +28,7 @@ foo:
 OBJS=jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o
 port:
 	rm -f *.o
-	rm test.asm
+	rm -f test.asm
 #	ca65 --cpu 6502 -I headers source/jstick.asm
 #	ca65 --cpu 6502 -I headers source/line.asm 2>&1 | $(CA65FIX)
 	cc65 -T --cpu 6502 test.c -o test.asm 2>&1 | ../build_support/fix_errors.sh

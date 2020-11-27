@@ -36,8 +36,7 @@
           ;jsr test1
 .import _c_main, draw_letter1
           jsr _c_main                   
-;           debug_string "borda"
-          ;jsr draw_letter1
+          ;debug_string "missilecommandtheend"
           jsr bounce                    
           jmp loop
 l1:         

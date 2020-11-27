@@ -3,10 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define YMAX 175
-#define XMAX 175
 const unsigned char INTERCEPTED = -1;
-#define LINE_DATA_MAX YMAX+2
+#define LINE_DATA_MAX 175
 
 typedef unsigned char uchar;
 typedef struct  {

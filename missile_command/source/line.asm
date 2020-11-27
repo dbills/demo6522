@@ -239,6 +239,9 @@ loop:
           bne loop
           resall
 .endmacro
+.proc     _general_render
+          
+.endproc
 ;;; dx>dy line
 ;;; quadrant 1
 .proc     _render2

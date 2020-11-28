@@ -66,7 +66,8 @@ dxline:
           rts
 dxline:   
           jsr line2
-          mov #_shallow_reverse,_p_render
+          ;mov #_shallow_reverse,_p_render
+          mov #_general_render,_p_render
 .endmacro
           ;; distance beteen _1 and _2
           ;; return in delta
@@ -119,7 +120,7 @@ normal:
           lda _x2                       ;dx=_x2-_x1+1
           sec
           sbc _x1
-          bcs normal    
+          bcs q_1or4
           ;; x2 < x1                
           eor #$ff                      ;take abs of A
           ;; we need to add 1 to finish our little 2's complement
@@ -130,7 +131,7 @@ normal:
           sta _dx                     
           quadrant_2or3
           rts
-normal:   
+q_1or4:   
           adc #0                        ;C is set dx+=1
           sta _dx                      
           quadrant_1or4
@@ -255,6 +256,7 @@ loop:
 ;;; beginning - loop direction will have to be rewritten
 ;;; to change this
 .proc     _general_render
+          debug_string "here"
           ldy #.sizeof(line_buffer)
           ;; render_type
           lda (_lstore),y
@@ -282,7 +284,6 @@ s4:       brk
 .proc     _shallow_reverse
           ldy _dx
           ldx _x2
-          debug_string "here"
 loop:     
 ;          sleep 60                      
           lda (_lstore),y

@@ -13,7 +13,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_render1,_render2,_render4,_p_render,line2
+.export _genline,_render1,_render2,_render4,_p_render,line2,tramp,_ldata1
 .ZEROPAGE
 err:        .res 1
 _dx:        .res 1
@@ -26,6 +26,18 @@ _lstore:    .res 2
 .BSS
 ;;; pointer to line rendering function
 _p_render:  .res 2                        
+.struct line_buffer
+  values .res 16
+.endstruct
+
+.struct line_data
+  ;short_axis_values .res 176            
+  short_axis .tag line_buffer
+  line_type .byte
+  start_value .byte
+.endstruct
+
+_ldata1:      .tag line_data
 .CODE
           ;; inputs A=_dx
           ;; _x1>_x2
@@ -94,7 +106,7 @@ normal:
           ;; generate line
           ;; calculate _dy,dx and err for            
           ;; a line
-          ;; inputs: _x1,_x2,_y1,_y12
+          ;; inputs: _x1,_x2,_y1,_y2
           ;; outputs: _dy,_dx,err
           ;; A=_dy on exit
           ;; preconditions: _y2>_y1
@@ -240,6 +252,8 @@ loop:
           resall
 .endmacro
 .proc     _general_render
+          ldy #.sizeof(line_buffer)
+;          lda (lstore),y
           
 .endproc
 ;;; dx>dy line
@@ -247,7 +261,7 @@ loop:
 .proc     _render2
           ldy _dx
           ldx _x2
-;          debug_string "here"
+          debug_string "here"
 loop:     
 ;          sleep 60                      
           lda (_lstore),y
@@ -273,6 +287,10 @@ loop:
           dey
           bne loop
           rts
+.endproc
+
+.proc     tramp
+          jmp (_p_render)                ;will ret for us
 .endproc
 
 .export XBMASKS_OFFSET_TBL, XBMASKS_0,XBMASKS_1,XBMASKS_2,XBMASKS_3,XBMASKS_4,XBMASKS_5,XBMASKS_6,XBMASKS_7

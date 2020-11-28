@@ -31,11 +31,12 @@ port:
 	rm -f test.asm
 #	ca65 --cpu 6502 -I headers source/jstick.asm
 #	ca65 --cpu 6502 -I headers source/line.asm 2>&1 | $(CA65FIX)
-	cc65 -T --cpu 6502 test.c -o test.asm 2>&1 | ../build_support/fix_errors.sh
+#	cc65 -T --cpu 6502 test.c -o test.asm 2>&1 | ../build_support/fix_errors.sh
 	for i in *.asm;do ../build_support/assemble.sh $$i;done
 	for i in *.asm;do ../build_support/assemble.sh $$i asm;done
 # make sure main is first so the start addr is always the same
-	cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o test.o $(OBJS) 
+#cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o test.o $(OBJS) 
+	cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o $(OBJS) 
 	perl ../build_support/mapfile.pl a.map > a.lst
 
 foo1:

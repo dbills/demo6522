@@ -1,10 +1,25 @@
-.macro      lineto x1,x2,y1,y2
-            lda x1
+.include "screen.mac"
+.macro      lineto x1,y1,x2,y2
+            lda #x1
             sta _x1
-            lda x2
+            lda #x2
             sta _x2
-            lda y1
+            lda #y1
             sta _y1
-            lda y2
+            lda #y2
             sta _y2
+            jsr _genline
+            jsr tramp
 .endmacro
+;;; definiton of how a line in stored
+;;; in memory
+;;; short axis values are, for example
+;;; X coordinates in a line where  DY is 
+;;; > DX see line.txt for more details
+.enum linetype
+  ltype_shallow_forward 
+  ltype_shallow_reverse
+  ltype_steep_forward
+  ltype_steep_reverse
+.endenum
+

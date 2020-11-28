@@ -1,4 +1,6 @@
 ;;; 16 bit macros
+.ifndef _m16_h
+_m16_h = 1
 .macro      incw arg
 .local done
             inc arg
@@ -77,3 +79,4 @@ done:
           pla
           tax
 .endmacro
+.endif

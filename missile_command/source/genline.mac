@@ -1,34 +1,58 @@
 .include "screen.mac"
+.enum render_class
+  steep_forward = 0
+  steep_backward
+  shallow_forward
+  shallow_backward
+.endenum
+;;; 0 = steep
+.macro determine_render_routine which
+.if (which = render_class::steep_forward)
+            mov #_render1, _p_render
+.endif
+.if (which = render_class::steep_backward)
+            mov #_render2, _p_render
+.endif
+.if (which = render_class::shallow_forward)
+;            mov #_render3, _p_render
+.endif
+.if (which = render_class::shallow_backward)
+            mov #_render4, _p_render
+.endif
+.endmacro
+;;; direction control how we draw the long
+;;; axis
+;;; slope controls what the long axis is
+;;; short = dx, steep = dy
 .macro generate_line_data direction, slope
 .local loop
 .if (.match ({direction}, forward))
   .define iterator inx
   .define x_start _x1
   .define y_start _y1
-  .define render_selector_bit0 0
+  render_selector_bit0 = 0
 .else
   .define iterator dex
   .define x_start _x2
   .define y_start _y2
-  .define render_selector_bit0 1
+  render_selector_bit0 = 1
 .endif            
 .if (.match ({slope}, steep))
   .define long_axis _dy
   .define short_axis _dx
   .define start_value x_start
-  .define render_selector_bit1 0
+  render_selector_bit1 = 0
 .else
   .define long_axis _dx 
   .define short_axis _dy     
   .define start_value y_start      
-  .define render_selector_bit1 1
+  render_selector_bit1 = 1
 .endif            
-            decw _lstore
-            ldy #YMAX
+            ldy #.sizeof(line_buffer)
             lda #(render_selector_bit1 *2) + render_selector_bit0
             sta(_lstore),y
             lda start_value
-            dey
+            iny
             sta(_lstore),y
             tax
             ldy long_axis               
@@ -38,6 +62,8 @@ loop:                                   ;do {
             sta (_lstore),y             ;lstore[y]=short_axis
             dey
             bne loop                    ;} while(y>0)
+
+            ;determine_render_routine (render_selector_bit1*2) + render_selector_bit0
             rts
 .endmacro
             

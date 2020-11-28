@@ -1,11 +1,10 @@
 .include "screen.mac"
 .enum render_class
   steep_forward = 0
-  steep_backward
+  steep_reverse
   shallow_forward
-  shallow_backward
+  shallow_reverse
 .endenum
-;;; 0 = steep
 .macro determine_render_routine which
 .if (which = render_class::steep_forward)
             mov #_render1, _p_render
@@ -40,21 +39,25 @@
 .if (.match ({slope}, steep))
   .define long_axis _dy
   .define short_axis _dx
-  .define start_value x_start
+  .define short_axis_start_value x_start
   render_selector_bit1 = 0
 .else
   .define long_axis _dx 
   .define short_axis _dy     
-  .define start_value y_start      
+  .define short_axis_start_value y_start      
   render_selector_bit1 = 1
 .endif            
             ldy #.sizeof(line_buffer)
             lda #(render_selector_bit1 *2) + render_selector_bit0
             sta(_lstore),y
-            lda start_value
             iny
+            lda short_axis_start_value
             sta(_lstore),y
+            iny
             tax
+            lda long_axis
+            sta(_lstore),y
+            tay
             ldy long_axis               
 loop:                                   ;do {
             increment_long_axis short_axis, long_axis, iterator

@@ -13,7 +13,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_render1,_render2,_render4,_p_render,line2,tramp,_ldata1
+.export _genline,_render1,_p_render,line2,tramp,_ldata1
 .ZEROPAGE
 err:        .res 1
 _dx:        .res 1
@@ -33,8 +33,9 @@ _p_render:  .res 2
 .struct line_data
   ;short_axis_values .res 176            
   short_axis .tag line_buffer
-  line_type .byte
-  start_value .byte
+  render_type .byte
+  short_axis_start_value .byte
+  buffer_index .byte
 .endstruct
 
 _ldata1:      .tag line_data
@@ -51,7 +52,7 @@ _ldata1:      .tag line_data
           rts
 dxline:   
           jsr line4
-          mov #_render4,_p_render
+          mov #_shallow_forward,_p_render
 .endmacro
           ;; _x1<_x2
           ;; inputs A=_dx
@@ -65,7 +66,7 @@ dxline:
           rts
 dxline:   
           jsr line2
-          mov #_render2,_p_render
+          mov #_shallow_reverse,_p_render
 .endmacro
           ;; distance beteen _1 and _2
           ;; return in delta
@@ -229,8 +230,6 @@ loop:                                   ;while(y>0)
 .proc     _render1
           ldy _dy
           ldx _y2
-          decw _lstore
-          iny
 loop:     
           lda (_lstore),y
           sta _pl_x
@@ -251,14 +250,36 @@ loop:
           bne loop
           resall
 .endmacro
+;;; right now, all the render routines
+;;; start at buffer end and go toward 
+;;; beginning - loop direction will have to be rewritten
+;;; to change this
 .proc     _general_render
           ldy #.sizeof(line_buffer)
-;          lda (lstore),y
-          
+          ;; render_type
+          lda (_lstore),y
+          cmp #render_class::steep_forward
+          bne s1
+          brk
+s1:
+          cmp #render_class::steep_reverse
+          bne s2
+          brk
+s2:
+          cmp #render_class::shallow_forward
+          bne s3
+          brk
+s3:        
+          cmp #render_class::shallow_reverse
+          jmp _shallow_reverse
+          bne s4
+          jmp _shallow_forward
+s4:       brk
+          rts
 .endproc
 ;;; dx>dy line
 ;;; quadrant 1
-.proc     _render2
+.proc     _shallow_reverse
           ldy _dx
           ldx _x2
           debug_string "here"
@@ -274,11 +295,9 @@ loop:
 .endproc
 ;;; dx>dy line
 ;;; quadrant 2
-.proc     _render4
+.proc     _shallow_forward
           ldy _dx
           ldx _x1
-          decw _lstore
-          iny
 loop:     
           lda (_lstore),y
           sta _pl_y

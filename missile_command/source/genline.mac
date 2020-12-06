@@ -5,25 +5,11 @@
   shallow_forward
   shallow_reverse
 .endenum
-.macro determine_render_routine which
-.if (which = render_class::steep_forward)
-            mov #_render1, _p_render
-.endif
-.if (which = render_class::steep_backward)
-            mov #_render2, _p_render
-.endif
-.if (which = render_class::shallow_forward)
-;            mov #_render3, _p_render
-.endif
-.if (which = render_class::shallow_backward)
-            mov #_render4, _p_render
-.endif
-.endmacro
 ;;; direction control how we draw the long
 ;;; axis
 ;;; slope controls what the long axis is
 ;;; short = dx, steep = dy
-.macro generate_line_data direction, slope
+.macro generate_line_data xdirection, ydirection, slope
 .local loop
 .if (.match ({direction}, forward))
   .define iterator inx
@@ -60,7 +46,7 @@
             tay
             ldy long_axis               
 loop:                                   ;do {
-            increment_long_axis short_axis, long_axis, iterator
+            step_short_axis short_axis, long_axis, iterator
             txa
             sta (_lstore),y             ;lstore[y]=short_axis
             dey

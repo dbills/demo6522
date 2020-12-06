@@ -36,7 +36,7 @@
           ;jsr test1
 .import _c_main, draw_letter1
           mov #_ldata1, _lstore
-          lineto 0,0,4,4
+;          lineto 0,0,4,4
           ;jsr _c_main                   
           ;debug_string "missilecommandtheend"
           jsr bounce                    

@@ -2,6 +2,7 @@
 .include "zerop.inc"
 .include "m16.mac"
 .include "text.inc"
+.include "genline.mac"
 ;;; public line symbols
 ;;; line* routines put the 'line instructions' in ram
 ;;; render* routines take a line instruction set and
@@ -13,7 +14,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_render1,_p_render,line2,tramp,_ldata1
+.export _genline,_render1,_ldata1
 .ZEROPAGE
 err:        .res 1
 _dx:        .res 1
@@ -24,8 +25,18 @@ _y1:        .res 1
 _y2:        .res 1
 _lstore:    .res 2
 .BSS
-;;; pointer to line rendering function
-_p_render:  .res 2                        
+
+.enum line_type
+          q1_steep
+          q4_steep
+          q2_steep
+          q3_steep
+          q1_shallow
+          q4_shallow
+          q2_shallow
+          q3_shallow
+.endenum
+
 .struct line_buffer
   values .res 16
 .endstruct
@@ -40,40 +51,39 @@ _p_render:  .res 2
 
 _ldata1:      .tag line_data
 .CODE
-          ;; inputs A=_dx
-          ;; _x1>_x2
-          ;; figure out if we are steep or shallow
-.macro    quadrant_2or3
-          .local dxline
-          cmp _dy
-          bcs dxline                   ;_dx>_dy
-          jsr line3
-          mov #_render1,_p_render
-          rts
-dxline:   
-          jsr line4
-          mov #_shallow_forward,_p_render
-.endmacro
-          ;; _x1<_x2
-          ;; inputs A=_dx
-          ;; figure out if we steep or shallow
-.macro    quadrant_1or4
-          .local dxline
-          cmp _dy
-          bcs dxline                   ;_dx>_dy
-          jsr line1
-          mov #_render1,_p_render
-          rts
-dxline:   
-          jsr line2
-          ;mov #_shallow_reverse,_p_render
-          mov #_general_render,_p_render
+          ;; integer 'bresenham' like
+          ;; line drawing routine
+          ;; 1 = short axis line length
+          ;; 2 = long axis line length
+          ;; 3 inx or dex 
+          ;; for 1 or 2, e.g. dx or dy
+          ;; shift is when the short axis
+          ;; must 'shift' due to the error
+          ;; rate getting too high
+          ;; inputs: Y = current long axis
+          ;; position
+.macro    step_short_axis saxis,laxis,step_operation
+          .local shift
+          lda err
+          clc 
+          adc saxis
+          bcs shift
+          sta err
+          cmp laxis
+          bcc noshift                   ;TODO optimize
+          beq noshift
+shift:    
+          sec
+          sbc laxis
+          sta err
+          step_operation
+noshift:
 .endmacro
           ;; distance beteen _1 and _2
-          ;; return in delta
-          ;; C set for normal
-          ;; clear if _1,_2 are reversed
-.macro    delta _1,_2,distance
+          ;; X=value if _2 < _1
+          ;; return abs(_2 - _1) in distance
+.macro    delta _1,_2,value
+.local normal
           lda _2
           sec
           sbc _1
@@ -85,26 +95,15 @@ dxline:
           ;; need to add +1 to dx, so:
           ;; clc implied (or we wouldn't be here)
           adc #2
+          ldx value
 normal:   
           ;; C is already set if we directly branch here
+          ;; and this performs the +1
           ;; otherwise it's not and this does nothing 
           ;; which is fine
           adc #0
-          sta distance
 .endmacro
-.proc     jdelta 
-          delta _x1,_x2,_dx
-          rts
-.endproc
-.export jdelta
-.macro    calcdy
-          lda _y2                        ;_dy=_y2-_y1+1
-          sec
-          sbc _y1
-          clc
-          adc #1    
-          sta _dy                       
-.endmacro
+          ;; 
           ;; generate line
           ;; calculate _dy,dx and err for            
           ;; a line
@@ -112,29 +111,67 @@ normal:
           ;; outputs: _dy,_dx,err
           ;; A=_dy on exit
           ;; preconditions: _y2>_y1
+          ;; 0  q1_steep
+          ;; 1  q4_steep
+          ;; 2  q2_steep
+          ;; 3  q3_steep
+          ;; 4  q1_shallow
+          ;; 5  q4_shallow
+          ;; 6  q2_shallow
+          ;; 7  q3_shallow
 .proc     _genline
           lda #0                        ;err=0
           sta err
 
-          calcdy
-          lda _x2                       ;dx=_x2-_x1+1
-          sec
-          sbc _x1
-          bcs q_1or4
-          ;; x2 < x1                
-          eor #$ff                      ;take abs of A
-          ;; we need to add 1 to finish our little 2's complement
-          ;; stunt and get to x1-x2 -- and we also 
-          ;; need to add +1 to dx, so:
-          ;; clc implied (or we wouldn't be here)
-          adc #2                        
-          sta _dx                     
-          quadrant_2or3
-          rts
-q_1or4:   
-          adc #0                        ;C is set dx+=1
-          sta _dx                      
-          quadrant_1or4
+          delta _y1,_y2,#1
+          sta _dy
+          txa
+          ora err
+          sta err
+          delta _x1,_x2,#2
+          sta _dx
+          txa
+          ora err
+          sta err
+          delta _dx,_dy,#4
+          txa
+          ora err
+          ;; A now has 0-7 to indicate on of the 8 line types
+          ;; possible to be drawn
+          ;; line_type;:q1_steep
+          bne s1
+;          generate_line_data forward,forward,steep
+          brk
+s1:       
+          cmp line_type::q4_steep
+;          generate_line_data forward,reverse,steep
+          bne s2
+          brk
+s2:       
+          cmp line_type::q2_steep
+          bne s3
+          brk
+s3:       
+          cmp line_type::q3_steep
+          bne s4
+          brk
+s4:       
+          cmp line_type::q1_shallow
+          bne s5
+          brk
+s5:       
+          cmp line_type::q4_shallow
+          bne s6
+          brk
+s6:       
+          cmp line_type::q2_shallow
+          bne s7
+          brk
+s7:       
+          cmp line_type::q3_shallow
+          bne s8
+          brk
+s8:       
           rts
 .endproc
           ;; sets up input for genline
@@ -151,78 +188,6 @@ q_1or4:
           sta _y2
 .endmacro
 
-          ;; integer 'bresenham' like
-          ;; line drawing routine
-          ;; 1 = short axis line length
-          ;; 2 = long axis line length
-          ;; 3 inx or dex 
-          ;; for 1 or 2, e.g. dx or dy
-          ;; shift is when the short axis
-          ;; must 'shift' due to the error
-          ;; rate getting too high
-          ;; inputs: Y = current long axis
-          ;; position
-.macro    increment_long_axis saxis,laxis,op
-          .local shift
-          lda err
-          clc 
-          adc saxis
-          bcs shift
-          sta err
-          cmp laxis
-          bcc noshift                   ;TODO optimize
-          beq noshift
-shift:    
-          sec
-          sbc laxis
-          sta err
-          op
-noshift:
-.endmacro
-;;; note: diagonals don't end up here
-;;; lstore: pointer to line storage
-.proc     line1
-          ldy _dy
-          ldx _x2                        ;x=_x2
-loop:                                   ;while(y>0)
-          increment_long_axis _dx,_dy,dex
-          txa
-          sta (_lstore),y                ;lstore[y]=x
-          dey
-          bne loop
-          rts
-.endproc
-.include "genline.mac"
-.proc     line2
-          generate_line_data "shallow", "reverse"
-          ;generate_line_data "shallow", "forward"
-.endproc          
-;;; _dy>dx and _x2<_x1
-;;; lstore: pointer to line storage
-.proc     line3
-          ldy _dy
-          ldx _x2                        ;x=_x2
-loop:                                   ;while(y>0)
-          txa
-          sta (_lstore),y                ;lstore[y]=x
-          increment_long_axis _dx,_dy,inx
-          dey
-          bne loop
-          rts
-.endproc
-;;; dx>_dy and _x2<_x1
-;;; diagonals come in here
-.proc     line4
-          ldy _dx                       ;y=dx
-          ldx _y1                       ;x=_y2
-loop:                                   ;while(y>0)
-          increment_long_axis _dy,_dx,inx
-          txa
-          sta (_lstore),y               ;lstore[y]=x
-          dey
-          bne loop                      ;
-          rts
-.endproc
 ;;; inputs: _dy ,_y2
 ;;; outputs: none
 ;;; render a quadrant 1 line
@@ -307,10 +272,6 @@ loop:
           dey
           bne loop
           rts
-.endproc
-
-.proc     tramp
-          jmp (_p_render)                ;will ret for us
 .endproc
 
 .export XBMASKS_OFFSET_TBL, XBMASKS_0,XBMASKS_1,XBMASKS_2,XBMASKS_3,XBMASKS_4,XBMASKS_5,XBMASKS_6,XBMASKS_7

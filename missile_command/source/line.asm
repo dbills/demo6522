@@ -14,8 +14,9 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_render1,_ldata1
+.export _genline,_render1,_ldata1,_general_render
 .ZEROPAGE
+line_end: 
 err:        .res 1
 _dx:        .res 1
 _dy:        .res 1
@@ -36,16 +37,17 @@ _lstore:    .res 2
           q2_shallow
           q3_shallow
 .endenum
-
+;;; holds X or Y values
+;;; for a line
 .struct line_buffer
   values .res 16
 .endstruct
 
 .struct line_data
-  ;short_axis_values .res 176            
   short_axis .tag line_buffer
-  render_type .byte
-  short_axis_start_value .byte
+  line_type .byte
+  long_axis_start_value .byte
+  long_axis_length .byte
   buffer_index .byte
 .endstruct
 
@@ -136,39 +138,44 @@ normal:
           delta _dx,_dy,#4
           txa
           ora err
-          ;; A now has 0-7 to indicate on of the 8 line types
-          ;; possible to be drawn
+          ;; A now has 0-7 to indicate one of the 8 line types
+          ;; to be drawn
           ;; line_type;:q1_steep
+          ;; cmp line_type::q1_steep
+s0:
           bne s1
-;          generate_line_data forward,forward,steep
+          generate_line_data forward,forward,steep
+          debug_string "a" 
+          rts
           brk
 s1:       
-          cmp line_type::q4_steep
+          cmp #line_type::q4_steep
+;          debug_string "qfour"
 ;          generate_line_data forward,reverse,steep
           bne s2
           brk
 s2:       
-          cmp line_type::q2_steep
+          cmp #line_type::q2_steep
           bne s3
           brk
 s3:       
-          cmp line_type::q3_steep
+          cmp #line_type::q3_steep
           bne s4
           brk
 s4:       
-          cmp line_type::q1_shallow
+          cmp #line_type::q1_shallow
           bne s5
           brk
 s5:       
-          cmp line_type::q4_shallow
+          cmp #line_type::q4_shallow
           bne s6
           brk
 s6:       
-          cmp line_type::q2_shallow
+          cmp #line_type::q2_shallow
           bne s7
           brk
 s7:       
-          cmp line_type::q3_shallow
+          cmp #line_type::q3_shallow
           bne s8
           brk
 s8:       
@@ -194,14 +201,19 @@ s8:
 ;;; i.e. y2 > y1
 ;;;      x2 > x1
 .proc     _render1
-          ldy _dy
-          ldx _y2
+          ;; load short axis start value
+          lda (_lstore),y
+          dey
+          tax
+          ;; load long axis start value
+          lda (_lstore),y
+          tay
 loop:     
           lda (_lstore),y
           sta _pl_x
           stx _pl_y
-          dex       
           jsr _plot
+          dex       
           dey
           bne loop
           rts
@@ -210,38 +222,63 @@ loop:
           .local loop
           saveall
           ldx #t
+          jsr _sleep
+.endmacro
+.proc _sleep
 loop:     
           waitv
           dex
           bne loop
           resall
-.endmacro
+.endproc
+.include "renderline.mac"
+.proc q1_steep
+          render_line_data forward, forward, steep
+          rts
+.endproc
 ;;; right now, all the render routines
 ;;; start at buffer end and go toward 
 ;;; beginning - loop direction will have to be rewritten
 ;;; to change this
 .proc     _general_render
-          debug_string "here"
           ldy #.sizeof(line_buffer)
-          ;; render_type
-          lda (_lstore),y
-          cmp #render_class::steep_forward
+          lda(_lstore),y
+          iny
+s0:       
+          cmp #line_type::q1_steep
           bne s1
+          debug_string "rz"
+          jsr q1_steep
           brk
-s1:
-          cmp #render_class::steep_reverse
+s1:       
+          cmp #line_type::q4_steep
           bne s2
           brk
-s2:
-          cmp #render_class::shallow_forward
+s2:       
+          cmp #line_type::q2_steep
           bne s3
           brk
-s3:        
-          cmp #render_class::shallow_reverse
-          jmp _shallow_reverse
+s3:       
+          cmp #line_type::q3_steep
           bne s4
-          jmp _shallow_forward
-s4:       brk
+          brk
+s4:       
+          cmp #line_type::q1_shallow
+          bne s5
+          brk
+s5:       
+          cmp #line_type::q4_shallow
+          bne s6
+          brk
+s6:       
+          cmp #line_type::q2_shallow
+          bne s7
+          brk
+s7:       
+          cmp #line_type::q3_shallow
+          bne s8
+          brk
+s8:       
           rts
 .endproc
 ;;; dx>dy line

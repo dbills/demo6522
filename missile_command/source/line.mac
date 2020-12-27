@@ -9,7 +9,7 @@
             lda #y2
             sta _y2
             jsr _genline
-            jsr tramp
+            jsr _general_render
 .endmacro
 ;;; definiton of how a line in stored
 ;;; in memory

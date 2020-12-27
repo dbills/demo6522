@@ -96,7 +96,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           ;; a = color
           ;; 0 based 0,0 is upper left
           ;; 175,175 lower right
-          ;; x_to_a = instruction to move X into A
+          ;; x_to_a = instruction to move X  coord into A
 .macro    plotm x_to_a
           sty save_y
           x_to_a

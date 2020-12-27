@@ -5,14 +5,6 @@
 mystring:   
             .asciiz s
 .code
-            saveall
-            lda #175-7
-            sta s_y
-            lda #0
-            sta s_x
             mov #mystring, ptr_string
-            pushw ptr_0
-            jsr _draw_string
-            popw ptr_0
-            resall
+            jsr _debug_string
 .endmacro

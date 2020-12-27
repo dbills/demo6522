@@ -16,7 +16,7 @@
           .CODE
 .proc     demo
           ;; enabling interrupts really pisses the system off with 
-          ;; the scren and character configs I have
+          ;; the screen and character configs I have
           movi MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
           cli
@@ -36,10 +36,10 @@
           ;jsr test1
 .import _c_main, draw_letter1
           mov #_ldata1, _lstore
-;          lineto 0,0,4,4
+          lineto 0,0,4,4
           ;jsr _c_main                   
-          ;debug_string "missilecommandtheend"
-          jsr bounce                    
+          ;debug_string "missilecommandtheend" 
+;          jsr bounce                    
           jmp loop
 l1:         
           jsr _plot

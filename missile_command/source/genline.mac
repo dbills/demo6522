@@ -1,58 +1,65 @@
 .include "screen.mac"
-.enum render_class
-  steep_forward = 0
-  steep_reverse
-  shallow_forward
-  shallow_reverse
-.endenum
 ;;; direction control how we draw the long
-;;; axis
+;;; axis, whether we increment or decrement
 ;;; slope controls what the long axis is
-;;; short = dx, steep = dy
+;;; short = X , steep = Y
+;;; IN: A = line type, one of line_type enum
 .macro generate_line_data xdirection, ydirection, slope
-.local loop
-.if (.match ({direction}, forward))
-  .define iterator inx
-  .define x_start _x1
-  .define y_start _y1
-  render_selector_bit0 = 0
-.else
-  .define iterator dex
-  .define x_start _x2
-  .define y_start _y2
-  render_selector_bit0 = 1
-.endif            
+.local loop, iterator, short_axis_start_value
+.local long_axis_length
 .if (.match ({slope}, steep))
-  .define long_axis _dy
-  .define short_axis _dx
-  .define short_axis_start_value x_start
-  render_selector_bit1 = 0
+  .define long_axis_length _dy
+  .define short_axis_length _dx
+  .if (.match ({xdirection}, forward))
+    .define iterator inx
+    .define short_axis_start_value _x1
+  .else
+    .define iterator dex
+    .define short_axis_start_value _x2
+  .endif            
+  .if (.match ({ydirection}, forward))
+    .define long_axis_start_value _y1
+  .else
+    .define iterator dex
+    .define long_axis_start_value _y2
+  .endif            
 .else
-  .define long_axis _dx 
-  .define short_axis _dy     
-  .define short_axis_start_value y_start      
-  render_selector_bit1 = 1
-.endif            
+  .define long_axis_length _dx 
+  .define short_axis_length _dy     
+  .if (.match ({ydirection}, forward))
+    .define iterator inx
+    .define short_axis_start_value _y1
+  .else
+    .define iterator dex
+    .define short_axis_start_value _y2
+  .endif            
+  .if (.match ({xdirection}, forward))
+    .define long_axis_start_value _x1
+  .else
+    .define iterator dex
+    .define long_axis_start_value _x2
+  .endif            
+.endif
+            ;; fill a struct line_data
             ldy #.sizeof(line_buffer)
-            lda #(render_selector_bit1 *2) + render_selector_bit0
+            ;; store line type
             sta(_lstore),y
             iny
-            lda short_axis_start_value
+            lda long_axis_start_value
             sta(_lstore),y
             iny
-            tax
-            lda long_axis
+            lda long_axis_length
             sta(_lstore),y
+            ;; y is long axis coordinate
+            ;; x is short axis coordinate
+            ;; store short axis coords in life buffer
             tay
-            ldy long_axis               
-loop:                                   ;do {
-            step_short_axis short_axis, long_axis, iterator
+            ldx short_axis_start_value
+loop:
+            step_short_axis short_axis_length, long_axis_length, iterator
             txa
-            sta (_lstore),y             ;lstore[y]=short_axis
+            sta (_lstore),y
             dey
-            bne loop                    ;} while(y>0)
-
-            ;determine_render_routine (render_selector_bit1*2) + render_selector_bit0
-            rts
+            bne loop
 .endmacro
             

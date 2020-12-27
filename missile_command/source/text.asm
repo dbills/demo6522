@@ -3,7 +3,8 @@
 .include "sprite.inc"
 .include "m16.mac"
 .include "math.mac"
-.export _LETTERS, draw_letter1, _draw_string
+.include "system.mac"
+.export _LETTERS, draw_letter1, _draw_string,_debug_string
 .data
 left_byte:  .byte 0
 right_byte: .byte 0
@@ -113,6 +114,19 @@ loop:
             iny
             cpy scratch
             bne loop
+            rts
+.endproc
+
+.proc       _debug_string
+            saveall
+            lda #175-7
+            sta s_y
+            lda #0
+            sta s_x
+            pushw ptr_0
+            jsr _draw_string
+            popw ptr_0
+            resall
             rts
 .endproc
 

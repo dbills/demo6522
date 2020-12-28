@@ -1,0 +1,40 @@
+.include "screen.mac"
+.macro render_line_data xdirection, ydirection, slope
+.local loop, short_axis, long_axis, iterator
+.if (.match ({slope}, steep))
+  .define long_axis _pl_y
+  .define short_axis _pl_x
+  .if (.match ({ydirection}, forward))
+    .define iterator inx
+  .else
+    .define iterator dex
+  .endif            
+.else
+  .define long_axis _pl_x
+  .define short_axis _pl_y
+  .if (.match ({xdirection}, forward))
+    .define iterator inx
+  .else
+    .define iterator dex
+  .endif            
+.endif            
+          ;; line type has already been read
+          ;; from line_data
+          ;; load long axis start value
+          lda(_lstore),y
+          iny
+          tax
+          ;; load line length
+          lda(_lstore),y
+          tay
+loop:
+          lda(_lstore),y
+          sta short_axis
+          stx long_axis
+          jsr _plot
+          ;; update x register - the long axis
+          iterator
+          dey
+          bne loop
+.endmacro
+            

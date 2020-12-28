@@ -61,5 +61,8 @@ loop:
             sta (_lstore),y
             dey
             bne loop
+            ;; debug
+            lda #$bb
+            sta(_lstore),y
 .endmacro
             

@@ -25,8 +25,8 @@
           jsr i_chrset
           jsr i_hires
           jsr i_joy
-          chbase %1100                  ;$1000
-          screenmem $200
+          chbase CHBASE1
+          screenmem SCREEN
 
           ;; border colors
           invmode 0
@@ -54,9 +54,23 @@ loop:
           jmp loop
           rts
 .endproc
-
+;;; set screen back to normal
+;;; text mode
+.proc     i_text
+          shortchar
+          setrows 23
+          ;; reset chargen to ROM
+          lda #$80
+          sta 9005
+          ;; reset screen
+          screenmem $200
+          rts
+.endproc
+;;; fill screen with a tiled
+;;; set of chars to allow bitmapped
+;;; graphics
 .proc     i_hires  
-          setrows
+          setrows SCRROWS
           tallchar              
           ldy SCRMAP_SZ
           ;; fill screen with chars tile
@@ -70,6 +84,8 @@ loop:
           bne loop
           rts
 .endproc          
+;;; clear ram allocated to custom
+;;; character set
 .proc     i_chrset
           movi CHBASE1, ptr_0
           ldy #0
@@ -126,4 +142,3 @@ loop:
           cli
           rts
 .endproc
-

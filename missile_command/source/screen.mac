@@ -1,11 +1,18 @@
 .ifndef _SCREEN_H
 _SCREEN_H = 1
-SCRROWS   =       23/2
-YMAX      =       SCRROWS * 16
-SCRCOLS   =       22
-XMAX      =       SCRCOLS * 8
-CHBASE1   =       $1000
-CHARHT    =       16
+.define SCREEN $200
+;;; bit 9 controls color ram location
+.if( SCREEN & %0000001000000000 )
+  .define CLRRAM 38400
+.else
+  .define CLRRAM 37888
+.endif
+.define SCRROWS 23/2
+.define YMAX SCRROWS * 16
+.define SCRCOLS 22
+.define XMAX SCRCOLS * 8
+.define CHBASE1 $1000
+.define CHARHT  16
 .INCLUDE  "zerop.mac"
 .macro    tallchar        
           ;; activate 16 high chars
@@ -16,15 +23,15 @@ CHARHT    =       16
 
 .macro    shortchar
           lda $9003
-          and #~1
+          and #$FE
           sta $9003             
 .endmacro      
 
-.macro    setrows
+.macro    setrows _1
           ;; bits 1-6 are row
           lda $9003
           and #%10000001
-          ora #(SCRROWS & %00111111) << 1
+          ora #(_1 & %00111111) << 1
           sta $9003
 .endmacro
 
@@ -37,13 +44,13 @@ CHARHT    =       16
           ;; y lives as bit 7 in register
           ;; 36866 ($9002)
 .macro    screenmem addr
+.local bit9, bit10_12
           .local bit9,bit10_12
           ;;  bit [9-12] inclusive are the screen
           ;;  any bits on outside that are an error
           .IF (addr & %1110000111111111) > 0
-          .ERROR "invalid screen address"
+            .ERROR "invalid screen address"
           .ELSE
-.define SCREEN addr
           ;; move bit 9 to 7
 bit9      = (addr & %0000001000000000) >> 2
           ;;  move bit 12-10 down to 6-4    
@@ -56,19 +63,28 @@ bit10_12  = (addr & %0001110000000000) >> 6
           and #%10001111
           ora #bit10_12
           sta 36869
-          .IF bit9=$80
-.DEFINE CLRRAM 38400
-          .ELSE
-.define CLRRAM 37888
-          .ENDIF
           .ENDIF
           
 .endmacro
 
 .macro chbase _1
+.local nibble
+.if(_1 = $1000)
+  nibble = %1100
+.elseif(_1 = $1400)
+  nibble = %1101
+.elseif(_1 = $1800)
+  nibble = %1110
+.elseif(_1 = $1C00)
+  nibble = %1111
+.elseif(_1 = $8000)
+  nibble = 0
+.else
+.error "invalid character base"
+.endif
           lda $9005
           and #$F0
-          ora #_1 & $0F
+          ora #(nibble & $0F)
           sta $9005
 .endmacro
           ;; inverted mode 0=off 1=on

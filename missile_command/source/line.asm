@@ -145,7 +145,7 @@ normal:
 s0:
           bne s1
           generate_line_data forward,forward,steep
-          debug_string "a" 
+          ;debug_string "a" 
           rts
           brk
 s1:       
@@ -249,7 +249,7 @@ s0:
           bne s1
           debug_string "rz"
           jsr q1_steep
-          brk
+          rts
 s1:       
           cmp #line_type::q4_steep
           bne s2

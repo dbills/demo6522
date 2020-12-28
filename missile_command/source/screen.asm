@@ -2,7 +2,9 @@
 .include "m16.mac"
 .include "screen.mac"
 .CODE
-.export _plot,i_pltbl,BMASKS
+.export _plot,i_pltbl,BMASKS,abort
+.proc abort
+.endproc
 ;;; initialize the plot table
 ;;; ram starting location for all hires
 ;;; screen columns
@@ -51,10 +53,12 @@ BPOS      .set BPOS >> 1
 ;;; the first strip would be:
 ;;; column 0123456 ...
 ;;;        ----------------------------
-;;;        Axy
-;;;        Bxy
-;;;        Cxy
+;;;        ADG
+;;;        BEH
+;;;        CFI
 ;;; etc ...
+;;; except the height is 11 and not 3 in the
+;;; example
 _SCRMAP:  
 SCRMAP:     
 ROW       .set 0

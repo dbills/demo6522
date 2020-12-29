@@ -7,11 +7,19 @@ _SCREEN_H = 1
 .else
   .define CLRRAM 37888
 .endif
-.define SCRROWS 23/2
-.define YMAX SCRROWS * 16
+SCRROWS = 23 / 2
+YMAX = SCRROWS * 16
 .define SCRCOLS 22
-.define XMAX SCRCOLS * 8
+XMAX = SCRCOLS * 8
+.define DEBUG_SCREEN $2000
+DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)
+;;; you can't really set this higher than $1000
+;;; with a full hires screen, as it would end up
+;;; overflowing mainboard ram and heading off into
+;;; chargen ROM
 .define CHBASE1 $1000
+;;; $1000 - $1F20 custom chars for hires screen
+;;; $2000 - $21FA non-visible debug text screen
 .define CHARHT  16
 .INCLUDE  "zerop.mac"
 .macro    tallchar        
@@ -66,7 +74,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           .ENDIF
           
 .endmacro
-
+;;; set character generator pointer
 .macro chbase _1
 .local nibble
 .if(_1 = $1000)

@@ -1,0 +1,13 @@
+.ifndef _DEBUGSCREEN_H
+_DEBUGSCREEN_H = 1
+.macro    dbgmsg msgchar, b
+          lda #msgchar
+          jsr _debug_screen_write_char
+          lda #58
+          jsr _debug_screen_write_char
+          lda b
+          jsr _debug_screen_write_byte
+          lda #32
+          jsr _debug_screen_write_char
+.endmacro
+.endif

@@ -11,6 +11,7 @@
           .include   "target.inc"
           .include   "sprite.inc"
           .include   "text.inc"
+          .include   "debugscreen.inc"
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE
@@ -25,7 +26,7 @@
           jsr i_chrset
           jsr i_hires
           jsr i_joy
-          chbase CHBASE1
+;          chbase CHBASE1
           screenmem SCREEN
 
           ;; border colors
@@ -33,7 +34,11 @@
           bcolor_i BLUE
           scolor_i PURPLE
 
-          ;jsr test1
+          jsr i_debug_screen
+          lda #$aa
+          jsr _debug_screen_write_byte
+          jsr show_debug_screen
+          jmp loop
 .import _c_main, draw_letter1
           mov #_ldata1, _lstore
           lineto 0,0,4,4
@@ -52,18 +57,6 @@ l1:
 
 loop:       
           jmp loop
-          rts
-.endproc
-;;; set screen back to normal
-;;; text mode
-.proc     i_text
-          shortchar
-          setrows 23
-          ;; reset chargen to ROM
-          lda #$80
-          sta 9005
-          ;; reset screen
-          screenmem $200
           rts
 .endproc
 ;;; fill screen with a tiled

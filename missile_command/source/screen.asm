@@ -1,8 +1,9 @@
 .include "zerop.inc"
 .include "m16.mac"
 .include "screen.mac"
+.include "system.mac"
 .CODE
-.export _plot,i_pltbl,BMASKS,abort
+.export _plot,i_pltbl,BMASKS,abort,i_pltbl
 .proc abort
 .endproc
 ;;; initialize the plot table

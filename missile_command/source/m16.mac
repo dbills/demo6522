@@ -19,7 +19,7 @@ done:
             sbc #1
             sta _1
 .endmacro
-
+;;; move word
 .macro      mov src, dst
 .if (.match (.left (1, {src}), #))
             lda #<(.right (.tcount ({src})-1, {src}))
@@ -40,14 +40,24 @@ done:
             lda #.HIBYTE(_1)   ; load high byte
             sta _2+1           ; store high byte
 .endmacro
-
-          .macro cmp_w _1,_2
+;;; compare word
+;;; _1 may be immediate or direct
+;;; _2 is always direct
+          .macro cmpw _1,_2
           .local done
-          lda _1+1
-          cmp #.HIBYTE(_2)       ; load high byte
-          bne done
-          lda _1
-          cmp #.LOBYTE(_2)     ; load low byte
+.if (.match (.left (1, {_1}), #))
+            lda #<(.right (.tcount ({_1})-1, {_1}))
+.else
+            lda [_1]
+.endif
+            cmp _2
+            bne done
+.if (.match (.left (1, {_1}), #))
+            lda #>(.right (.tcount ({_1})-1, {_1}))
+.else
+            lda _1+1
+.endif
+            cmp _2+1
 done:       
 .endmacro
 

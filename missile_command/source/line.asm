@@ -78,11 +78,11 @@ normal:
           ;; which is fine
           adc #0
 .endmacro
-          ;; 
           ;; generate line
           ;; calculate _dy,dx and err for            
           ;; a line
           ;; inputs: _x1,_x2,_y1,_y2
+          ;; closed interval
           ;; outputs: _dy,_dx,err
           ;; A=_dy on exit
           ;; preconditions: _y2>_y1
@@ -129,27 +129,33 @@ s1:
 s2:       
           cmp #line_type::q2_steep
           bne s3
-          brk
+          dbgmsg 'C',#0
+          rts
 s3:       
           cmp #line_type::q3_steep
           bne s4
-          brk
+          dbgmsg 'D',#0
+          rts
 s4:       
           cmp #line_type::q1_shallow
           bne s5
-          brk
+          dbgmsg 'D',#0
+          rts
 s5:       
           cmp #line_type::q4_shallow
           bne s6
-          brk
+          dbgmsg 'E',#0
+          rts
 s6:       
           cmp #line_type::q2_shallow
           bne s7
-          brk
+          dbgmsg 'F',#0
+          rts
 s7:       
           cmp #line_type::q3_shallow
           bne s8
-          brk
+          dbgmsg 'G',#0
+          rts
 s8:       
           rts
 .endproc
@@ -226,31 +232,32 @@ s1:
           cmp #line_type::q4_steep
           bne s2
           render_line_data forward,reverse,steep
+          dbgmsg 'B',#1
           rts
 s2:       
           cmp #line_type::q2_steep
           bne s3
-          brk
+          rts
 s3:       
           cmp #line_type::q3_steep
           bne s4
-          brk
+          rts
 s4:       
           cmp #line_type::q1_shallow
           bne s5
-          brk
+          rts
 s5:       
           cmp #line_type::q4_shallow
           bne s6
-          brk
+          rts
 s6:       
           cmp #line_type::q2_shallow
           bne s7
-          brk
+          rts
 s7:       
           cmp #line_type::q3_shallow
           bne s8
-          brk
+          rts
 s8:       
           rts
 .endproc

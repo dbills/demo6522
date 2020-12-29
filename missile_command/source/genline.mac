@@ -33,38 +33,28 @@ noshift:
 .macro generate_line_data xdirection, ydirection, slope
 .local loop, iterator, short_axis_start_value, long_axis_start_value
 .local long_axis_length, short_axis_length
-.if (.match ({slope}, steep))
+.if (.xmatch ({slope}, steep))
   .define long_axis_length _dy
   .define short_axis_length _dx
-  .if (.match ({xdirection}, forward))
+  .if (.xmatch ({xdirection}, forward))
     .define iterator inx
     .define short_axis_start_value _x1
   .else
     .define iterator dex
     .define short_axis_start_value _x2
   .endif            
-  .if (.match ({ydirection}, forward))
-    .define long_axis_start_value _y1
-  .else
-    .define iterator dex
-    .define long_axis_start_value _y2
-  .endif            
+  .define long_axis_start_value _y1
 .else
   .define long_axis_length _dx 
   .define short_axis_length _dy     
-  .if (.match ({ydirection}, forward))
+  .if (.xmatch ({ydirection}, forward))
     .define iterator inx
     .define short_axis_start_value _y1
   .else
     .define iterator dex
     .define short_axis_start_value _y2
   .endif            
-  .if (.match ({xdirection}, forward))
-    .define long_axis_start_value _x1
-  .else
-    .define iterator dex
-    .define long_axis_start_value _x2
-  .endif            
+  .define long_axis_start_value _x1
 .endif
             ;; fill a struct line_data
             ldy #.sizeof(line_buffer)
@@ -82,9 +72,9 @@ noshift:
             tay
             ldx short_axis_start_value
 loop:
-            step_short_axis short_axis_length, long_axis_length, iterator
             txa
             sta (_lstore),y
+            step_short_axis short_axis_length, long_axis_length, iterator
             dey
             bne loop
             ;; debug

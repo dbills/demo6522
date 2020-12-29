@@ -1,12 +1,38 @@
 .include "screen.mac"
-;;; direction control how we draw the long
-;;; axis, whether we increment or decrement
+          ;; integer 'bresenham' like
+          ;; line drawing routine
+          ;; 1 = short axis line length
+          ;; 2 = long axis line length
+          ;; 3 inx or dex 
+          ;; for 1 or 2, e.g. dx or dy
+          ;; shift is when the short axis
+          ;; must 'shift' due to the error
+          ;; rate getting too high
+          ;; inputs: Y = current long axis
+          ;; position
+.macro    step_short_axis saxis,laxis,step_operation
+.local shift, noshift
+          lda err
+          clc 
+          adc saxis
+          bcs shift
+          sta err
+          cmp laxis
+          bcc noshift                   ;TODO optimize
+          beq noshift
+shift:    
+          sec
+          sbc laxis
+          sta err
+          step_operation
+noshift:
+.endmacro
 ;;; slope controls what the long axis is
 ;;; short = X , steep = Y
 ;;; IN: A = line type, one of line_type enum
 .macro generate_line_data xdirection, ydirection, slope
-.local loop, iterator, short_axis_start_value
-.local long_axis_length
+.local loop, iterator, short_axis_start_value, long_axis_start_value
+.local long_axis_length, short_axis_length
 .if (.match ({slope}, steep))
   .define long_axis_length _dy
   .define short_axis_length _dx

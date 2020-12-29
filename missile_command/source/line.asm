@@ -3,6 +3,7 @@
 .include "m16.mac"
 .include "text.inc"
 .include "genline.mac"
+.include "debugscreen.inc"
 ;;; public line symbols
 ;;; line* routines put the 'line instructions' in ram
 ;;; render* routines take a line instruction set and
@@ -53,34 +54,6 @@ _lstore:    .res 2
 
 _ldata1:      .tag line_data
 .CODE
-          ;; integer 'bresenham' like
-          ;; line drawing routine
-          ;; 1 = short axis line length
-          ;; 2 = long axis line length
-          ;; 3 inx or dex 
-          ;; for 1 or 2, e.g. dx or dy
-          ;; shift is when the short axis
-          ;; must 'shift' due to the error
-          ;; rate getting too high
-          ;; inputs: Y = current long axis
-          ;; position
-.macro    step_short_axis saxis,laxis,step_operation
-          .local shift
-          lda err
-          clc 
-          adc saxis
-          bcs shift
-          sta err
-          cmp laxis
-          bcc noshift                   ;TODO optimize
-          beq noshift
-shift:    
-          sec
-          sbc laxis
-          sta err
-          step_operation
-noshift:
-.endmacro
           ;; distance beteen _1 and _2
           ;; X=value if _2 < _1
           ;; return abs(_2 - _1) in distance
@@ -145,15 +118,14 @@ normal:
 s0:
           bne s1
           generate_line_data forward,forward,steep
-          ;debug_string "a" 
+          dbgmsg 'A',#0
           rts
-          brk
 s1:       
           cmp #line_type::q4_steep
-;          debug_string "qfour"
-;          generate_line_data forward,reverse,steep
+          dbgmsg 'B',#0
+          generate_line_data forward,reverse,steep
           bne s2
-          brk
+          rts
 s2:       
           cmp #line_type::q2_steep
           bne s3
@@ -219,17 +191,17 @@ loop:
           rts
 .endproc
 .macro sleep t
-          .local loop
           saveall
           ldx #t
           jsr _sleep
+          resall
 .endmacro
 .proc _sleep
 loop:     
           waitv
           dex
           bne loop
-          resall
+          rts
 .endproc
 .include "renderline.mac"
 .proc q1_steep
@@ -247,13 +219,14 @@ loop:
 s0:       
           cmp #line_type::q1_steep
           bne s1
-          debug_string "rz"
+          dbgmsg 'A',#1
           jsr q1_steep
           rts
 s1:       
           cmp #line_type::q4_steep
           bne s2
-          brk
+          render_line_data forward,reverse,steep
+          rts
 s2:       
           cmp #line_type::q2_steep
           bne s3

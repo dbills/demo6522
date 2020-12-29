@@ -4,7 +4,7 @@
 .include "screen.inc"
 .include "zerop.inc"
 .include "m16.mac"
-.include "system.mac"
+;.include "system.mac"
 .export i_debug_screen,show_debug_screen, _debug_screen_write_char, _debug_screen_write_byte, _debug_screen_write_digit
 .code
 ;;; set screen back to normal
@@ -61,9 +61,7 @@ done:
 ;;; IN: A = char
 .proc     _debug_screen_write_char
           sta DEBUG_SCREEN_END-1
-          saveall
           jsr scroll_debug_screen
-          resall
           rts
 .endproc
 .proc     _debug_screen_write_digit

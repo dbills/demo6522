@@ -15,16 +15,13 @@ LASTJOY:  .res 1
 ;;; waits for joystick to be pressed
 ;;; and released
 .proc     j_wfire
-loop:       
-          lda JOY0                ;read joy register
-          and #JOYT               ;was trigger pressed?
-          bne loop
-loop1:                            ;wait trigger release
-          lda JOY0
-          and #JOYT
-          bne fire
-          beq loop1
-fire:       
+loop:     
+          jsr j_read
+          cmp #JOYT
+          beq fire
+          jmp loop
+fire:     
+          jsr j_tup
           rts
 .endproc
 ;;; wait for trigger up

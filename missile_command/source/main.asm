@@ -26,7 +26,6 @@
           jsr i_chrset
           jsr i_hires
           jsr i_joy
-;          chbase CHBASE1
           screenmem SCREEN
 
           ;; border colors
@@ -35,15 +34,10 @@
           scolor_i PURPLE
 
           jsr i_debug_screen
-          lda #$aa
-          jsr _debug_screen_write_byte
-          jsr show_debug_screen
-          jmp loop
 .import _c_main, draw_letter1
           mov #_ldata1, _lstore
           lineto 0,0,4,4
           ;jsr _c_main                   
-          ;debug_string "missilecommandtheend" 
 ;          jsr bounce                    
           jmp loop
 l1:         
@@ -55,7 +49,12 @@ l1:
           beq loop
           jmp l1
 
+          debug_string "missilecommandtheend" 
 loop:       
+          jsr j_wfire
+          jsr show_debug_screen
+          jsr j_wfire
+          jsr i_hires
           jmp loop
           rts
 .endproc
@@ -63,6 +62,7 @@ loop:
 ;;; set of chars to allow bitmapped
 ;;; graphics
 .proc     i_hires  
+          chbase CHBASE1
           setrows SCRROWS
           tallchar              
           ldy SCRMAP_SZ

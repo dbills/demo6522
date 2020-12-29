@@ -1,7 +1,8 @@
 .ifndef _DEBUGSCREEN_H
 _DEBUGSCREEN_H = 1
 .macro    dbgmsg msgchar, b
-          lda #msgchar
+          saveall
+          lda #msgchar-'A'+1
           jsr _debug_screen_write_char
           lda #58
           jsr _debug_screen_write_char
@@ -9,5 +10,13 @@ _DEBUGSCREEN_H = 1
           jsr _debug_screen_write_byte
           lda #32
           jsr _debug_screen_write_char
+          resall
 .endmacro
+.macro    dbgmsg1 msgchar
+          saveall
+          lda #msgchar-'A'+1
+          jsr _debug_screen_write_char
+          resall
+.endmacro
+
 .endif

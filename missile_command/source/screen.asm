@@ -74,3 +74,11 @@ ROW       .set ROW + 1
 SCRMAP_SZ:   
           .byte * - SCRMAP
 .export SCADDR,SCRMAP,_SCRMAP,SCRMAP_SZ
+
+;; .data
+;;  xx          
+;;  xx  xx  xx     
+;;  xx  xx  xxx  x
+;; xxx  xx  xxx  xx
+;; xxxxxxxxxxxxxxxxxx  
+;; xxxxxxxxxxxxxxxxxxxx

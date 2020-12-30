@@ -15,7 +15,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_render1,_ldata1,_general_render
+.export _genline,_ldata1,_general_render
 .ZEROPAGE
 line_type:
 err:        .res 1
@@ -160,43 +160,7 @@ s7:
 s8:       
           rts
 .endproc
-          ;; sets up input for genline
-          ;; linevars(_x1,_x2,_y1,_y2)
-.macro    linevars x1,x2,y1,y2
-          lda #x1
-          sta _x1
-          lda #x2
-          sta _x2
 
-          lda #y1
-          sta _y1
-          lda #y2
-          sta _y2
-.endmacro
-
-;;; inputs: _dy ,_y2
-;;; outputs: none
-;;; render a quadrant 1 line
-;;; i.e. y2 > y1
-;;;      x2 > x1
-.proc     _render1
-          ;; load short axis start value
-          lda (_lstore),y
-          dey
-          tax
-          ;; load long axis start value
-          lda (_lstore),y
-          tay
-loop:     
-          lda (_lstore),y
-          sta _pl_x
-          stx _pl_y
-          jsr _plot
-          dex       
-          dey
-          bne loop
-          rts
-.endproc
 .macro sleep t
           saveall
           ldx #t

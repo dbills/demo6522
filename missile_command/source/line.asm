@@ -129,11 +129,13 @@ s1:
 s2:       
           cmp #line_type::q2_steep
           bne s3
+          generate_line_data reverse,forward,steep
           dbgmsg 'C',#0
           rts
 s3:       
           cmp #line_type::q3_steep
           bne s4
+          generate_line_data reverse,reverse,steep
           dbgmsg 'D',#0
           rts
 s4:       
@@ -145,16 +147,19 @@ s4:
 s5:       
           cmp #line_type::q4_shallow
           bne s6
+          generate_line_data forward,reverse,shallow
           dbgmsg 'F',#0
           rts
 s6:       
           cmp #line_type::q2_shallow
           bne s7
+          generate_line_data reverse,forward,shallow
           dbgmsg 'G',#0
           rts
 s7:       
           cmp #line_type::q3_shallow
           bne s8
+          generate_line_data reverse,reverse,shallow
           dbgmsg 'H',#0
           rts
 s8:       
@@ -175,10 +180,6 @@ loop:
           rts
 .endproc
 .include "renderline.mac"
-.proc q1_steep
-          render_line_data forward, forward, steep
-          rts
-.endproc
 ;;; right now, all the render routines
 ;;; start at buffer end and go toward 
 ;;; beginning - loop direction will have to be rewritten
@@ -191,7 +192,7 @@ s0:
           cmp #line_type::q1_steep
           bne s1
           dbgmsg 'A',#1
-          jsr q1_steep
+          render_line_data forward, forward, steep
           rts
 s1:       
           cmp #line_type::q4_steep
@@ -202,27 +203,38 @@ s1:
 s2:       
           cmp #line_type::q2_steep
           bne s3
+          render_line_data reverse,forward,steep
+          dbgmsg 'C',#1
           rts
 s3:       
           cmp #line_type::q3_steep
           bne s4
+          render_line_data reverse,reverse,steep
+          dbgmsg 'D',#1
           rts
 s4:       
           cmp #line_type::q1_shallow
           bne s5
           render_line_data forward,forward,shallow
+          dbgmsg 'E',#1
           rts
 s5:       
           cmp #line_type::q4_shallow
           bne s6
+          render_line_data forward,reverse,shallow
+          dbgmsg 'F',#1
           rts
 s6:       
           cmp #line_type::q2_shallow
           bne s7
+          render_line_data reverse,forward,shallow
+          dbgmsg 'G',#1
           rts
 s7:       
           cmp #line_type::q3_shallow
           bne s8
+          render_line_data reverse,reverse,shallow
+          dbgmsg 'H',#1
           rts
 s8:       
           rts

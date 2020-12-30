@@ -75,10 +75,9 @@ SCRMAP_SZ:
           .byte * - SCRMAP
 .export SCADDR,SCRMAP,_SCRMAP,SCRMAP_SZ
 
-;; .data
-;;  xx          
-;;  xx  xx  xx     
-;;  xx  xx  xxx  x
-;; xxx  xx  xxx  xx
-;; xxxxxxxxxxxxxxxxxx  
-;; xxxxxxxxxxxxxxxxxxxx
+city:     
+.word %0000001000000000
+.word %0000001010100000
+.word %0000011010110100
+.word %0000111111111110
+.word %0000111111111111

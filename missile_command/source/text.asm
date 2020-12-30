@@ -11,8 +11,9 @@ right_byte: .byte 0
 scratch:    .byte 0
 shift:      .byte 0
 .code
-            ;; source byte in A
-            ;; output:
+            ;; IN: shift - amount to shift to right
+            ;;     A - source byte
+            ;; OUT:
             ;;   left_byte
             ;;   right_byte
 .proc       create_sprite_line

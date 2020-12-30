@@ -43,7 +43,11 @@ noshift:
     .define iterator dex
     .define short_axis_start_value _x2
   .endif            
-  .define long_axis_start_value _y1
+  .if (.xmatch ({ydirection}, forward))
+    .define long_axis_start_value _y1
+  .else
+    .define long_axis_start_value _y2
+  .endif            
 .else
   .define long_axis_length _dx 
   .define short_axis_length _dy     
@@ -54,7 +58,11 @@ noshift:
     .define iterator dex
     .define short_axis_start_value _y2
   .endif            
-  .define long_axis_start_value _x1
+  .if (.xmatch ({xdirection}, forward))
+    .define long_axis_start_value _x1
+  .else
+    .define long_axis_start_value _x2
+  .endif            
 .endif
             ;; fill a struct line_data
             ldy #.sizeof(line_buffer)

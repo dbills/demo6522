@@ -1,25 +1,41 @@
+.ifndef _line_h
+_line_h=1
 .include "screen.mac"
 .macro      lineto x1,y1,x2,y2
-            lda #x1
+.if (.match (.left (1, {x1}), #))
+            lda #(.right (.tcount ({x1})-1, {x1}))
+.else
+            lda x1
+.endif
             sta _x1
-            lda #x2
+.if (.match (.left (1, {x2}), #))
+            lda #(.right (.tcount ({x2})-1, {x2}))
+.else
+            lda x2
+.endif
             sta _x2
-            lda #y1
+
+.if (.match (.left (1, {y1}), #))
+            lda #(.right (.tcount ({y1})-1, {y1}))
+.else
+            lda y1
+.endif
             sta _y1
-            lda #y2
+
+.if (.match (.left (1, {y2}), #))
+            lda #(.right (.tcount ({y2})-1, {y2}))
+.else
+            lda y2
+.endif
             sta _y2
             jsr _genline
             jsr _general_render
 .endmacro
-;;; definiton of how a line in stored
-;;; in memory
-;;; short axis values are, for example
-;;; X coordinates in a line where  DY is 
-;;; > DX see line.txt for more details
+
 .enum linetype
   ltype_shallow_forward 
   ltype_shallow_reverse
   ltype_steep_forward
   ltype_steep_reverse
 .endenum
-
+.endif

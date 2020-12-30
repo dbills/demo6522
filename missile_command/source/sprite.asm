@@ -2,14 +2,34 @@
 .include "shapes.inc"
 .include "zerop.inc"
 .include "m16.mac"
-.export sp_draw,calculate_hires_pointers
+.export calculate_hires_pointers,create_sprite_line,draw_sprite
+.export left_byte,right_byte,shift
 .import LETA
-.proc       sp_draw
-            mov #LETA,ptr_0             
-            ;mov #_LETTERS,ptr_0         
-            jmp draw2
+.data
+left_byte:  .byte 0
+right_byte: .byte 0
+shift:      .byte 0
+.code
+            ;; IN: shift - amount to shift to right
+            ;;     A - source byte
+            ;; OUT:
+            ;;   left_byte
+            ;;   right_byte
+.proc       create_sprite_line
+            sta left_byte
+            lda #0
+            sta right_byte
+            ldx shift
+            beq done
+loop:       
+            lsr left_byte
+            ror right_byte
+            dex
+            bne loop
+done:       
+            rts
 .endproc
-
+            ;; preshifted sprite drawing
             ;; s_x: X coordinate
             ;; s_y: Y coordinate
             ;; input:
@@ -56,7 +76,7 @@
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
 ;;; sprite source data ( left and right side ) ptr0,1,2,3
 ;;; 
-.proc     draw2
+.proc     draw_sprite
           jsr calculate_hires_pointers
 
           modulo8 s_x                   ;find correct bit offset

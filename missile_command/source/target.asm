@@ -4,8 +4,12 @@
 .include "m16.mac"
 .include "zerop.inc"
 .include "screen.inc"
+.include "line.inc"
 .import _ldata1
-.export   moveme           
+.export   move_crosshairs
+
+base_x = 176/2
+base_y = 176-16
 
           .macro mov_l
           .local done
@@ -43,7 +47,7 @@ done:
 done:       
           .endmacro
           
-.proc     moveme
+.proc     move_crosshairs
           jsr j_read
           cmp #JOYU
           beq joyu
@@ -95,35 +99,16 @@ joyl:
           mov_l
           rts
 joyt:       
-          ;jsr j_tup
           jsr j_tup
-          jsr lineto
-          rts
+          jmp launch_missile
 joyrt:      
-          jsr lineto
+          jsr launch_missile
           mov_r
           rts
 .endproc
-;;; inputs: x sprite to draw line to
-.proc     lineto
-          saveall
-          ;; set x1,x2,y1,y2
-          ;lda #0
-          lda #175/2
-          sta _x1
-          lda #0
-          sta _y1
-          lda s_x
-          sta _x2
-          lda s_y
-          sta _y2
 
-          movi _ldata1-1,_lstore
-          jsr _genline
-;          jsr line1
-;          jsr render1
-;          jsr line2
-;          jsr render2
-          resall
+.proc launch_missile
+          mov #_ldata1,_lstore
+          lineto #base_x,#base_y,s_x,s_y
           rts
 .endproc

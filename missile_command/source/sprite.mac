@@ -1,0 +1,4 @@
+.macro sp_draw shape
+          mov #shape,ptr_0
+          jsr draw_sprite
+.endmacro

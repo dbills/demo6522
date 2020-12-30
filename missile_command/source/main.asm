@@ -12,6 +12,7 @@
           .include   "sprite.inc"
           .include   "text.inc"
           .include   "debugscreen.inc"
+          .include   "shapes.inc"
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE
@@ -34,24 +35,12 @@
           scolor_i PURPLE
 
           jsr i_debug_screen
-.import _c_main, draw_letter1
-          mov #_ldata1, _lstore
-          lineto 10,1,1,5
-          ;lineto 1,1,10,5
-	;lineto 0,0,4,4      
-          ;jsr _c_main                   
-;          jsr bounce                    
-          jmp loop
-l1:         
-          jsr _plot
-          inc _pl_x
-          inc _pl_y
-          lda #172
-          cmp _pl_x
-          beq loop
-          jmp l1
 
-          debug_string "missilecommandtheend" 
+          jsr draw_city
+          ;jsr main_loop
+          jsr line_tests
+          jmp loop
+;          debug_string "missilecommandtheend" 
 loop:       
           jsr j_wfire
           jsr show_debug_screen
@@ -106,23 +95,23 @@ iloop:
           bne iloop
           rts
 .endproc
-.proc     bounce
+.proc     main_loop
           lda #SCRROWS*16/2
           sta s_y
           lda #80
           sta s_x
           ldx #S_TARGET
-          jsr sp_draw
+          sp_draw crosshair
 loop:       
           jsr wait_v
           ldx #S_TARGET
-          jsr sp_draw                   ;erase
+          sp_draw crosshair             ;erase
 
           ldx #S_TARGET
-          jsr moveme
+          jsr move_crosshairs
 
           ldx #S_TARGET
-          jsr sp_draw                   ;draw
+          sp_draw crosshair             ;draw
 
           jmp loop
           rts
@@ -135,5 +124,12 @@ loop:
           lda $ea
           sta $0315
           cli
+          rts
+.endproc
+
+.proc     line_tests
+          mov #_ldata1,_lstore
+          lineto #5,#5,#1,#1
+          ;lineto #176/2,#176-16,#10,#10
           rts
 .endproc

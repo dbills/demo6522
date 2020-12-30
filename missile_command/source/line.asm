@@ -22,8 +22,8 @@ err:        .res 1
 _dx:        .res 1
 _dy:        .res 1
 _x1:        .res 1
-_x2:        .res 1
 _y1:        .res 1
+_x2:        .res 1
 _y2:        .res 1
 _lstore:    .res 2
 .BSS

@@ -1,17 +1,6 @@
-.export BIT_EYES, BORDA, LETA
+.export crosshair,city_left,city_right,base_left,base_right
 .listbytes 100
 .DATA
-;;; reduce column size with word wrap on until
-;;; sprite definitions become vertically aligned
-BIT_EYES:   
-          .byte %00000000
-          .byte %00000000
-          .byte %00000000
-          .byte %11100111
-          .byte %10100101
-          .byte %11100111
-          .byte %00000000
-          .byte %00000000
 
 ;;; left and right right byte of a shift
 ;;; expands 'in place' as an expression where used
@@ -50,9 +39,7 @@ SHIFT     .set SHIFT + 1
           .endrepeat
           .endmacro
 
-BORDA:      
-;          sh_shift $80,$80,$80,$80,$80,$80,$80,$80 
-;           sh_shift $ff  ,$ff,$ff,$ff,$ff,$ff,$ff,$ff
+crosshair:      
 .linecont
            sh_shift %00000000,  \
                     %01000010,  \
@@ -63,5 +50,43 @@ BORDA:
                     %01000010,  \
                     %00000000
 
-LETA:       
-	sh_shift  %00100000,%01010000,%10001000,%11111000,%10001000,%10001000,%10001000,0
+city_left:     
+	.byte %00000010
+	.byte %00000010
+	.byte %00000110
+	.byte %00001111
+	.byte %00001111
+city_right: 
+	.byte %00000000
+	.byte %10100000
+	.byte %10110100
+	.byte %11111110
+	.byte %11111111
+ground_piece:           
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte %11111111
+	.byte %11111111
+	.byte %11111111
+	.byte %11111111
+	.byte %11111111
+base_left:  
+          .byte %00000000
+          .byte %00000011
+          .byte %00000111
+          .byte %00001111
+          .byte %00011111
+          .byte %00111111
+          .byte %01111111
+          .byte %11111111
+base_right:
+          .byte %00000000
+          .byte %11000000
+          .byte %11100000
+          .byte %11110000
+          .byte %11111000
+          .byte %11111100
+          .byte %11111110
+          .byte %11111111

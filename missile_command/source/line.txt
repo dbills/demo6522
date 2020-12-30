@@ -44,12 +44,8 @@ and each byte would contain an X value for the line.  You can
 see from this example that we have 10 'steps' from which to get 
 from an X value of 1 to an X value of 2.  
 
-When rendering a line we need to now the direction to 
+When rendering a line we need to know the direction to 
 iterate over the short axis value, the starting value of the long axis
 and what axis the long-axis is ( either x or y ).
 In our example the direction is forward
 
-struct line {
-       unsigned char start_value
-       rendering routine
-}

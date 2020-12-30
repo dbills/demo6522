@@ -18,8 +18,6 @@
     .define iterator dex
   .endif            
 .endif            
-          ;; line type has already been read
-          ;; from line_data
           ;; load long axis start value into X
           lda(_lstore),y
           iny

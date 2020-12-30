@@ -17,7 +17,7 @@
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
 .export _genline,_render1,_ldata1,_general_render
 .ZEROPAGE
-line_end: 
+line_type:
 err:        .res 1
 _dx:        .res 1
 _dy:        .res 1
@@ -122,9 +122,9 @@ s0:
           rts
 s1:       
           cmp #line_type::q4_steep
+          bne s2
           dbgmsg 'B',#0
           generate_line_data forward,reverse,steep
-          bne s2
           rts
 s2:       
           cmp #line_type::q2_steep
@@ -139,22 +139,23 @@ s3:
 s4:       
           cmp #line_type::q1_shallow
           bne s5
-          dbgmsg 'D',#0
+          generate_line_data forward,forward,shallow
+          dbgmsg 'E',#0
           rts
 s5:       
           cmp #line_type::q4_shallow
           bne s6
-          dbgmsg 'E',#0
+          dbgmsg 'F',#0
           rts
 s6:       
           cmp #line_type::q2_shallow
           bne s7
-          dbgmsg 'F',#0
+          dbgmsg 'G',#0
           rts
 s7:       
           cmp #line_type::q3_shallow
           bne s8
-          dbgmsg 'G',#0
+          dbgmsg 'H',#0
           rts
 s8:       
           rts
@@ -245,6 +246,7 @@ s3:
 s4:       
           cmp #line_type::q1_shallow
           bne s5
+          render_line_data forward,forward,shallow
           rts
 s5:       
           cmp #line_type::q4_shallow

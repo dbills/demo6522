@@ -61,6 +61,10 @@ noshift:
             ;; store line type
             sta(_lstore),y
             iny
+
+            lda short_axis_length
+            sta err
+
             lda long_axis_start_value
             sta(_lstore),y
             iny

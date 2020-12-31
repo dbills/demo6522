@@ -6,11 +6,9 @@
 .include "math.mac"
 .include "system.mac"
 .include "screen.mac"
-.export _LETTERS, draw_letter1, _draw_string,_debug_string,draw_city
+.export _LETTERS, _draw_string,_debug_string
 
 .data
-height:     .byte 0
-scratch:    .byte 0
 string1:    
 .asciiz     "abcdefghijklmnopqrstuvwxyz012"
 letter_table:
@@ -42,7 +40,7 @@ loop:
             adc #0
             sta ptr_0+1
 
-            jsr draw_letter
+            jsr draw_unshifted_sprite
 
             inc string_offset
             lda #6
@@ -54,98 +52,6 @@ done:
             rts
 .endproc
 
-.proc draw_letter1
-            lda #83
-            sta s_y
-            lda #0
-            sta s_x
-            mov #string1, ptr_string
-            jsr _draw_string            
-            lda #73
-            sta s_y
-            lda #1
-            sta s_x
-            jsr _draw_string
-            rts
-.endproc
-
-.data
-;;; note city shape has 4 empty pixels on left
-left_metropolis_start = 3
-right_metropolis_start = XMAX/2 + left_metropolis_start + 9
-.define ground_partition_size 26
-city_count: .byte 5
-city_x_positions:       
-            .byte left_metropolis_start + ground_partition_size *0
-            .byte left_metropolis_start + ground_partition_size *1
-            .byte left_metropolis_start + ground_partition_size *2
-            .byte right_metropolis_start + ground_partition_size *0
-            .byte right_metropolis_start + ground_partition_size *1
-            .byte right_metropolis_start + ground_partition_size *2
-.code
-.proc       draw_city
-            lda #8
-            sta height
-            mov #base_left,ptr_0
-            lda #XMAX/2-8
-            sta s_x
-            lda #YMAX-9
-            sta s_y
-            jsr draw_letter
-            lda #XMAX/2
-            sta s_x
-            mov #base_right,ptr_0
-            jsr draw_letter
-
-            lda #5
-            sta height
-            
-            lda #YMAX - 6
-            sta s_y
-loop:
-            ldx city_count
-            lda city_x_positions,x
-            sta s_x
-            mov #city_left,ptr_0
-            jsr draw_letter
-            clc
-            lda #8
-            adc s_x
-            sta s_x
-            mov #city_right,ptr_0
-            jsr draw_letter
-            dec city_count
-            bpl loop
-            rts
-.endproc
-.proc       draw_letter
-            jsr calculate_hires_pointers
-            ;; ptr_0, ptr_1 hires column  pointers
-            ;; ptr_2 adjusted source bytes
-            ldy s_y
-            ;; calculate loop end in scratch
-            tya
-            clc
-            ;; letters are only 7 tall
-            ;adc #7
-            adc height
-            sta scratch
-loop:       
-            modulo8 s_x
-            sta shift
-            lda (ptr_2),y
-        	jsr create_sprite_line  
-            lda left_byte
-            eor (ptr_0),y
-            sta (ptr_0),y
-            lda right_byte
-            eor (ptr_1),y
-            sta (ptr_1),y
-            iny
-            cpy scratch
-            bne loop
-            rts
-.endproc
 
 .proc       _debug_string
             saveall

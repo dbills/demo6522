@@ -13,6 +13,7 @@
           .include   "text.inc"
           .include   "debugscreen.inc"
           .include   "shapes.inc"
+          .include   "playfield.inc"
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE
@@ -36,7 +37,7 @@
 
           jsr i_debug_screen
 
-          jsr draw_city
+          jsr draw_cities
           ;jsr main_loop
           jsr line_tests
           jmp loop
@@ -129,7 +130,8 @@ loop:
 
 .proc     line_tests
           mov #_ldata1,_lstore
-          lineto #5,#5,#1,#1
-          ;lineto #176/2,#176-16,#10,#10
+          ;lineto #5,#5,#1,#1
+          lineto #176/2,#176-26,#176/2,#10
+          lineto #176/2,#176-16,#150,#10
           rts
 .endproc

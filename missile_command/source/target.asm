@@ -109,6 +109,19 @@ joyrt:
 
 .proc launch_missile
           mov #_ldata1,_lstore
-          lineto #base_x,#base_y,s_x,s_y
+          lda #4
+          clc
+          adc s_x
+          sta _x2
+          lda #4
+          clc
+          adc s_y
+          sta _y2
+          lda #1
+          sta sleep_t
+          lineto #base_x,#base_y,_x2,_y2
+          lda #0
+          sta sleep_t
+          lineto #base_x,#base_y,_x2,_y2
           rts
 .endproc

@@ -2,13 +2,14 @@
 .include "shapes.inc"
 .include "zerop.inc"
 .include "m16.mac"
-.export calculate_hires_pointers,create_sprite_line,draw_sprite
-.export left_byte,right_byte,shift
-.import LETA
+.export calculate_hires_pointers,create_sprite_line,draw_sprite,draw_unshifted_sprite
+.export left_byte,right_byte,shift,height
 .data
 left_byte:  .byte 0
 right_byte: .byte 0
 shift:      .byte 0
+height:     .byte 0
+scratch:    .byte 0
 .code
             ;; IN: shift - amount to shift to right
             ;;     A - source byte
@@ -105,4 +106,34 @@ loop1:
           dex
           bne loop1
           rts
+.endproc
+;;; draw a sprite that does not have
+;;; preshifted images
+.proc       draw_unshifted_sprite
+            jsr calculate_hires_pointers
+            ;; ptr_0, ptr_1 hires column  pointers
+            ;; ptr_2 adjusted source bytes
+            ldy s_y
+            ;; calculate loop end in scratch
+            tya
+            clc
+            ;; letters are only 7 tall
+            ;adc #7
+            adc height
+            sta scratch
+loop:       
+            modulo8 s_x
+            sta shift
+            lda (ptr_2),y
+        	jsr create_sprite_line  
+            lda left_byte
+            eor (ptr_0),y
+            sta (ptr_0),y
+            lda right_byte
+            eor (ptr_1),y
+            sta (ptr_1),y
+            iny
+            cpy scratch
+            bne loop
+            rts
 .endproc

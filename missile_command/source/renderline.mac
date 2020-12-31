@@ -1,6 +1,6 @@
 .include "screen.mac"
 .macro render_line_data xdirection, ydirection, slope
-.local loop, short_axis, long_axis, iterator
+.local loop, short_axis, long_axis, iterator, no_sleep
 .if (.xmatch ({slope}, steep))
   .define long_axis _pl_y
   .define short_axis _pl_x
@@ -26,7 +26,10 @@
           lda(_lstore),y
           tay
 loop:
-          sleep 60
+          lda sleep_t
+          beq no_sleep
+          sleep 1
+no_sleep: 
           lda(_lstore),y
           sta short_axis
           stx long_axis

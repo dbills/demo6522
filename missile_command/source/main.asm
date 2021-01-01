@@ -18,13 +18,13 @@
 ;          jmp demo
           .CODE
 .proc     demo
-          ;; enabling interrupts really pisses the system off with 
+          ;; enabling interrupts really pisses the system off with
           ;; the screen and character configs I have
           movi MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
           cli
 
-          jsr i_pltbl           
+          jsr i_pltbl
           jsr i_chrset
           jsr i_hires
           jsr i_joy
@@ -41,8 +41,8 @@
           ;jsr main_loop
           jsr line_tests
           jmp loop
-;          debug_string "missilecommandtheend" 
-loop:       
+;          debug_string "missilecommandtheend"
+loop:
           jsr j_wfire
           jsr show_debug_screen
           jsr j_wfire
@@ -53,14 +53,14 @@ loop:
 ;;; fill screen with a tiled
 ;;; set of chars to allow bitmapped
 ;;; graphics
-.proc     i_hires  
+.proc     i_hires
           chbase CHBASE1
           setrows SCRROWS
-          tallchar              
+          tallchar
           ldy SCRMAP_SZ
           ;; fill screen with chars tile
-          ;; pattern 
-loop:       
+          ;; pattern
+loop:
           lda #BLUE
           sta CLRRAM-1,y
           lda SCRMAP-1,y
@@ -68,7 +68,7 @@ loop:
           dey
           bne loop
           rts
-.endproc          
+.endproc
 ;;; clear ram allocated to custom
 ;;; character set
 .proc     i_chrset
@@ -76,22 +76,22 @@ loop:
           ldy #0
           ldx #16                       ;# of pages
           lda #0                        ;AA is nice
-loop:       
+loop:
           sta (ptr_0),y
           iny
           beq inch
           bne loop
-inch:       
+inch:
           inc ptr_0 + 1
           dex
           beq done
           bne loop
-done:       
+done:
           rts
 .endproc
 ;;; wait vertical blank
 .proc       wait_v
-iloop:      
+iloop:
           lda VICRASTER           ;load raster line
           bne iloop
           rts
@@ -103,7 +103,7 @@ iloop:
           sta s_x
           ldx #S_TARGET
           sp_draw crosshair
-loop:       
+loop:
           jsr wait_v
           ldx #S_TARGET
           sp_draw crosshair             ;erase
@@ -118,7 +118,7 @@ loop:
           rts
 .endproc
 
-.proc     i_intr 
+.proc     i_intr
           sei
           lda $bf                       ;eabf
           sta $0314
@@ -129,11 +129,12 @@ loop:
 .endproc
 
 .proc     line_tests
-          ldx #0
-          ldy #0
+          lda #0
+          sta _iline
           mov #line_data01,_lstore
           ;lineto #5,#5,#1,#1
 ;          lineto #176/2,#176-26,#176/2,#10
+;          lineto #5,#5,#1,#1
           lineto #176/2,#176-16,#150,#10
           rts
 .endproc

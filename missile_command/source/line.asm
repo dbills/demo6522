@@ -16,6 +16,8 @@
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
 .export _genline,_general_render,line_data01
+.export line_types, long_axis_start_values, long_axis_lengths, buffer_indices, long_axis_current_values,_iline
+
 .ZEROPAGE
 line_type:
 err:        .res 1
@@ -26,6 +28,8 @@ _y1:        .res 1
 _x2:        .res 1
 _y2:        .res 1
 _lstore:    .res 2
+_iline:     .res 1
+
 .BSS
 
 .enum line_type
@@ -53,7 +57,7 @@ long_axis_current_values: .res MAX_LINES
 
 .code
           ;; distance beteen _1 and _2
-          ;; X=value if _2 < _1
+          ;; Y=value if _2 < _1
           ;; return abs(_2 - _1) in distance
 .macro    delta _1,_2,value
 .local normal
@@ -64,15 +68,15 @@ long_axis_current_values: .res MAX_LINES
           ;; x2 was < x1
           eor #$ff
           ;; we need to add 1 to finish our little 2's complement
-          ;; stunt and get to x1-x2 -- and we also 
+          ;; stunt and get to x1-x2 -- and we also
           ;; need to add +1 to dx, so:
           ;; clc implied (or we wouldn't be here)
           adc #2
-          ldx value
-normal:   
+          ldy value
+normal:
           ;; C is already set if we directly branch here
           ;; and this performs the +1
-          ;; otherwise it's not and this does nothing 
+          ;; otherwise it's not and this does nothing
           ;; which is fine
           adc #0
 .endmacro
@@ -81,7 +85,7 @@ normal:
           rts
 .endproc
           ;; generate line
-          ;; calculate _dy,dx and err for            
+          ;; calculate _dy,dx and err for
           ;; a line
           ;; inputs: _x1,_x2,_y1,_y2
           ;; closed interval
@@ -102,16 +106,16 @@ normal:
 
           delta _y1,_y2,#1
           sta _dy
-          txa
+          tya
           ora err
           sta err
           delta _x1,_x2,#2
           sta _dx
-          txa
+          tya
           ora err
           sta err
           delta _dx,_dy,#4
-          txa
+          tya
           ora err
           ;; A now has 0-7 to indicate one of the 8 line types
           ;; to be drawn
@@ -122,49 +126,49 @@ s0:
           generate_line_data forward,forward,steep
           dbgmsg 'A',#0
           rts
-s1:       
+s1:
           cmp #line_type::q4_steep
           bne s2
           dbgmsg 'B',#0
           generate_line_data forward,reverse,steep
           rts
-s2:       
+s2:
           cmp #line_type::q2_steep
           bne s3
           generate_line_data reverse,forward,steep
           dbgmsg 'C',#0
           rts
-s3:       
+s3:
           cmp #line_type::q3_steep
           bne s4
           generate_line_data reverse,reverse,steep
           dbgmsg 'D',#0
           rts
-s4:       
+s4:
           cmp #line_type::q1_shallow
           bne s5
           generate_line_data forward,forward,shallow
           dbgmsg 'E',#0
           rts
-s5:       
+s5:
           cmp #line_type::q4_shallow
           bne s6
           generate_line_data forward,reverse,shallow
           dbgmsg 'F',#0
           rts
-s6:       
+s6:
           cmp #line_type::q2_shallow
           bne s7
           generate_line_data reverse,forward,shallow
           dbgmsg 'G',#0
           rts
-s7:       
+s7:
           cmp #line_type::q3_shallow
           bne s8
           generate_line_data reverse,reverse,shallow
           dbgmsg 'H',#0
           rts
-s8:       
+s8:
           rts
 .endproc
 
@@ -175,7 +179,7 @@ s8:
           resall
 .endmacro
 .proc _sleep
-loop:     
+loop:
           waitv
           dex
           bne loop
@@ -183,60 +187,59 @@ loop:
 .endproc
 .include "renderline.mac"
 ;;; right now, all the render routines
-;;; start at buffer end and go toward 
+;;; start at buffer end and go toward
 ;;; beginning - loop direction will have to be rewritten
 ;;; to change this
 .proc     _general_render
           lda line_types,y
-s0:       
+s0:
           cmp #line_type::q1_steep
           bne s1
           dbgmsg 'A',#1
           render_line_data forward, forward, steep
           rts
-s1:       
+s1:
           cmp #line_type::q4_steep
           bne s2
           render_line_data forward,reverse,steep
           dbgmsg 'B',#1
           rts
-s2:       
+s2:
           cmp #line_type::q2_steep
           bne s3
           render_line_data reverse,forward,steep
           dbgmsg 'C',#1
           rts
-s3:       
+s3:
           cmp #line_type::q3_steep
           bne s4
           render_line_data reverse,reverse,steep
           dbgmsg 'D',#1
           rts
-s4:       
+s4:
           cmp #line_type::q1_shallow
           bne s5
           render_line_data forward,forward,shallow
           dbgmsg 'E',#1
           rts
-s5:       
+s5:
           cmp #line_type::q4_shallow
           bne s6
           render_line_data forward,reverse,shallow
           dbgmsg 'F',#1
           rts
-s6:       
+s6:
           cmp #line_type::q2_shallow
           bne s7
           render_line_data reverse,forward,shallow
           dbgmsg 'G',#1
           rts
-s7:       
+s7:
           cmp #line_type::q3_shallow
           bne s8
           render_line_data reverse,reverse,shallow
           dbgmsg 'H',#1
           rts
-s8:       
+s8:
           rts
 .endproc
-

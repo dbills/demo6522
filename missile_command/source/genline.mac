@@ -3,7 +3,7 @@
           ;; line drawing routine
           ;; 1 = short axis line length
           ;; 2 = long axis line length
-          ;; 3 inx or dex 
+          ;; 3 inx or dex
           ;; for 1 or 2, e.g. dx or dy
           ;; shift is when the short axis
           ;; must 'shift' due to the error
@@ -13,14 +13,14 @@
 .macro    step_short_axis saxis,laxis,step_operation
 .local shift, noshift
           lda err
-          clc 
+          clc
           adc saxis
           bcs shift
           sta err
           cmp laxis
           bcc noshift                   ;TODO optimize
           beq noshift
-shift:    
+shift:
           sec
           sbc laxis
           sta err
@@ -41,27 +41,27 @@ noshift:
     .define iterator inx
   .else
     .define iterator dex
-  .endif            
+  .endif
   .define long_axis_start_value _y1
 .else
-  .define long_axis_length _dx 
-  .define short_axis_length _dy     
+  .define long_axis_length _dx
+  .define short_axis_length _dy
   .define short_axis_start_value _y1
   .if (.xmatch ({ydirection}, forward))
     .define iterator inx
   .else
     .define iterator dex
-  .endif            
+  .endif
   .define long_axis_start_value _x1
 .endif
-            sta line_types,y
+            sta line_types,x
             lda short_axis_length
             sta err
             lda long_axis_start_value
-            sta long_axis_start_values,y
-            sta long_axis_current_values,y
+            sta long_axis_start_values,x
+            sta long_axis_current_values,x
             lda long_axis_length
-            sta long_axis_lengths,y
+            sta long_axis_lengths,x
             ;; y is long axis coordinate
             ;; x is short axis coordinate
             ;; store short axis coords in life buffer
@@ -77,4 +77,3 @@ loop:
             lda #$bb
             sta (_lstore),y
 .endmacro
-            

@@ -33,7 +33,7 @@ _line_h=1
 .endmacro
 
 .enum linetype
-  ltype_shallow_forward 
+  ltype_shallow_forward
   ltype_shallow_reverse
   ltype_steep_forward
   ltype_steep_reverse

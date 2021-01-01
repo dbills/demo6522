@@ -129,6 +129,7 @@ loop:
 .endproc
 
 .proc     line_tests
+          ldx #0
           ldy #0
           mov #line_data01,_lstore
           ;lineto #5,#5,#1,#1

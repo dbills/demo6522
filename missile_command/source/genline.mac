@@ -59,6 +59,7 @@ noshift:
             sta err
             lda long_axis_start_value
             sta long_axis_start_values,y
+            sta long_axis_current_values,y
             lda long_axis_length
             sta long_axis_lengths,y
             ;; y is long axis coordinate

@@ -15,7 +15,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_ldata1,_general_render
+.export _genline,_general_render,line_data01
 .ZEROPAGE
 line_type:
 err:        .res 1
@@ -38,22 +38,20 @@ _lstore:    .res 2
           q2_shallow
           q3_shallow
 .endenum
-;;; holds X or Y values
-;;; for a line
-.struct line_buffer
-  values .res 176
-.endstruct
 
-.struct line_data
-  short_axis .tag line_buffer
-  line_type .byte
-  long_axis_start_value .byte
-  long_axis_length .byte
-  buffer_index .byte
-.endstruct
+.define MAX_LINES 60
+LINE_NUMBER .set 0
+.repeat MAX_LINES
+  LINE_NUMBER .set LINE_NUMBER + 1
+  .ident (.sprintf ("line_data%02X", LINE_NUMBER)): .res 176
+.endrepeat
+line_types:               .res MAX_LINES
+long_axis_start_values:   .res MAX_LINES
+long_axis_lengths:        .res MAX_LINES
+buffer_indices:           .res MAX_LINES
+long_axis_current_values: .res MAX_LINES
 
-_ldata1:      .tag line_data
-.CODE
+.code
           ;; distance beteen _1 and _2
           ;; X=value if _2 < _1
           ;; return abs(_2 - _1) in distance
@@ -78,6 +76,10 @@ normal:
           ;; which is fine
           adc #0
 .endmacro
+.proc     generate_forward_forward_steep
+          generate_line_data forward,forward,steep
+          rts
+.endproc
           ;; generate line
           ;; calculate _dy,dx and err for            
           ;; a line
@@ -185,9 +187,7 @@ loop:
 ;;; beginning - loop direction will have to be rewritten
 ;;; to change this
 .proc     _general_render
-          ldy #.sizeof(line_buffer)
-          lda(_lstore),y
-          iny
+          lda line_types,y
 s0:       
           cmp #line_type::q1_steep
           bne s1

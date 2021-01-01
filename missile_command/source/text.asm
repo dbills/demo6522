@@ -1,4 +1,3 @@
-;;; draw letters on the screen
 .include "zerop.inc"
 .include "sprite.inc"
 .include "shapes.inc"
@@ -6,7 +5,10 @@
 .include "math.mac"
 .include "system.mac"
 .include "screen.mac"
-.export _LETTERS, _draw_string,_debug_string
+
+.export _draw_string,_debug_string
+;;; 7 pixel tall letters
+.define TEXT_HEIGHT 7
 
 .data
 string1:    
@@ -24,6 +26,8 @@ string_offset:
 .proc       _draw_string
             lda #0
             sta string_offset
+            lda #TEXT_HEIGHT
+            sta height
 loop:       
             ldy string_offset
             lda (ptr_string),y

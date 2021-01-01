@@ -19,17 +19,12 @@
   .endif            
 .endif            
           ;; load long axis start value into X
-          lda(_lstore),y
-          iny
+          lda long_axis_start_values,y
           tax
           ;; load line length into loop counter Y
-          lda(_lstore),y
+          lda long_axis_lengths,y
           tay
 loop:
-          lda sleep_t
-          beq no_sleep
-          sleep 1
-no_sleep: 
           lda(_lstore),y
           sta short_axis
           stx long_axis

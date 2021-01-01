@@ -108,7 +108,7 @@ joyrt:
 .endproc
 
 .proc launch_missile
-          mov #_ldata1,_lstore
+          mov #line_data01,_lstore
           lda #4
           clc
           adc s_x

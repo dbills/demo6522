@@ -54,20 +54,13 @@ noshift:
   .endif            
   .define long_axis_start_value _x1
 .endif
-            ;; fill a struct line_data
-            ldy #.sizeof(line_buffer)
-            ;; store line type
-            sta(_lstore),y
-            iny
-
+            sta line_types,y
             lda short_axis_length
             sta err
-
             lda long_axis_start_value
-            sta(_lstore),y
-            iny
+            sta long_axis_start_values,y
             lda long_axis_length
-            sta(_lstore),y
+            sta long_axis_lengths,y
             ;; y is long axis coordinate
             ;; x is short axis coordinate
             ;; store short axis coords in life buffer
@@ -81,6 +74,6 @@ loop:
             bne loop
             ;; debug
             lda #$bb
-            sta(_lstore),y
+            sta (_lstore),y
 .endmacro
             

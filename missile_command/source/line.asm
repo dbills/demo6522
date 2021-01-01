@@ -190,56 +190,60 @@ loop:
 ;;; start at buffer end and go toward
 ;;; beginning - loop direction will have to be rewritten
 ;;; to change this
-.proc     _general_render
+.macro    _general_render_template render_type
           lda line_types,y
 s0:
           cmp #line_type::q1_steep
           bne s1
           dbgmsg 'A',#1
-          render_line_data forward, forward, steep
+          render_type forward, forward, steep
           rts
 s1:
           cmp #line_type::q4_steep
           bne s2
-          render_line_data forward,reverse,steep
+          render_type forward,reverse,steep
           dbgmsg 'B',#1
           rts
 s2:
           cmp #line_type::q2_steep
           bne s3
-          render_line_data reverse,forward,steep
+          render_type reverse,forward,steep
           dbgmsg 'C',#1
           rts
 s3:
           cmp #line_type::q3_steep
           bne s4
-          render_line_data reverse,reverse,steep
+          render_type reverse,reverse,steep
           dbgmsg 'D',#1
           rts
 s4:
           cmp #line_type::q1_shallow
           bne s5
-          render_line_data forward,forward,shallow
+          render_type forward,forward,shallow
           dbgmsg 'E',#1
           rts
 s5:
           cmp #line_type::q4_shallow
           bne s6
-          render_line_data forward,reverse,shallow
+          render_type forward,reverse,shallow
           dbgmsg 'F',#1
           rts
 s6:
           cmp #line_type::q2_shallow
           bne s7
-          render_line_data reverse,forward,shallow
+          render_type reverse,forward,shallow
           dbgmsg 'G',#1
           rts
 s7:
           cmp #line_type::q3_shallow
           bne s8
-          render_line_data reverse,reverse,shallow
+          render_type reverse,reverse,shallow
           dbgmsg 'H',#1
           rts
 s8:
           rts
+.endmacro
+
+.proc _general_render
+          _general_render_template render_line_data
 .endproc

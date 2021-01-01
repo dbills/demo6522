@@ -247,3 +247,7 @@ s8:
 .proc _general_render
           _general_render_template render_line_data
 .endproc
+
+.proc _partial_render
+          _general_render_template render_partial_line
+.endproc

@@ -8,7 +8,7 @@
     .define iterator inx
   .else
     .define iterator dex
-  .endif            
+  .endif
 .else
   .define long_axis _pl_x
   .define short_axis _pl_y
@@ -16,8 +16,8 @@
     .define iterator inx
   .else
     .define iterator dex
-  .endif            
-.endif            
+  .endif
+.endif
           ;; load long axis start value into X
           lda long_axis_start_values,y
           tax
@@ -34,4 +34,30 @@ loop:
           dey
           bne loop
 .endmacro
-            
+
+.macro render_partial_line xdirection, ydirection, slope
+.local loop, short_axis, long_axis, iterator, no_sleep
+.if (.xmatch ({slope}, steep))
+  .define long_axis _pl_y
+  .define short_axis _pl_x
+  .if (.xmatch ({ydirection}, forward))
+    .define iterator inc long_axis_current_values,x
+  .else
+    .define iterator dec long_axis_current_values,x
+  .endif
+.else
+  .define long_axis _pl_x
+  .define short_axis _pl_y
+  .if (.xmatch ({xdirection}, forward))
+    .define iterator inc long_axis_current_values,x
+  .else
+    .define iterator dec long_axis_current_values,x
+  .endif
+.endif
+          ldy long_axis_current_values,x
+          lda(_lstore),y
+          sta short_axis
+          stx long_axis
+          jsr _plot
+          iterator
+.endmacro

@@ -1,6 +1,6 @@
 .include "screen.mac"
 .macro render_line_data xdirection, ydirection, slope
-.local loop, short_axis, long_axis, iterator, no_sleep
+.local loop, short_axis, long_axis, iterator
 .if (.xmatch ({slope}, steep))
   .define long_axis _pl_y
   .define short_axis _pl_x
@@ -36,7 +36,7 @@ loop:
 .endmacro
 
 .macro render_partial_line xdirection, ydirection, slope
-.local loop, short_axis, long_axis, iterator, no_sleep
+.local loop, short_axis, long_axis, iterator
 .if (.xmatch ({slope}, steep))
   .define long_axis _pl_y
   .define short_axis _pl_x

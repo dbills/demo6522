@@ -129,17 +129,23 @@ loop:
 .endproc
 
 .proc     line_tests
-          lda #0
-          sta _iline
+
           mov #line_data01,_lstore
-          ;lineto #5,#5,#1,#1
-;          lineto #176/2,#176-26,#176/2,#10
-          lineto #5,#5,#1,#1
-;          lineto #176/2,#176-16,#150,#10
-;          jsr _general_render
+          ldx #0
+          lineto #176/2,#176-26,#70,#50
+
+          mov #line_data02,_lstore
+          ldx #1
+          lineto #176/2,#176-16,#150,#10
  loop:
           ldx #0
+          mov #line_data01,_lstore
           jsr _partial_render
-          bne loop
+
+          ldx #1
+          mov #line_data02,_lstore
+          jsr _partial_render
+
+          jmp loop
           rts
 .endproc

@@ -22,18 +22,18 @@ DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)
 ;;; $2000 - $21FA non-visible debug text screen
 .define CHARHT  16
 .INCLUDE  "zerop.mac"
-.macro    tallchar        
+.macro    tallchar
           ;; activate 16 high chars
           lda $9003
           ora #1
-          sta $9003             
+          sta $9003
 .endmacro
 
 .macro    shortchar
           lda $9003
           and #$FE
-          sta $9003             
-.endmacro      
+          sta $9003
+.endmacro
 
 .macro    setrows _1
           ;; bits 1-6 are row
@@ -46,7 +46,7 @@ DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)
           ;;screen memory, default $1000
           ;;Bits 4-6 of location 36869 are bits 10-12 of the
           ;;screen's address, and bit 7 of location 36866 is bit 9 of the address
-          ;;of the screen   
+          ;;of the screen
           ;; fedcba9876543210
           ;; 000xxxy000000000
           ;; y lives as bit 7 in register
@@ -61,7 +61,7 @@ DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)
           .ELSE
           ;; move bit 9 to 7
 bit9      = (addr & %0000001000000000) >> 2
-          ;;  move bit 12-10 down to 6-4    
+          ;;  move bit 12-10 down to 6-4
 bit10_12  = (addr & %0001110000000000) >> 6
           lda 36866
           and #%01111111
@@ -72,7 +72,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           ora #bit10_12
           sta 36869
           .ENDIF
-          
+
 .endmacro
 ;;; set character generator pointer
 .macro chbase _1
@@ -115,14 +115,14 @@ bit10_12  = (addr & %0001110000000000) >> 6
           ora #_1 & %00000111
           sta $900f
 .endmacro
-          
+
           ;; pl_x, pl_y
           ;; a = color
           ;; 0 based 0,0 is upper left
           ;; 175,175 lower right
           ;; x_to_a = instruction to move X  coord into A
 .macro    plotm x_to_a
-          sty save_y
+;          sty save_y
           x_to_a
           ;; divide by 8
           ;; multiply by 2 to get zp address
@@ -148,7 +148,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           ldy _pl_y
           eor (ptr_0),y
           sta (ptr_0),y
-          ldy save_y
+;          ldy save_y
 .endmacro
 
 .endif

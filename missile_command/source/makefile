@@ -4,7 +4,7 @@
 # go into as it depressed me, especially in cause but also as effect ).  The directory
 # as a drive always worked for me under linux, and previously under windows
 # oh well, I have to use c1541 I reckon
-# C1541=c:\winvice3\c1541 -attach disk1.d64 -write a.p00 a 
+# C1541=c:\winvice3\c1541 -attach disk1.d64 -write a.p00 a
 C1541=/mnt/c/winvice3/c1541.exe
 EXE=a
 MAIN=source/main.asm
@@ -15,7 +15,7 @@ all: tests
 	dasm $(MAIN) $(FLAGS) -oa.p00;dasm $(MAIN) $(FLAGS) -la.lst
 	sed -rnf build_support/subs.sed < a.lst > labels.txt
 	sed -rnf build_support/labels.sed < a.lst >> labels.txt
-#$(C1541) -attach disk1.d64 -delete a -write a.p00 a 
+#$(C1541) -attach disk1.d64 -delete a -write a.p00 a
 
 tests:
 	cd testing && make
@@ -25,7 +25,7 @@ foo:
 	ca65 foo.S -o foo.o
 	ld65 -o b.p00 -C vic20-32k.cfg -m foo.map foo.o vic20.lib
 
-OBJS=jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o
+OBJS=jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o queue.o
 port:
 	rm -f *.o
 	rm -f test.asm
@@ -35,8 +35,8 @@ port:
 	for i in *.asm;do ../build_support/assemble.sh $$i;done
 	for i in *.asm;do ../build_support/assemble.sh $$i asm;done
 # make sure main is first so the start addr is always the same
-#cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o test.o $(OBJS) 
-	cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o $(OBJS) 
+#cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o test.o $(OBJS)
+	cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o $(OBJS)
 	perl ../build_support/mapfile.pl a.map > a.lst
 
 foo1:

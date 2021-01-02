@@ -40,6 +40,7 @@
           jsr draw_cities
           ;jsr main_loop
           jsr line_tests
+          ;jsr queue_tests
           jmp loop
 ;          debug_string "missilecommandtheend"
 loop:
@@ -138,6 +139,9 @@ loop:
           rts
 .endproc
 
+.proc     find_free_lines
+.endproc
+
 .proc     line_tests
           jsr init_lines
 
@@ -159,4 +163,13 @@ loop:
 .endrepeat
           jmp loop
           rts
+.endproc
+.include "queue.inc"
+.export queue_tests
+.proc queue_tests
+          jsr iqueue
+          mov #$abcd,_lstore
+          jsr enqueue
+          mov #0, _lstore
+          jsr dequeue
 .endproc

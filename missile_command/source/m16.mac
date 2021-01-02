@@ -6,7 +6,7 @@ _m16_h = 1
             inc arg
             bne done
             inc arg + 1
-done:       
+done:
 .endmacro
 
 .macro      decw _1
@@ -14,7 +14,7 @@ done:
             lda  _1
             bne done
             dec _1 + 1
-done:       
+done:
             sec
             sbc #1
             sta _1
@@ -23,7 +23,7 @@ done:
 .macro      mov src, dst
 .if (.match (.left (1, {src}), #))
             lda #<(.right (.tcount ({src})-1, {src}))
-            sta dst           
+            sta dst
             lda #>(.right (.tcount ({src})-1, {src}))
             sta dst+1
 .else
@@ -48,7 +48,7 @@ done:
 .if (.match (.left (1, {_1}), #))
             lda #<(.right (.tcount ({_1})-1, {_1}))
 .else
-            lda [_1]
+            lda _1
 .endif
             cmp _2
             bne done
@@ -58,7 +58,7 @@ done:
             lda _1+1
 .endif
             cmp _2+1
-done:       
+done:
 .endmacro
 
 ;;; compare _1 with #_2
@@ -70,10 +70,10 @@ done:
           bne done
           lda _1
           cmp #[_2] & $ff    ; load low byte
-done:       
+done:
 .endmacro
 ;;; move,X source,dest
-;;; equiv C code: 
+;;; equiv C code:
 ;;; word array[]
 ;;; array[2] = array[1]
 .macro movx _1,_2

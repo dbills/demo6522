@@ -128,7 +128,18 @@ loop:
           rts
 .endproc
 
+.proc     init_lines
+          ldx #MAX_LINES-1
+loop:
+          lda #0
+          sta line_data_indices,x
+          dex
+          bpl loop
+          rts
+.endproc
+
 .proc     line_tests
+          jsr init_lines
 
           mov #line_data01,_lstore
           ldx #0
@@ -137,15 +148,15 @@ loop:
           mov #line_data02,_lstore
           ldx #1
           lineto #176/2,#176-16,#150,#10
- loop:
-          ldx #0
-          mov #line_data01,_lstore
-          jsr _partial_render
 
-          ldx #1
-          mov #line_data02,_lstore
+loop:
+          LINE_NUMBER .set 0
+.repeat MAX_LINES
+          LINE_NUMBER .set LINE_NUMBER + 1
+          mov #.ident (.sprintf ("line_data%02d", LINE_NUMBER)),_lstore
+          ldx #LINE_NUMBER-1
           jsr _partial_render
-
+.endrepeat
           jmp loop
           rts
 .endproc

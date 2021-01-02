@@ -38,4 +38,5 @@ _line_h=1
   ltype_steep_forward
   ltype_steep_reverse
 .endenum
+.define MAX_LINES 60
 .endif

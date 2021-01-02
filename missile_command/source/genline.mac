@@ -62,6 +62,7 @@ noshift:
             sta long_axis_current_values,x
             lda long_axis_length
             sta long_axis_lengths,x
+            sta line_data_indices,x
             ;; y is long axis coordinate
             ;; x is short axis coordinate
             ;; store short axis coords in life buffer

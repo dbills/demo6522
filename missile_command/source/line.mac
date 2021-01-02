@@ -29,7 +29,7 @@ _line_h=1
 .endif
             sta _y2
             jsr _genline
-            jsr _general_render
+;            jsr _general_render
 .endmacro
 
 .enum linetype

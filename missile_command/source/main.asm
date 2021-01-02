@@ -134,7 +134,12 @@ loop:
           mov #line_data01,_lstore
           ;lineto #5,#5,#1,#1
 ;          lineto #176/2,#176-26,#176/2,#10
-;          lineto #5,#5,#1,#1
-          lineto #176/2,#176-16,#150,#10
+          lineto #5,#5,#1,#1
+;          lineto #176/2,#176-16,#150,#10
+;          jsr _general_render
+ loop:
+          ldx #0
+          jsr _partial_render
+          bne loop
           rts
 .endproc

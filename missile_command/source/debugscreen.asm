@@ -6,6 +6,8 @@
 .include "m16.mac"
 ;.include "system.mac"
 .export i_debug_screen,show_debug_screen, _debug_screen_write_char, _debug_screen_write_byte, _debug_screen_write_digit
+.bss
+z_save:   .res 1
 .code
 ;;; set screen back to normal
 ;;; text mode
@@ -17,7 +19,7 @@
           mov #SCREEN, ptr_0
           mov #DEBUG_SCREEN, ptr_1
           ldy #0
-loop:     
+loop:
           lda(ptr_1),y
           sta(ptr_0),y
           incw ptr_0
@@ -30,7 +32,7 @@ loop:
 .proc     i_debug_screen
           mov #DEBUG_SCREEN, ptr_1
           ldy #0
-loop:     
+loop:
           lda #'z'
           sta (ptr_1),y
           incw ptr_1
@@ -41,7 +43,7 @@ loop:
 
 .proc     scroll_debug_screen
           mov #DEBUG_SCREEN, ptr_0
-loop:     
+loop:
           cmpw #DEBUG_SCREEN_END,ptr_0
           beq done
           ldy #1
@@ -50,7 +52,7 @@ loop:
           sta(ptr_0),y
           incw ptr_0
           jmp loop
-done:     
+done:
           lda #32                       ;space
           sta(ptr_0),y
           rts
@@ -71,11 +73,11 @@ done:
           sbc #9
           jsr _debug_screen_write_char
           jmp done
-is_not_letter:      
+is_not_letter:
           clc
           adc #48
           jsr _debug_screen_write_char
-done:     
+done:
           rts
 .endproc
 .proc     _debug_screen_write_byte

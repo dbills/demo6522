@@ -54,10 +54,12 @@ loop:
     .define iterator dec long_axis_current_values,x
   .endif
 .endif
-          ldy long_axis_current_values,x
+          lda long_axis_current_values,x
+          sta long_axis
+          ldy line_data_indices,x
           lda(_lstore),y
           sta short_axis
-          stx long_axis
           jsr _plot
           iterator
+          dec line_data_indices,x
 .endmacro

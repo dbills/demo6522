@@ -16,7 +16,7 @@
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
 .export _genline,_general_render,line_data01
-.export line_types, long_axis_start_values, long_axis_lengths, buffer_indices, long_axis_current_values,_iline
+.export line_types, long_axis_start_values, long_axis_lengths, line_data_indices, long_axis_current_values,_iline,_partial_render
 
 .ZEROPAGE
 line_type:
@@ -52,7 +52,7 @@ LINE_NUMBER .set 0
 line_types:               .res MAX_LINES
 long_axis_start_values:   .res MAX_LINES
 long_axis_lengths:        .res MAX_LINES
-buffer_indices:           .res MAX_LINES
+line_data_indices:        .res MAX_LINES
 long_axis_current_values: .res MAX_LINES
 
 .code
@@ -191,7 +191,7 @@ loop:
 ;;; beginning - loop direction will have to be rewritten
 ;;; to change this
 .macro    _general_render_template render_type
-          lda line_types,y
+          lda line_types,x
 s0:
           cmp #line_type::q1_steep
           bne s1
@@ -201,46 +201,47 @@ s0:
 s1:
           cmp #line_type::q4_steep
           bne s2
-          render_type forward,reverse,steep
           dbgmsg 'B',#1
+          render_type forward,reverse,steep
           rts
 s2:
           cmp #line_type::q2_steep
           bne s3
-          render_type reverse,forward,steep
           dbgmsg 'C',#1
+          render_type reverse,forward,steep
           rts
 s3:
           cmp #line_type::q3_steep
           bne s4
-          render_type reverse,reverse,steep
           dbgmsg 'D',#1
+          render_type reverse,reverse,steep
           rts
 s4:
           cmp #line_type::q1_shallow
           bne s5
-          render_type forward,forward,shallow
           dbgmsg 'E',#1
+          render_type forward,forward,shallow
           rts
 s5:
           cmp #line_type::q4_shallow
           bne s6
-          render_type forward,reverse,shallow
           dbgmsg 'F',#1
+          render_type forward,reverse,shallow
           rts
 s6:
           cmp #line_type::q2_shallow
           bne s7
-          render_type reverse,forward,shallow
           dbgmsg 'G',#1
+          render_type reverse,forward,shallow
           rts
 s7:
           cmp #line_type::q3_shallow
           bne s8
-          render_type reverse,reverse,shallow
           dbgmsg 'H',#1
+          render_type reverse,reverse,shallow
           rts
 s8:
+          dbgmsg 'Q',#1
           rts
 .endmacro
 

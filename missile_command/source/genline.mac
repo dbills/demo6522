@@ -28,8 +28,9 @@ shift:
 noshift:
 .endmacro
 ;;; slope controls what the long axis is
-;;; short = X , steep = Y
+;;; short = x , steep = y
 ;;; IN: A = line type, one of line_type enum
+;;;     X = index of line
 .macro generate_line_data xdirection, ydirection, slope
 .local loop, iterator, short_axis_start_value, long_axis_start_value
 .local long_axis_length, short_axis_length

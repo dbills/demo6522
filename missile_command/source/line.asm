@@ -85,22 +85,20 @@ normal:
           generate_line_data forward,forward,steep
           rts
 .endproc
-          ;; generate line
-          ;; calculate _dy,dx and err for
-          ;; a line
-          ;; inputs: _x1,_x2,_y1,_y2
-          ;; closed interval
-          ;; outputs: _dy,_dx,err
-          ;; A=_dy on exit
-          ;; preconditions: _y2>_y1
-          ;; 0  q1_steep
-          ;; 1  q4_steep
-          ;; 2  q2_steep
-          ;; 3  q3_steep
-          ;; 4  q1_shallow
-          ;; 5  q4_shallow
-          ;; 6  q2_shallow
-          ;; 7  q3_shallow
+;;; generate line data
+;;; IN: _x1,_x2,_y1,_y2,_lstore
+;;;   coords are closed interval
+;;;   _lstore is pointer to where to store data
+;;; OUT: _dy,_dx,err
+;;; A=_dy on exit
+;;; 0  q1_steep
+;;; 1  q4_steep
+;;; 2  q2_steep
+;;; 3  q3_steep
+;;; 4  q1_shallow
+;;; 5  q4_shallow
+;;; 6  q2_shallow
+;;; 7  q3_shallow
 .proc     _genline
           lda #0                        ;err=0
           sta err

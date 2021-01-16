@@ -3,6 +3,7 @@
 .include "line.inc"
 .include "m16.mac"
 .include "zerop.inc"
+.include "queue.mac"
 
 .scope interceptor
 .export in_initialize,in_launch,in_updateall
@@ -28,7 +29,12 @@ erased:
 .proc     in_initialize
           rts
 .endproc
-
+.linecont
+declare_queue_operations "interceptor", \
+                         next, active,\
+                         p_next, p_active,\
+                         line_data01,0,\
+                         30, LINEMAX
 .proc     in_updateall
 
           LINE_NUMBER .set 0
@@ -70,7 +76,8 @@ erased:
           ldx next
           cpx #30
           beq empty
-          next_line p_next,next
+          jsr enqueue_interceptor
+;          next_line p_next,next
 empty:
           rts
 .endproc

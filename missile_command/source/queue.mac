@@ -1,0 +1,88 @@
+;;; manage a templatized queue consisting
+;;; of a byte and a word pointer
+;;; for both tail and head
+.include "m16.mac"
+debug = 1
+.struct PointerQueue
+          head .word
+          tail .word
+          index   .byte
+.endstruct
+
+.macro    add2 _1
+.local done
+          lda #1
+          clc
+          adc #2
+          sta _1
+          bcc done
+          inc _1+1
+done:
+.endmacro
+
+;;; increment the head or tail pointer
+;;; IN:
+;;;   pointer_label: label of queue pointer (e.g. p_head|p_tail)
+;;;   index_label: label of queue index (e.g.i_head|i_tail)
+.macro    increment_queue_label pointer_label, index_label, array_element_size, i_head_begin, qsize
+.local done,inbounds
+.ifdef debug
+          lda index_label
+          cmp #(i_head_begin + qsize)
+          bne inbounds
+          brk
+inbounds:
+.endif
+          inc index_label
+          clc
+          lda pointer_label
+          adc #array_element_size
+          sta pointer_label
+          bcc done
+          inc pointer_label+1
+done:
+          rts
+.endmacro
+;;; queue name is used to generate the function names
+;;; i_head, i_tail, p_head, p_tail are labels
+;;; of the storage locations for the word pointers and
+;;; index values
+;;; *_begin is where to initialize the pointers and indexes
+;;; qsize is the size of the queue
+;;; array_element_size: the size of items pointed to, this is the
+;;;   amount added  when queue operations are performed.
+.linecont
+.macro declare_queue_operations queue_name, i_head, i_tail, \
+                                p_head, p_tail, \
+                                p_head_begin, i_head_begin, \
+                                qsize, array_element_size
+
+.export .ident (.sprintf ("queue_init_%s", queue_name))
+.proc .ident (.sprintf ("queue_init_%s", queue_name))
+          mov #p_head_begin, p_head
+          mov #p_head_begin, p_tail
+          lda #i_head_begin
+          sta i_head
+          rts
+.endproc
+.export .ident (.sprintf ("enqueue_%s", queue_name))
+.proc .ident (.sprintf ("enqueue_%s", queue_name))
+          increment_queue_label p_head, i_head, array_element_size, i_head_begin, qsize
+.endproc
+.export .ident (.sprintf ("queue_size_%s", queue_name))
+;;; return size in A
+.proc .ident (.sprintf ("queue_size_%s", queue_name))
+          lda i_head
+          sec
+          sbc i_tail
+          rts
+.endproc
+.export .ident (.sprintf ("dequeue_%s", queue_name))
+.proc .ident (.sprintf ("dequeue_%s", queue_name))
+          increment_queue_label p_tail, i_tail, array_element_size, i_head_begin, qsize
+          rts
+.endproc
+.endmacro
+;;; H = T => empty
+;;; H-T = size
+;;; H=end, t=begin => a full queue

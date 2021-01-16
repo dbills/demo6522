@@ -11,6 +11,7 @@ SCRROWS = 23 / 2
 YMAX = SCRROWS * 16
 .define SCRCOLS 22
 XMAX = SCRCOLS * 8
+.define LINEMAX 176
 .define DEBUG_SCREEN $2000
 DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)
 ;;; you can't really set this higher than $1000
@@ -109,7 +110,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           sta $900f
 .endmacro
           ;; border
-          .macro bcolor_i _1
+.macro bcolor_i _1
           lda $900f
           and #%11111000
           ora #_1 & %00000111

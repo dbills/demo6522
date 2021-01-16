@@ -1,21 +1,8 @@
 TODO:
-  12/25: working on general render routine
-  the render selector embedded from the genline routine
-  can be the same as the enum
-
-  questions: should I store the lines
-  in their actual 'long axis' locations in the line
-  buffer or set to zero
-  
-  there is no advantage to putting them in place
-  since it's unlikely I'll be able to use the Y
-  register ( the plot routine uses it )
-
-  I could use the x register?
-  store the long_axis start, long_axis end
-  values in the line_data struct
-  then you can initialize x with the correct
-  value and cpx against it
-
-  need to alter genline.mac to write out
-  long_axis_start
+  1/16
+  working on a queue data structure
+  new missiles start at the head
+  meanwhile when a missile is terminated
+  the dead pointer moves
+  to update active missiles we only need to
+  walk from dead to head and draw them

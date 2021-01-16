@@ -1,19 +1,21 @@
-          .include   "screen.inc"
-          .include   "zerop.inc"         ;must be near top
-          .include   "timer.inc"
-          .include   "m16.mac"
-          .include   "colors.equ"
-          .include   "line.inc"
-          .include   "math.mac"
-          .include   "system.mac"
-          .include   "jstick.inc"
-          .include   "kplane.mac"
-          .include   "target.inc"
-          .include   "sprite.inc"
-          .include   "text.inc"
-          .include   "debugscreen.inc"
-          .include   "shapes.inc"
-          .include   "playfield.inc"
+.include "screen.inc"
+.include "zerop.inc"         ;must be near top
+.include "timer.inc"
+.include "m16.mac"
+.include "colors.equ"
+.include "line.inc"
+.include "math.mac"
+.include "system.mac"
+.include "jstick.inc"
+.include "kplane.mac"
+.include "target.inc"
+.include "sprite.inc"
+.include "text.inc"
+.include "debugscreen.inc"
+.include "shapes.inc"
+.include "playfield.inc"
+.include "interceptor.inc"
+.include "queue.inc"
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE
@@ -38,8 +40,10 @@
           jsr i_debug_screen
 
           jsr draw_cities
-          ;jsr main_loop
-          jsr line_tests
+          jsr interceptor::in_initialize
+          jsr init_lines
+          jsr main_loop
+          ;jsr line_tests
           ;jsr queue_tests
           jmp loop
 ;          debug_string "missilecommandtheend"
@@ -97,6 +101,7 @@ iloop:
           bne iloop
           rts
 .endproc
+
 .proc     main_loop
           lda #SCRROWS*16/2
           sta s_y
@@ -106,6 +111,8 @@ iloop:
           sp_draw crosshair
 loop:
           jsr wait_v
+          bcolor_i CYAN
+          jsr interceptor::in_updateall
           ldx #S_TARGET
           sp_draw crosshair             ;erase
 
@@ -115,6 +122,8 @@ loop:
           ldx #S_TARGET
           sp_draw crosshair             ;draw
 
+
+          bcolor_i BLACK
           jmp loop
           rts
 .endproc
@@ -139,9 +148,6 @@ loop:
           rts
 .endproc
 
-.proc     find_free_lines
-.endproc
-
 .proc     line_tests
           jsr init_lines
 
@@ -163,13 +169,4 @@ loop:
 .endrepeat
           jmp loop
           rts
-.endproc
-.include "queue.inc"
-.export queue_tests
-.proc queue_tests
-          jsr iqueue
-          mov #$abcd,_lstore
-          jsr enqueue
-          mov #0, _lstore
-          jsr dequeue
 .endproc

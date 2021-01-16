@@ -3,8 +3,8 @@ BNAME=`basename $1 .asm`
 DNAME=`dirname $1`
 MNAME=$DNAME/$BNAME.mac
 INAME=$DNAME/$BNAME.inc
-#echo $1 $BNAME 
-sed -ne '/.export/ s/.export/.import/p' $1 > $INAME
+#echo $1 $BNAME
+sed -ne '/.scope/p;/[.]export/ s/.export/.import/p' $1 > $INAME
 if [ -f $MNAME ]
 then
     echo ".include \"$MNAME\"" >> $INAME

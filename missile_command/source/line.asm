@@ -16,9 +16,9 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_general_render
-.export line_types, long_axis_start_values, long_axis_lengths, line_data_indices, long_axis_current_values,_iline,_partial_render
-.export line_data01,line_data02,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30,line_data31,line_data32,line_data33,line_data34,line_data35,line_data36,line_data37,line_data38,line_data39,line_data40,line_data41,line_data42,line_data43,line_data44,line_data45,line_data46,line_data47,line_data48,line_data49,line_data50,line_data51,line_data52,line_data53,line_data54,line_data55,line_data56,line_data57,line_data58,line_data59,line_data60
+.export _genline,_general_render,_partial_render
+.export line_types, long_axis_start_values, long_axis_lengths, line_data_indices, long_axis_current_values,_iline
+.export line_data01,line_data02,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
 .ZEROPAGE
 line_type:
 err:        .res 1
@@ -47,7 +47,7 @@ _iline:     .res 1
 LINE_NUMBER .set 0
 .repeat MAX_LINES
   LINE_NUMBER .set LINE_NUMBER + 1
-  .ident (.sprintf ("line_data%02d", LINE_NUMBER)): .res 176
+  .ident (.sprintf ("line_data%02d", LINE_NUMBER)): .res LINEMAX
 .endrepeat
 line_types:               .res MAX_LINES
 long_axis_start_values:   .res MAX_LINES

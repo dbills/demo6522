@@ -18,7 +18,7 @@ p_next:
 next:
           .byte 0
 p_active:
-          .word 0
+          .word line_data01
 active:
           .byte 0
 p_erased:
@@ -37,26 +37,16 @@ declare_queue_operations "interceptor", \
                          30, LINEMAX
 .proc     in_updateall
 
-          LINE_NUMBER .set 0
-.repeat MAX_LINES
-          LINE_NUMBER .set LINE_NUMBER + 1
-          mov #.ident (.sprintf ("line_data%02d", LINE_NUMBER)),_lstore
-          ldx #LINE_NUMBER-1
+          mov p_active,_lstore
+          ldx active
+loop:
           jsr _partial_render
-.endrepeat
-
-;; loop:
-;;           mov p_active,_lstore
-;;           ldx  active
-
-;;           jsr _partial_render
-
-;;           lda active
-;;           cmp next
-;;           beq done
-;;           next_line p_active,active
-;;           jmp loop
-;; done:
+          cpx next
+          beq done
+          inx
+          add #LINEMAX,_lstore
+          jmp loop
+done:
           rts
 .endproc
 

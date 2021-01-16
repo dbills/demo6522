@@ -11,8 +11,8 @@
 ;;; screen columns
 .proc     i_pltbl
           ldy #SCADDR_SZ - 1
-          movi SCADDR, ptr_0
-loop:     
+          mov #SCADDR, ptr_0
+loop:
           lda (ptr_0),y
           sta pltbl,y
           dey
@@ -20,13 +20,13 @@ loop:
           rts
 .endproc
 
-.proc     _plot 
+.proc     _plot
           plotm lda _pl_x
           rts
 .endproc
 
 .DATA
-SCADDR:     
+SCADDR:
 ;;; screen column addresses for chargen ram
 ;;; on the hi-res screen
 ;;; column 0 would be start in chram for 'A'
@@ -37,12 +37,12 @@ COL       .set 0
           .word CHBASE1 + (COL * SCRROWS * CHARHT)
 COL       .set COL + 1
           .endrep
-SCADDR_SZ = * - SCADDR 
+SCADDR_SZ = * - SCADDR
 ;;; predefined bytes for each of the 8
 ;;; possible bit positions, starting with
 ;;; bit 7 -> bit 0 on
 ;;; for dy>dx line drawing
-BMASKS:     
+BMASKS:
 BPOS      .set 128
           .repeat 8
           .byte BPOS
@@ -60,18 +60,17 @@ BPOS      .set BPOS >> 1
 ;;; etc ...
 ;;; except the height is 11 and not 3 in the
 ;;; example
-_SCRMAP:  
-SCRMAP:     
+_SCRMAP:
+SCRMAP:
 ROW       .set 0
           .repeat SCRROWS
 COL       .set 0
             .repeat SCRCOLS
             .byte ROW + COL * SCRROWS
-COL         .set COL + 1          
+COL         .set COL + 1
             .endrep
-ROW       .set ROW + 1          
+ROW       .set ROW + 1
           .endrep
-SCRMAP_SZ:   
+SCRMAP_SZ:
           .byte * - SCRMAP
 .export SCADDR,SCRMAP,_SCRMAP,SCRMAP_SZ
-

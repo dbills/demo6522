@@ -22,7 +22,7 @@
 .proc     demo
           ;; enabling interrupts really pisses the system off with
           ;; the screen and character configs I have
-          movi MINISR, $0314
+          mov #MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
           cli
 
@@ -77,7 +77,7 @@ loop:
 ;;; clear ram allocated to custom
 ;;; character set
 .proc     i_chrset
-          movi CHBASE1, ptr_0
+          mov #CHBASE1, ptr_0
           ldy #0
           ldx #16                       ;# of pages
           lda #0                        ;AA is nice

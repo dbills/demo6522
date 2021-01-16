@@ -31,13 +31,6 @@
           sta [_1]+1             ;... and store the result    clc
           .endmacro
 
-          .macro add _1,_2
-          clc 
-          lda _1
-          adc _2
-          sta _1
-          .endmacro
-
           .macro sub _1,_2
           sec
           lda _1
@@ -91,7 +84,7 @@
           lda _1+1        ;add the two most significant bytes
           adc #0             ;... and any propagated carry bit
           sta _3+1        ;... and store the result    clc
-          .endmacro  
+          .endmacro
 
           .macro mul16
           asl

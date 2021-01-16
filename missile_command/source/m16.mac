@@ -33,12 +33,24 @@ done:
             sta dst+1
 .endif
 .endmacro
-;;; move word immediate
-.macro      movi _1,_2
-            lda #.LOBYTE(_1)   ; load low byte
-            sta _2             ; store low byte
-            lda #.HIBYTE(_1)   ; load high byte
-            sta _2+1           ; store high byte
+.macro      add src, dst
+.if (.match (.left (1, {src}), #))
+            lda #<(.right (.tcount ({src})-1, {src}))
+            clc
+            adc dst
+            sta dst
+            lda #>(.right (.tcount ({src})-1, {src}))
+            adc dst+1
+            sta dst+1
+.else
+            lda src
+            clc
+            adc dst
+            sta dst
+            lda src+1
+            adc dst+1
+            sta dst+1
+.endif
 .endmacro
 ;;; compare word
 ;;; _1 may be immediate or direct

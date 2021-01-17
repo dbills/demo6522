@@ -1,10 +1,10 @@
-.export i_joy, j_wfire,  j_tup, j_read
+.export i_joy, j_wfire,  j_tup, j_read,LASTJOY
 .include "jstick.mac"
 .include "system.mac"
           .ZEROPAGE
 LASTJOY:  .res 1
           .CODE
-.proc     i_joy 
+.proc     i_joy
           lda #127
           sta VIA2DDR             ;setup VIA for joystick read
 
@@ -15,12 +15,12 @@ LASTJOY:  .res 1
 ;;; waits for joystick to be pressed
 ;;; and released
 .proc     j_wfire
-loop:     
+loop:
           jsr j_read
           cmp #JOYT
           beq fire
           jmp loop
-fire:     
+fire:
           jsr j_tup
           rts
 .endproc
@@ -31,7 +31,7 @@ loop1:
           and #bJOYT
           bne fire
           beq loop1
-fire:       
+fire:
           rts
 .endproc
 ;;; read joystick value into single byte
@@ -39,15 +39,15 @@ fire:
 ;;; OUT: A=LASTJOY=joystick value
 ;;; joystick bits are clear when the direction
 ;;; is pressed
-;;; 
+;;;
 ;;; 10011100
-.proc     j_read 
+.proc     j_read
           lda JOY0
           and #%111100
           sta LASTJOY
           lda JOY0B
           and #$80
           ora LASTJOY             ;or in bit 7 as jstick right bit
+          sta LASTJOY
           rts
-.endproc          
-
+.endproc

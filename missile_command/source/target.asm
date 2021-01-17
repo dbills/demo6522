@@ -5,8 +5,12 @@
 .include "zerop.inc"
 .include "screen.inc"
 .include "interceptor.inc"
+.include "zerop.inc"
 .import _ldata1
 .export   move_crosshairs
+.data
+trigger_count:      .byte 0
+.code
 
           .macro mov_l
           .local done
@@ -46,6 +50,21 @@ done:
 
 .proc     move_crosshairs
           jsr j_read
+          and #bJOYT
+          bne notrigger
+          lda trigger_count
+          ora #1
+          sta trigger_count
+          jmp directions
+notrigger:
+          lda trigger_count
+          beq directions
+          lda #0
+          sta trigger_count
+          jsr interceptor::in_launch
+directions:
+          lda LASTJOY
+          ora #bJOYT
           cmp #JOYU
           beq joyu
           cmp #JOYD
@@ -62,10 +81,6 @@ done:
           beq joydl
           cmp #JOYR & JOYD
           beq joyrd
-          cmp #JOYT
-          beq joyt
-          cmp #JOYT & JOYR
-          beq joyrt
           rts
 joyrd:
           mov_r

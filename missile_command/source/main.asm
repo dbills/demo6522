@@ -16,15 +16,22 @@
 .include "playfield.inc"
 .include "interceptor.inc"
 .include "queue.inc"
+.include "sound.inc"
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE
 .proc     demo
           ;; enabling interrupts really pisses the system off with
           ;; the screen and character configs I have
-          mov #MINISR, $0314
+          sei
+          ;; load countdown value into via 2, timer1 latch
+          ;; mov #HZ400, $9124
+          mov #sound_interrupt, $0314
+          ;mov #MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
           cli
+          lda #8
+          sta 36878
 
           jsr i_pltbl
           jsr i_chrset
@@ -33,11 +40,13 @@
           screenmem SCREEN
 
           ;; border colors
-          invmode 0
-          bcolor_i BLUE
-          scolor_i PURPLE
+          invmode 1
+          bcolor_i GREEN
+          scolor_i BLACK
 
           jsr i_debug_screen
+
+          jsr sound_init
 
           jsr draw_cities
           jsr interceptor::in_initialize
@@ -66,7 +75,7 @@ loop:
           ;; fill screen with chars tile
           ;; pattern
 loop:
-          lda #BLUE
+          lda #YELLOW
           sta CLRRAM-1,y
           lda SCRMAP-1,y
           sta SCREEN-1,y

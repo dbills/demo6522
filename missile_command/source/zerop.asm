@@ -20,7 +20,7 @@ save_y:     .res 1
 sleep_t:    .res 1
 _pl_x:      .res 1
 _pl_y:      .res 1
-LASTJOY:    .res 1
+XLASTJOY:    .res 1
 s_x:        .res 1
 s_y:        .res 1
 s_src:      .res 1

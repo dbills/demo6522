@@ -1,6 +1,11 @@
 ;;; manage a templatized queue consisting
 ;;; of a byte and a word pointer
 ;;; for both tail and head
+
+;;; H = T => empty
+;;; H-T = size
+;;; H=end, t=begin => a full queue
+
 .include "m16.mac"
 debug = 1
 .struct PointerQueue
@@ -55,7 +60,8 @@ done:
 .macro declare_queue_operations queue_name, i_head, i_tail, \
                                 p_head, p_tail, \
                                 p_head_begin, i_head_begin, \
-                                qsize, array_element_size
+                                qsize, array_element_size, \
+                                p_iterator, routine
 
 .export .ident (.sprintf ("queue_init_%s", queue_name))
 .proc .ident (.sprintf ("queue_init_%s", queue_name))
@@ -82,7 +88,18 @@ done:
           increment_queue_label p_tail, i_tail, array_element_size, i_head_begin, qsize
           rts
 .endproc
+.export .ident (.sprintf ("queue_iterate_%s", queue_name))
+.proc .ident   (.sprintf ("queue_iterate_%s", queue_name))
+          mov p_tail, p_iterator
+          ldx i_tail
+loop:
+          jsr routine
+          cpx i_head
+          beq done
+          inx
+          add #LINEMAX,p_iterator
+          jmp loop
+done:
+          rts
+.endproc
 .endmacro
-;;; H = T => empty
-;;; H-T = size
-;;; H=end, t=begin => a full queue

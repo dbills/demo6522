@@ -21,7 +21,12 @@ Q:
 
 declare_queue_operations "borda" ,i_qhead,i_qtail,\
                           p_qhead,p_qtail,\
-                          Q,0,1,2
+                          Q,0,1,2,\
+                          _lstore, donothing
+
+.proc donothing
+          rts
+.endproc
 
 .proc queue_tests
           jsr queue_init_borda

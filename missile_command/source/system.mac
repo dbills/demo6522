@@ -5,9 +5,20 @@ VICSCRN     = $9005             ; vic chip character generator pointer
 LIGHPENX    = $9006             ; used for random number
 VIA1DDR     = $9113
 VIA2DDR     = $9122             ; ?
-JIFFYL      = $a2          
+JIFFYL      = $a2
 DEFISR      = $eabf             ; os default IRQ
 MINISR      = $eb15             ; the minimum isr ( no keyboard polling o
+;;; some frequency constants
+;;; 1MHz = 1/1,000,000s
+;;; x = 1e06/120 => x = 8333 cycles
+HZ800       = $4e2
+HZ300       = $d05
+HZ200       = $1388
+HZ400       = $9c4
+HZ120       = $208d           ; 1/120th
+HZ30        = $8235           ; 1/30th
+HZ60        = $411A           ; 1/60th
+HZ16        = $f424           ; 1/16th
 .macro      saveall
             pha
             txa
@@ -25,9 +36,9 @@ MINISR      = $eb15             ; the minimum isr ( no keyboard polling o
 .endmacro
 .macro      pushw ptr
             lda ptr
-            pha 
+            pha
             lda ptr+1
-            pha 
+            pha
 .endmacro
 .macro      popw ptr
             pla
@@ -37,8 +48,14 @@ MINISR      = $eb15             ; the minimum isr ( no keyboard polling o
 .endmacro
 .macro      waitv
             .local iloop
-iloop:      
+iloop:
             lda VICRASTER           ;load raster line
             bne iloop
+.endmacro
+.macro sleep t
+          saveall
+          ldx #t
+          jsr _sleep
+          resall
 .endmacro
 .endif

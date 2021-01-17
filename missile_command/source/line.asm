@@ -1,4 +1,4 @@
-.include  "screen.inc"
+.include "screen.inc"
 .include "zerop.inc"
 .include "m16.mac"
 .include "text.inc"
@@ -171,19 +171,6 @@ s8:
           rts
 .endproc
 
-.macro sleep t
-          saveall
-          ldx #t
-          jsr _sleep
-          resall
-.endmacro
-.proc _sleep
-loop:
-          waitv
-          dex
-          bne loop
-          rts
-.endproc
 .include "renderline.mac"
 ;;; right now, all the render routines
 ;;; start at buffer end and go toward
@@ -251,6 +238,7 @@ s8:
 .proc _partial_render
           lda line_data_indices,x
           bne draw
+          ;; erase the line
           rts
 draw:
           _general_render_template render_partial_line

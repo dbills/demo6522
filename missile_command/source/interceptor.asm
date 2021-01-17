@@ -36,7 +36,7 @@ declare_queue_operations "interceptor", \
                          p_next, p_active,\
                          line_data01,0,\
                          30, LINEMAX,\
-                         _lstore, _partial_render
+                         _lstore, update_interceptor
 .proc     in_updateall
           jsr queue_iterate_interceptor
           rts
@@ -63,6 +63,17 @@ declare_queue_operations "interceptor", \
 ;          next_line p_next,next
 empty:
           rts
+.endproc
+;;; called by the queue iterator function we declared
+;;; IN:
+;;;   X: line index
+.proc update_interceptor
+          ;; check if this interceptor is still active
+          lda line_data_indices,x
+          bne active
+          rts
+active:
+          jmp render_single_pixel
 .endproc
 
 .endscope

@@ -93,12 +93,15 @@ done:
           mov p_tail, p_iterator
           ldx i_tail
 loop:
-          jsr routine
+          ;; do we have items?
           cpx i_head
           beq done
-          inx
+          ;; execute callback
+          jsr routine
+          ;; next item
           add #LINEMAX,p_iterator
-          jmp loop
+          inx
+          bne loop                      ; => jmp
 done:
           rts
 .endproc

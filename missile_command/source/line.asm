@@ -16,7 +16,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_general_render,_partial_render
+.export _genline,_general_render,_partial_render,render_single_pixel
 .export line_types, long_axis_start_values, long_axis_lengths, line_data_indices, long_axis_current_values,_iline
 .export line_data01,line_data02,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
 .ZEROPAGE
@@ -172,11 +172,14 @@ s8:
 .endproc
 
 .include "renderline.mac"
-;;; right now, all the render routines
-;;; start at buffer end and go toward
-;;; beginning - loop direction will have to be rewritten
-;;; to change this
+;;; dynamically determine which of the 8 line
+;;; rendering strategies are needed and apply
+;;; a routine with correct arguments
+;;; IN:
+;;;   render_type: the routine to apply
+;;;   X: index of line
 .macro    _general_render_template render_type
+.local s0,s1,s2,s3,s4,s5,s6,s7,s8
           lda line_types,x
 s0:
           cmp #line_type::q1_steep
@@ -236,10 +239,14 @@ s8:
 .endproc
 
 .proc _partial_render
+          ;; check if line is still in progress
           lda line_data_indices,x
           bne draw
-          ;; erase the line
           rts
 draw:
+          _general_render_template render_partial_line
+.endproc
+
+.proc render_single_pixel
           _general_render_template render_partial_line
 .endproc

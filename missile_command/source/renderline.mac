@@ -1,4 +1,4 @@
-.include "screen.mac"
+          .include "screen.mac"
 .macro render_line_data xdirection, ydirection, slope
 .local loop, short_axis, long_axis, iterator
 .if (.xmatch ({slope}, steep))
@@ -34,7 +34,7 @@ loop:
           dey
           bne loop
 .endmacro
-
+;;; render a single pixel of a line
 .macro render_partial_line xdirection, ydirection, slope
 .local loop, short_axis, long_axis, iterator
 .if (.xmatch ({slope}, steep))

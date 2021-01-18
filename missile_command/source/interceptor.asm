@@ -5,6 +5,7 @@
 .include "zerop.inc"
 .include "queue.mac"
 .include "sound.inc"
+.include "debugscreen.inc"
 
 .scope interceptor
 .export in_initialize,in_launch,in_updateall
@@ -54,13 +55,11 @@ declare_queue_operations "interceptor", \
 
           mov p_next,_lstore
           ldx next
-          lineto #base_x,#base_y,_x2,_y2
-          ldx next
-          cpx #30
+          cpx #29
           beq empty
+          lineto #base_x,#base_y,_x2,_y2
           jsr enqueue_interceptor
           jsr missile_away
-;          next_line p_next,next
 empty:
           rts
 .endproc
@@ -71,9 +70,14 @@ empty:
           ;; check if this interceptor is still active
           lda line_data_indices,x
           bne active
+
+          jsr _general_render
+          jsr dequeue_interceptor
           rts
 active:
           jmp render_single_pixel
 .endproc
 
+.proc     erase_line
+.endproc
 .endscope

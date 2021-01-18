@@ -230,12 +230,14 @@ s7:
           render_type reverse,reverse,shallow
           rts
 s8:
-          dbgmsg 'Q',#1
+          sta debugb
+          dbgmsg 'Q', debugb
           rts
 .endmacro
 
 .proc _general_render
           _general_render_template render_line_data
+          rts
 .endproc
 
 .proc _partial_render

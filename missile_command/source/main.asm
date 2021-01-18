@@ -158,24 +158,9 @@ loop:
 .endproc
 
 .proc     line_tests
-          jsr init_lines
-
           mov #line_data01,_lstore
-          ldx #0
           lineto #176/2,#176-26,#70,#50
-
-          mov #line_data02,_lstore
-          ldx #1
-          lineto #176/2,#176-16,#150,#10
-
-loop:
-          LINE_NUMBER .set 0
-.repeat MAX_LINES
-          LINE_NUMBER .set LINE_NUMBER + 1
-          mov #.ident (.sprintf ("line_data%02d", LINE_NUMBER)),_lstore
-          ldx #LINE_NUMBER-1
-          jsr _partial_render
-.endrepeat
-          jmp loop
+          ldx #0
+          jsr _general_render
           rts
 .endproc

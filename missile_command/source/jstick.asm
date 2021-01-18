@@ -1,9 +1,10 @@
-.export i_joy, j_wfire,  j_tup, j_read,LASTJOY
+.export i_joy, j_wfire,  j_tup, j_read
+.exportzp LASTJOY
 .include "jstick.mac"
 .include "system.mac"
-          .ZEROPAGE
+.zeropage
 LASTJOY:  .res 1
-          .CODE
+.code
 .proc     i_joy
           lda #127
           sta VIA2DDR             ;setup VIA for joystick read

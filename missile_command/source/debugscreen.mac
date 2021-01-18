@@ -1,5 +1,6 @@
 .ifndef _DEBUGSCREEN_H
 _DEBUGSCREEN_H = 1
+.include "system.mac"
 .macro    dbgmsg msgchar, b
           saveall
           lda #msgchar-'A'+1

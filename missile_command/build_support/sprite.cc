@@ -73,16 +73,17 @@ int main(int argc, char **argv) {
         }
         //fprintf(stderr,"\n");
         if(!mode) {
-            printf("%02x,%02x,%02x",vbytes[0][row],vbytes[1][row],vbytes[2][row]);
+            printf("$%x: $%02x,$%02x,$%02x",row,vbytes[0][row],vbytes[1][row],vbytes[2][row]);
             printf("\n");
         }
     }
     if(mode) {
-        printf("%s_%1.0f:\n",argv[1],r);
-        printf("  .byte $%x\n",(int)r*2-1);
+        int height = (int)r*2-1;
+        printf("%s_%1.0f_shift%d:\n",argv[1],r,shift);
+        printf("  .byte $%x\n", height);
         for(int col=0;col<3;col++) {
-            printf("%s_%1.0f_%d:\n",argv[1],r,col);
-            for(int row=0;row<16;row++) {
+            printf("%s_%1.0f_shift%d_strip%d:\n",argv[1],r,shift,col);
+            for(int row=0;row<height;row++) {
                 printf("  .byte $%02x\n",vbytes[col][row]);
             }
         }

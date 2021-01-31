@@ -74,9 +74,9 @@ done:
             ;; ptr_1 is right half of sprite
             rts
 .endproc
-.macro      calculate_hires_pointers16
+.macro      calculate_hires_pointers16 _1
             jsr calculate_hires_pointers
-            ;; put a third CHRAM pointer
+            ;; put a third CHRAM pointer in _1
             iny
             lda pltbl,y
             sta _1
@@ -149,14 +149,49 @@ loop:
             bne loop
             rts
 .endproc
+.bss
+sprite_height: .res 1
+.code
+.macro      add_sprite_height src,dst
+            lda src
+            clc
+            adc sprite_height
+            sta dst
+            lda src+1
+            adc #0
+            sta dst+1
+.endmacro
 ;;; 16 pixel wide, variable height
 ;;; sprites, preshifted
+;;; in:
 .proc       draw_sprite16
-;            jsr calculate_hires_pointers16 ptr_4
+sp_src0 = smc0 + 1
+sp_src1 = smc1 + 1
+sp_src2 = smc2 + 1
+            ;; calculate screen column pointer
+            ;; and adjustped sprite source data base pointer
+            ldy #0
+            lda (ptr_0),y
+            sta sprite_height
+            calculate_hires_pointers16 ptr_4
+            ;; setup three strips of bytes to copy to screen
+            mov ptr_0,sp_src0
+            add_sprite_height ptr_0, sp_src1
+            add_sprite_height sp_src1, sp_src2
+
             ldy _pl_y
-            lda (ptr_2),y
-            sta (ptr_0),y
-            sta (ptr_1),y
-            sta (ptr_4),y
+            ldx sprite_height           ;loop counter
+loop:
+smc0:
+            lda 0,y
+            sta (sp_col0),y
+smc1:
+            lda 0,y
+            sta (sp_col1),y
+smc2:
+            lda 0,y
+            sta (sp_col2),y
+            dex
+            bpl loop
             rts
 .endproc

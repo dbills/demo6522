@@ -1,6 +1,6 @@
 .include "screen.inc"
 .include "zerop.mac"
-.exportzp ptr_0,ptr_1,ptr_2,ptr_3,pltbl,save_y,_pl_x,_pl_y,s_x,s_y,ptr_string,sleep_t,debugb,ptr_4
+.exportzp ptr_0,ptr_1,ptr_2,ptr_3,pltbl,save_y,_pl_x,_pl_y,s_x,s_y,ptr_string,sleep_t,debugb,ptr_4,sp_col0,sp_col1,sp_col2
 ;;; place me last in the 'main' includes
 ;;; I allocate space for arrays allocated in zp
 ;;; using variables that subsytem modules may have incremented
@@ -12,7 +12,9 @@
 pltbl:      .REPEAT SCRCOLS
             .res 2
             .ENDREPEAT
+sp_col0:                                ;sprite screen column 0
 ptr_0:      .res 2                      ;plot used
+sp_col1:                                ;sprite screen column 1
 ptr_1:      .res 2
 ptr_2:      .res 2                      ;sp_draw
 ptr_3:      .res 2                      ;sprite
@@ -29,5 +31,6 @@ s_src:      .res 1
 ;;; attacking zero page?
 unused:     .res 3
 ptr_string: .res 2
+sp_col2:                                ;sprite screen column 2
 ptr_4:      .res 2
 .CODE

@@ -51,6 +51,8 @@
           jsr draw_cities
           jsr interceptor::in_initialize
           jsr init_lines
+.import test_explosion
+          jsr test_explosion
           jsr main_loop
           ;jsr line_tests
           ;jsr queue_tests

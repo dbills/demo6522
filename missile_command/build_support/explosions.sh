@@ -1,4 +1,5 @@
 # generate explosion graphics
+echo ".data"
 width=1
 while [ $width -lt 9 ];do
     shift=0

@@ -2,6 +2,7 @@
 .include "shapes.inc"
 .include "zerop.inc"
 .include "m16.mac"
+.include "detonation_graphics.inc"
 .export calculate_hires_pointers,create_sprite_line,draw_sprite,draw_unshifted_sprite
 .export left_byte,right_byte,shift,height
 .data
@@ -83,7 +84,6 @@ done:
             iny
             lda pltbl,y
             sta _1+1
-            rts
 .endmacro
 ;;; draw sprite at s_x,x s_y,x
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
@@ -169,14 +169,15 @@ sp_src0 = smc0 + 1
 sp_src1 = smc1 + 1
 sp_src2 = smc2 + 1
             ;; calculate screen column pointer
-            ;; and adjustped sprite source data base pointer
+            ;; and adjusted sprite source data base pointer
             ldy #0
             lda (ptr_0),y
             sta sprite_height
-            calculate_hires_pointers16 ptr_4
+            incw ptr_0
+            calculate_hires_pointers16 sp_col2
             ;; setup three strips of bytes to copy to screen
-            mov ptr_0,sp_src0
-            add_sprite_height ptr_0, sp_src1
+            mov ptr_2,sp_src0
+            add_sprite_height sp_src0, sp_src1
             add_sprite_height sp_src1, sp_src2
 
             ldy _pl_y
@@ -191,7 +192,19 @@ smc1:
 smc2:
             lda 0,y
             sta (sp_col2),y
+            iny
             dex
-            bpl loop
+            bne loop
+            rts
+.endproc
+.export     test_explosion
+.proc       test_explosion
+                                        ;explosion_8_shift0:
+                                        ;explosion_8_shift0_strip0:
+            mov #explosion_8_shift0, ptr_0
+            lda #0
+            sta s_x
+            sta s_y
+            jsr draw_sprite16
             rts
 .endproc

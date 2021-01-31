@@ -80,8 +80,10 @@ int main(int argc, char **argv) {
     if(mode) {
         int height = (int)r*2-1;
         printf("%s_%1.0f_shift%d:\n",argv[1],r,shift);
+        printf(".export %s_%1.0f_shift%d\n",argv[1],r,shift);
         printf("  .byte $%x\n", height);
         for(int col=0;col<3;col++) {
+            printf(".export %s_%1.0f_shift%d_strip%d\n",argv[1],r,shift,col);
             printf("%s_%1.0f_shift%d_strip%d:\n",argv[1],r,shift,col);
             for(int row=0;row<height;row++) {
                 printf("  .byte $%02x\n",vbytes[col][row]);

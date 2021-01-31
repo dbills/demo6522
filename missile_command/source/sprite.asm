@@ -22,12 +22,12 @@ scratch:    .byte 0
             sta right_byte
             ldx shift
             beq done
-loop:       
+loop:
             lsr left_byte
             ror right_byte
             dex
             bne loop
-done:       
+done:
             rts
 .endproc
             ;; preshifted sprite drawing
@@ -35,7 +35,7 @@ done:
             ;; s_y: Y coordinate
             ;; input:
             ;;   ptr_0: point to sprite source data
-            ;; output: 
+            ;; output:
             ;;   ptr_0 pointer to CHRAM column left tile
             ;;   ptr_1 pointer to CHRAM column right tile
             ;;   ptr_2 adjusted pointer to sprite source
@@ -50,7 +50,8 @@ done:
             sta ptr_2+1
             ;; divide by 8, multiply by 2
             ;; to get screen character column
-            ;; pointer from table 
+            ;; pointer from table, i.e. shift right
+            ;; twice and clear low bit
             lda s_x
             lsr
             lsr
@@ -72,11 +73,22 @@ done:
             sta ptr_1 + 1
             ;; ptr_1 is right half of sprite
             rts
-.endproc    
+.endproc
+.macro      calculate_hires_pointers16
+            jsr calculate_hires_pointers
+            ;; put a third CHRAM pointer
+            iny
+            lda pltbl,y
+            sta _1
+            iny
+            lda pltbl,y
+            sta _1+1
+            rts
+.endmacro
 ;;; draw sprite at s_x,x s_y,x
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
 ;;; sprite source data ( left and right side ) ptr0,1,2,3
-;;; 
+;;;
 .proc     draw_sprite
           jsr calculate_hires_pointers
 
@@ -93,13 +105,13 @@ done:
 
           ldy s_y
           ldx #8
-loop1:      
+loop1:
           lda (ptr_1),y
           eor (ptr_3),y
           sta (ptr_1),y
 
           lda (ptr_0),y
-          eor (ptr_2),y       
+          eor (ptr_2),y
           sta (ptr_0),y
 
           iny
@@ -121,11 +133,11 @@ loop1:
             ;adc #7
             adc height
             sta scratch
-loop:       
+loop:
             modulo8 s_x
             sta shift
             lda (ptr_2),y
-        	jsr create_sprite_line  
+        	jsr create_sprite_line
             lda left_byte
             eor (ptr_0),y
             sta (ptr_0),y
@@ -135,5 +147,16 @@ loop:
             iny
             cpy scratch
             bne loop
+            rts
+.endproc
+;;; 16 pixel wide, variable height
+;;; sprites, preshifted
+.proc       draw_sprite16
+;            jsr calculate_hires_pointers16 ptr_4
+            ldy _pl_y
+            lda (ptr_2),y
+            sta (ptr_0),y
+            sta (ptr_1),y
+            sta (ptr_4),y
             rts
 .endproc

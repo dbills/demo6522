@@ -113,8 +113,4 @@ joyl:
 joyt:
           jsr j_tup
           jmp interceptor::in_launch
-joyrt:
-          jsr interceptor::in_launch
-          mov_r
-          rts
 .endproc

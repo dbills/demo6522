@@ -66,6 +66,45 @@ loop:
 
 .data
 missile_away_table:
+.byte 235
+.byte 235
+.byte 234
+.byte 234
+.byte 234
+.byte 234
+.byte 234
+.byte 233
+.byte 233
+.byte 233
+.byte 232
+.byte 232
+.byte 231
+.byte 231
+.byte 230
+.byte 229
+.byte 229
+.byte 228
+.byte 227
+.byte 226
+.byte 225
+.byte 224
+.byte 223
+.byte 222
+.byte 221
+.byte 220
+.byte 218
+.byte 217
+.byte 216
+.byte 214
+.byte 213
+.byte 211
+.byte 210
+.byte 208
+.byte 206
+.byte 205
+.byte 203
+.byte 201
+.byte 199
 .byte 230
 .byte 230
 .byte 229

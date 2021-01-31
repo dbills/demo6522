@@ -6,3 +6,15 @@ TODO:
   the dead pointer moves
   to update active missiles we only need to
   walk from dead to head and draw them
+
+  missiles erase now - need to work on missile detonation
+  animations
+  A general framed sprite animation framework could be
+  built, I believe we need 16x16
+
+  sound, make missile away sound long enough for a long missile
+  if we start the detonation sound on a missile end, then that
+  solves the problem to what to do on short missiles
+  next thing to work on is creating a quad_sprite_draw
+  which, I thin is as simpe as widening the loop of bytes
+  to copy from 8 to 16

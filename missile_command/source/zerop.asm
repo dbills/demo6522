@@ -1,6 +1,6 @@
 .include "screen.inc"
 .include "zerop.mac"
-.exportzp ptr_0,ptr_1,ptr_2,ptr_3,pltbl,save_y,_pl_x,_pl_y,s_x,s_y,ptr_string,sleep_t,debugb
+.exportzp ptr_0,ptr_1,ptr_2,ptr_3,pltbl,save_y,_pl_x,_pl_y,s_x,s_y,ptr_string,sleep_t,debugb,ptr_4
 ;;; place me last in the 'main' includes
 ;;; I allocate space for arrays allocated in zp
 ;;; using variables that subsytem modules may have incremented
@@ -29,4 +29,5 @@ s_src:      .res 1
 ;;; attacking zero page?
 unused:     .res 3
 ptr_string: .res 2
+ptr_4:      .res 2
 .CODE

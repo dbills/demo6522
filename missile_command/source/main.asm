@@ -52,7 +52,9 @@
           jsr interceptor::in_initialize
           jsr init_lines
 .import test_explosion
+foo:
           jsr test_explosion
+          jmp foo
           jsr main_loop
           ;jsr line_tests
           ;jsr queue_tests

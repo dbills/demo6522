@@ -154,7 +154,11 @@ loop:
 .endproc
 .bss
 sprite_height: .res 1
+spackle:    .res 1
+spacklator: .res 1
 .code
+spackle1 = %10101010
+spackle2 = %01010101
 .macro      add_sprite_height src,dst
             lda src
             clc
@@ -171,6 +175,8 @@ sprite_height: .res 1
 sp_src0 = smc0 + 1
 sp_src1 = smc1 + 1
 sp_src2 = smc2 + 1
+            lda spackle
+            pha
             ;; calculate screen column pointer
             ;; and adjusted sprite source data base pointer
             ldy #0
@@ -186,18 +192,34 @@ sp_src2 = smc2 + 1
             ldy s_y
             ldx sprite_height           ;loop counter
 loop:
+            lda (sp_col0),y
 smc0:
-            lda 0,y
+            eor 0,y
+            and spackle
             sta (sp_col0),y
+
+            lda (sp_col1),y
 smc1:
-            lda 0,y
+            eor 0,y
+            and spackle
             sta (sp_col1),y
+
+            lda (sp_col2),y
 smc2:
-            lda 0,y
+            eor 0,y
+            and spackle
             sta (sp_col2),y
+
+            lda spackle
+            eor spacklator
+            sta spackle
+
             iny
             dex
             bne loop
+
+            pla
+            sta spackle
             rts
 .endproc
 .linecont
@@ -232,9 +254,38 @@ i_explosion_frame:      .res 1
                                         ;explosion_8_shift0_strip0:
             lda #7
             sta i_explosion_frame
+            lda #$ff
+            sta spackle
+            lda #0
+            sta spacklator
 loop:
-            waitv
+            jsr drawit
+            dec i_explosion_frame
+            bpl loop
 
+            lda #0
+            sta i_explosion_frame
+loop2:
+            lda #$ff
+            sta spacklator
+
+            lda #spackle1
+            sta spackle
+            jsr drawit
+
+            lda #spackle2
+            sta spackle
+            jsr drawit
+
+            lda #7
+            cmp i_explosion_frame
+            beq done
+            inc i_explosion_frame
+            jmp loop2
+done:
+            rts
+.endproc
+.proc       load_src
             lda i_explosion_frame
             asl
             tax
@@ -243,6 +294,10 @@ loop:
             inx
             lda explosion_frame_table,x
             sta ptr_0+1
+            rts
+.endproc
+.proc       drawit
+            jsr load_src
             ;mov #explosion_8_shift0, ptr_0
 
             lda #0
@@ -256,11 +311,9 @@ loop:
             sta s_y
 
             jsr draw_sprite16
+            sleep 30
 
-            jsr j_wfire
-;            jsr draw_sprite16
-
-            dec i_explosion_frame
-            bpl loop
+            jsr load_src
+            jsr draw_sprite16
             rts
 .endproc

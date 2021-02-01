@@ -25,7 +25,7 @@ foo:
 	ca65 foo.S -o foo.o
 	ld65 -o b.p00 -C vic20-32k.cfg -m foo.map foo.o vic20.lib
 
-OBJS=jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o interceptor.o queue.o sound.o system.o detonation_graphics.o
+OBJS=jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o interceptor.o queue.o sound.o system.o detonation_graphics.o detonation.o
 
 graphics:
 	cd ../build_support && g++ sprite.cc -lm

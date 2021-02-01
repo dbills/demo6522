@@ -17,6 +17,7 @@
 .include "interceptor.inc"
 .include "queue.inc"
 .include "sound.inc"
+.include "detonation.inc"
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE

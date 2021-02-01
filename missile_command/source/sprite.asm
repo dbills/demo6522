@@ -2,8 +2,7 @@
 .include "shapes.inc"
 .include "zerop.inc"
 .include "m16.mac"
-.include "detonation_graphics.inc"
-.export calculate_hires_pointers,create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height
+.export calculate_hires_pointers,create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height,draw_sprite16,spacklator,spackle
 .exportzp s_x,s_y
 .zeropage
 s_x:        .res 1
@@ -157,8 +156,6 @@ sprite_height: .res 1
 spackle:    .res 1
 spacklator: .res 1
 .code
-spackle1 = %10101010
-spackle2 = %01010101
 .macro      add_sprite_height src,dst
             lda src
             clc
@@ -220,100 +217,5 @@ smc2:
 
             pla
             sta spackle
-            rts
-.endproc
-.linecont
-explosion_frame_table:
-.word explosion_8_shift0 \
-     ,explosion_7_shift0 \
-     ,explosion_6_shift0 \
-     ,explosion_5_shift0 \
-     ,explosion_4_shift0 \
-     ,explosion_3_shift0 \
-     ,explosion_2_shift0 \
-     ,explosion_1_shift0
-
-.bss
-i_explosion_frame:      .res 1
-.code
-.include "system.inc"
-.include "jstick.inc"
-.export     test_explosion
-.proc       ztest_explosion
-            mov #explosion_1_shift0, ptr_0
-
-            lda #0
-            sta s_x
-            lda #1
-            sta s_y
-            jsr draw_sprite16
-            rts
-.endproc
-.proc       test_explosion
-                                        ;explosion_8_shift0:
-                                        ;explosion_8_shift0_strip0:
-            lda #7
-            sta i_explosion_frame
-            lda #$ff
-            sta spackle
-            lda #0
-            sta spacklator
-loop:
-            jsr drawit
-            dec i_explosion_frame
-            bpl loop
-
-            lda #0
-            sta i_explosion_frame
-loop2:
-            lda #$ff
-            sta spacklator
-
-            lda #spackle1
-            sta spackle
-            jsr drawit
-
-            lda #spackle2
-            sta spackle
-            jsr drawit
-
-            lda #7
-            cmp i_explosion_frame
-            beq done
-            inc i_explosion_frame
-            jmp loop2
-done:
-            rts
-.endproc
-.proc       load_src
-            lda i_explosion_frame
-            asl
-            tax
-            lda explosion_frame_table,x
-            sta ptr_0
-            inx
-            lda explosion_frame_table,x
-            sta ptr_0+1
-            rts
-.endproc
-.proc       drawit
-            jsr load_src
-            ;mov #explosion_8_shift0, ptr_0
-
-            lda #0
-            sta s_x
-            sta s_y
-            ;; an offset is needed since the sprites don't include
-            ;; blank lines
-            lda s_y
-            clc
-            adc i_explosion_frame
-            sta s_y
-
-            jsr draw_sprite16
-            sleep 30
-
-            jsr load_src
-            jsr draw_sprite16
             rts
 .endproc

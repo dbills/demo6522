@@ -6,6 +6,7 @@
 .include "screen.inc"
 .include "interceptor.inc"
 .include "zerop.inc"
+.include "sprite.inc"
 .import _ldata1
 .export   move_crosshairs
 .data

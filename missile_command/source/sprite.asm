@@ -3,8 +3,11 @@
 .include "zerop.inc"
 .include "m16.mac"
 .include "detonation_graphics.inc"
-.export calculate_hires_pointers,create_sprite_line,draw_sprite,draw_unshifted_sprite
-.export left_byte,right_byte,shift,height
+.export calculate_hires_pointers,create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height
+.exportzp s_x,s_y
+.zeropage
+s_x:        .res 1
+s_y:        .res 1
 .data
 left_byte:  .byte 0
 right_byte: .byte 0

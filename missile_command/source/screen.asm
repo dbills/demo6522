@@ -2,8 +2,12 @@
 .include "m16.mac"
 .include "screen.mac"
 .include "system.mac"
+.zeropage
+_pl_x:      .res 1
+_pl_y:      .res 1
 .CODE
 .export _plot,i_pltbl,BMASKS,abort,i_pltbl
+.exportzp _pl_x,_pl_y
 .proc abort
 .endproc
 ;;; initialize the plot table

@@ -6,6 +6,7 @@
 .include "queue.mac"
 .include "sound.inc"
 .include "debugscreen.inc"
+.include "sprite.inc"
 
 .scope interceptor
 .export in_initialize,in_launch,in_updateall

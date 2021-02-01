@@ -3,6 +3,9 @@
 .include "detonation_graphics.inc"
 .include "sprite.inc"
 .include "m16.mac"
+.include "system.inc"
+.include "jstick.inc"
+
 .export test_explosion
 
 spackle1 = %10101010
@@ -21,11 +24,60 @@ explosion_frame_table:
      ,explosion_1_shift0
 
 .bss
+slots = 30
 i_explosion_frame:      .res 1
+iterator:   .res 1
+detonation_x:       .res slots
+detonation_y:       .res slots
+detonation_frame:   .res slots
+active:     .res 30
 .code
-.include "system.inc"
-.include "jstick.inc"
-.export     test_explosion
+
+.proc       detonation_init
+            ldx #slots
+            lda #0
+loop:
+            sta active,x
+            dex
+            bpl loop
+            rts
+.endproc
+
+.proc       queue_explosion
+            ldx #slots
+loop:
+            lda active,x
+            beq available
+            dex
+            bpl loop
+            rts
+available:
+            lda s_x
+            sta detonation_x,x
+            lda s_y
+            sta detonation_y,x
+            lda #7
+            sta detonation_frame,x
+            rts
+.endproc
+
+.proc       draw_explosions
+            ldx #slots
+loop:
+            lda active,x
+            beq next
+            jsr update_explosion
+next:
+            dex
+            bpl loop
+done:
+            rts
+.endproc
+
+.proc       update_explosion
+
+.endproc
+
 .proc       ztest_explosion
             mov #explosion_1_shift0, ptr_0
 

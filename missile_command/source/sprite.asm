@@ -40,7 +40,7 @@ done:
             ;;   ptr_0 pointer to CHRAM column left tile
             ;;   ptr_1 pointer to CHRAM column right tile
             ;;   ptr_2 adjusted pointer to sprite source
-            ;;         s.t. ptr+2 + s_y = sprite_source data
+            ;;         s.t. ptr_2 + s_y = sprite_source data
 .proc       calculate_hires_pointers
             lda ptr_0
             sec
@@ -180,7 +180,7 @@ sp_src2 = smc2 + 1
             add_sprite_height sp_src0, sp_src1
             add_sprite_height sp_src1, sp_src2
 
-            ldy _pl_y
+            ldy s_y
             ldx sprite_height           ;loop counter
 loop:
 smc0:
@@ -197,14 +197,67 @@ smc2:
             bne loop
             rts
 .endproc
+.linecont
+explosion_frame_table:
+.word explosion_8_shift0 \
+     ,explosion_7_shift0 \
+     ,explosion_6_shift0 \
+     ,explosion_5_shift0 \
+     ,explosion_4_shift0 \
+     ,explosion_3_shift0 \
+     ,explosion_2_shift0 \
+     ,explosion_1_shift0
+
+.bss
+i_explosion_frame:      .res 1
+.code
+.include "system.inc"
+.include "jstick.inc"
 .export     test_explosion
+.proc       ztest_explosion
+            mov #explosion_1_shift0, ptr_0
+
+            lda #0
+            sta s_x
+            lda #1
+            sta s_y
+            jsr draw_sprite16
+            rts
+.endproc
 .proc       test_explosion
                                         ;explosion_8_shift0:
                                         ;explosion_8_shift0_strip0:
-            mov #explosion_8_shift0, ptr_0
+            lda #7
+            sta i_explosion_frame
+loop:
+            waitv
+
+            lda i_explosion_frame
+            asl
+            tax
+            lda explosion_frame_table,x
+            sta ptr_0
+            inx
+            lda explosion_frame_table,x
+            sta ptr_0+1
+            ;mov #explosion_8_shift0, ptr_0
+
             lda #0
             sta s_x
             sta s_y
+            ;; an offset is needed since the sprites don't include
+            ;; blank lines
+            lda s_y
+            clc
+            adc i_explosion_frame
+            sta s_y
+
             jsr draw_sprite16
+
+            jsr j_wfire
+;            jsr draw_sprite16
+
+            dec i_explosion_frame
+            bpl loop
             rts
 .endproc

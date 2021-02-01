@@ -50,7 +50,15 @@ int main(int argc, char **argv) {
     int row, col;
     if(!mode)
         printf("765432107654321076543210\n");
-    for(int y=-r+1;y<r;y++) {
+    int lower_bound, upper_bound;
+    if(!mode) {
+        lower_bound=-7;
+        upper_bound=8;
+    } else {
+        lower_bound=-r+1;
+        upper_bound=r;
+    }
+    for(int y=lower_bound;y<upper_bound;y++) {
         double _x = sqrt(pow(r,2)-pow(y,2));
         //int x = floor(_x);
         int x = round(_x);

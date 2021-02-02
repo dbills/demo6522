@@ -80,7 +80,7 @@ available:
             sta detonation_x,x
             lda s_y
             sta detonation_y,x
-            lda #sz_explosion_frame_table
+            lda #sz_explosion_frame_table-1
             sta detonation_frame,x
             rts
 .endproc
@@ -100,16 +100,15 @@ done:
 
 .proc       update_explosion
             lda detonation_frame,x
-            cmp #sz_explosion_frame_table
-            beq never_drawn
-            ;; erase existing
+            bmi draw_once
+            cmp #sz_explosion_frame_table-1
+            beq draw_once
+            ;; erase
             jsr drawit2
-            jmp draw
-never_drawn:
+            ;; update animation frame
             dec detonation_frame,x
-draw:
+draw_once:
             jsr drawit2
-            dec detonation_frame,x
             rts
 .endproc
 
@@ -197,10 +196,10 @@ done:
             sta s_x
             lda detonation_y,x
             clc
-            adc explosion_yoffsets,x
+            ldy detonation_frame,x
+            adc explosion_yoffsets,y
             sta s_y
-
-            lda detonation_frame,x
+            tya
             ;; multiple detonation_frame * 2
             asl
             tay

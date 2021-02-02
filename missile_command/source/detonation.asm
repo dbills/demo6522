@@ -30,11 +30,12 @@ explosion_frame_table:
      ,explosion_3_shift0 \
      ,explosion_2_shift0 \
      ,explosion_8_shift0
-end_explosion_frame_table:
-sz_explosion_frame_table = (end_explosion_frame_table - explosion_frame_table)/2
-;explosion_yoffsets:     .byte 0,1,2,3,4,5,6,7,7,6,5,4,3,2,1,0
+sz_explosion_frame_table = (* - explosion_frame_table)/2
 explosion_yoffsets:     .byte  7,6,5,4,3,2,1,0,0,1,2,3,4,5,6,0
-
+sz_explosion_yoffsets = * - explosion_yoffsets
+.if ( sz_explosion_yoffsets <> sz_explosion_frame_table )
+.error "explosion tables, check sizes"
+.endif
 .bss
 slots = 30
 i_explosion_frame:      .res 1
@@ -192,7 +193,15 @@ done:
 .endproc
 
 .proc       drawit2
+            lda detonation_x,x
+            sta s_x
+            lda detonation_y,x
+            clc
+            adc explosion_yoffsets,x
+            sta s_y
+
             lda detonation_frame,x
+            ;; multiple detonation_frame * 2
             asl
             tay
             lda explosion_frame_table,y
@@ -201,16 +210,6 @@ done:
             lda explosion_frame_table,y
             sta ptr_0+1
 
-            lda detonation_x,x
-            sta s_x
-            ;; an offset is needed since the sprites don't include
-            ;; blank lines
-            lda detonation_y,x
-            clc
-            ;; y is detonation_frame
-            ldy detonation_frame,x
-            adc explosion_yoffsets,y
-            sta s_y
             lda #$ff
             sta spackle
             lda #0

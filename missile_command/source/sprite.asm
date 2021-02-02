@@ -193,20 +193,24 @@ loop:
 smc0:
             eor 0,y
             and spackle
+;            lda #255
             sta (sp_col0),y
 
             lda (sp_col1),y
 smc1:
             eor 0,y
             and spackle
+;            lda #255
             sta (sp_col1),y
 
             lda (sp_col2),y
 smc2:
             eor 0,y
             and spackle
+;            lda #255
             sta (sp_col2),y
 
+            ;; alternate spackling pattern
             lda spackle
             eor spacklator
             sta spackle

@@ -50,9 +50,13 @@ detonation_frame:   .res slots
             sta s_y
 
             jsr queue_explosion
+
+            lda #80
+            sta s_x
+            sta s_y
+            jsr queue_explosion
 loop:
-            ldx #slots-1
-            jsr update_explosion
+            jsr draw_explosions
             jsr j_wfire
             jmp loop
             rts

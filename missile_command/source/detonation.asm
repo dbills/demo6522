@@ -6,8 +6,6 @@
 .include "system.inc"
 .include "jstick.inc"
 
-.export test_explosion
-
 spackle1 = %10101010
 spackle2 = %01010101
 
@@ -52,9 +50,11 @@ detonation_frame:   .res slots
             sta s_y
 
             jsr queue_explosion
+loop:
             ldx #slots-1
             jsr update_explosion
             jsr j_wfire
+            jmp loop
             rts
 .endproc
 .proc       detonation_init
@@ -80,7 +80,7 @@ available:
             sta detonation_x,x
             lda s_y
             sta detonation_y,x
-            lda #sz_explosion_frame_table-1
+            lda #sz_explosion_frame_table
             sta detonation_frame,x
             rts
 .endproc
@@ -100,98 +100,23 @@ done:
 
 .proc       update_explosion
             lda detonation_frame,x
-            bmi draw_once
-            cmp #sz_explosion_frame_table-1
-            beq draw_once
+            bmi done
+            cmp #sz_explosion_frame_table
+            beq draw_first
             ;; erase
             jsr drawit2
             ;; update animation frame
+draw_first:
             dec detonation_frame,x
-draw_once:
+            bmi done
             jsr drawit2
-            rts
-.endproc
-
-.proc       ztest_explosion
-            mov #explosion_1_shift0, ptr_0
-
-            lda #0
-            sta s_x
-            lda #1
-            sta s_y
-            jsr draw_sprite16
-            rts
-.endproc
-.proc       test_explosion
-                                        ;explosion_8_shift0:
-                                        ;explosion_8_shift0_strip0:
-            lda #7
-            sta i_explosion_frame
-            lda #$ff
-            sta spackle
-            lda #0
-            sta spacklator
-loop:
-            jsr drawit
-            dec i_explosion_frame
-            bpl loop
-
-            lda #0
-            sta i_explosion_frame
-loop2:
-            lda #$ff
-            sta spacklator
-
-            lda #spackle1
-            sta spackle
-            jsr drawit
-
-            lda #spackle2
-            sta spackle
-            jsr drawit
-
-            lda #7
-            cmp i_explosion_frame
-            beq done
-            inc i_explosion_frame
-            jmp loop2
 done:
-            rts
-.endproc
-.proc       load_src
-            lda i_explosion_frame
-            asl
-            tax
-            lda explosion_frame_table,x
-            sta ptr_0
-            inx
-            lda explosion_frame_table,x
-            sta ptr_0+1
-            rts
-.endproc
-.proc       drawit
-            jsr load_src
-            ;mov #explosion_8_shift0, ptr_0
-
-            lda #0
-            sta s_x
-            sta s_y
-            ;; an offset is needed since the sprites don't include
-            ;; blank lines
-            lda s_y
-            clc
-            adc i_explosion_frame
-            sta s_y
-
-            jsr draw_sprite16
-            sleep 30
-
-            jsr load_src
-            jsr draw_sprite16
             rts
 .endproc
 
 .proc       drawit2
+            txa
+            pha
             lda detonation_x,x
             sta s_x
             lda detonation_y,x
@@ -215,5 +140,7 @@ done:
             sta spacklator
 
             jsr draw_sprite16
+            pla
+            tax
             rts
 .endproc

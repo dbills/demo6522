@@ -14,7 +14,7 @@ while [ $width -lt 9 ];do
     cat <<EOF
 .export explosion_${width}_table
 explosion_${width}_table:
-.repeat 7, I
+.repeat 8, I
 .word .ident (.sprintf("explosion_${width}_shift%d", I))
 .endrepeat
 EOF

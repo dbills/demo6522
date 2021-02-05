@@ -62,7 +62,7 @@ notrigger:
           beq directions
           lda #0
           sta trigger_count
-          jsr interceptor::in_launch
+          jsr interceptor::launch
 directions:
           lda LASTJOY
           ora #bJOYT
@@ -113,5 +113,5 @@ joyl:
           rts
 joyt:
           jsr j_tup
-          jmp interceptor::in_launch
+          jmp interceptor::launch
 .endproc

@@ -52,10 +52,20 @@
           jsr draw_cities
           jsr interceptor::in_initialize
           jsr init_lines
+          jsr i_detonation
+
+          lda #40
+          sta s_x
+          sta s_y
+          jsr queue_explosion
+          lda #20
+          sta s_x
+          sta s_y
+          jsr queue_explosion
+
 .import test_explosion2
 foo:
-          jsr test_explosion2
-          ;jmp foo
+;          jsr test_explosion2
           jsr main_loop
           ;jsr line_tests
           ;jsr queue_tests
@@ -122,19 +132,20 @@ iloop:
           lda #80
           sta s_x
           ldx #S_TARGET
-          sp_draw crosshair
+          sp_draw crosshair, 5
 loop:
           jsr wait_v
           bcolor_i CYAN
-          jsr interceptor::in_updateall
+          jsr interceptor::updateall
+          jsr draw_explosions
           ldx #S_TARGET
-          sp_draw crosshair             ;erase
+          sp_draw crosshair, 5          ;erase
 
           ldx #S_TARGET
           jsr move_crosshairs
 
           ldx #S_TARGET
-          sp_draw crosshair             ;draw
+          sp_draw crosshair,5           ;draw
 
 
           bcolor_i BLACK

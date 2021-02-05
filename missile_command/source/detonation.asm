@@ -5,29 +5,32 @@
 .include "m16.mac"
 .include "system.inc"
 .include "jstick.inc"
+.include "screen.inc"
+.export queue_explosion, draw_explosions, i_detonation
 
 spackle1 = %10101010
 spackle2 = %01010101
 
 .linecont
 .data
+
 explosion_frame_table:
-.word explosion_1_shift0 \
-     ,explosion_2_shift0 \
-     ,explosion_3_shift0 \
-     ,explosion_4_shift0 \
-     ,explosion_5_shift0 \
-     ,explosion_6_shift0 \
-     ,explosion_7_shift0 \
-     ,explosion_8_shift0 \
-     ,explosion_8_shift0 \
-     ,explosion_7_shift0 \
-     ,explosion_6_shift0 \
-     ,explosion_5_shift0 \
-     ,explosion_4_shift0 \
-     ,explosion_3_shift0 \
-     ,explosion_2_shift0 \
-     ,explosion_8_shift0
+.word        explosion_1_table \
+            ,explosion_2_table \
+            ,explosion_3_table \
+            ,explosion_4_table \
+            ,explosion_5_table \
+            ,explosion_6_table \
+            ,explosion_7_table \
+            ,explosion_8_table \
+            ,explosion_8_table \
+            ,explosion_7_table \
+            ,explosion_6_table \
+            ,explosion_5_table \
+            ,explosion_4_table \
+            ,explosion_3_table \
+            ,explosion_2_table \
+            ,explosion_8_table
 sz_explosion_frame_table = (* - explosion_frame_table)/2
 explosion_yoffsets:     .byte  7,6,5,4,3,2,1,0,0,1,2,3,4,5,6,0
 sz_explosion_yoffsets = * - explosion_yoffsets
@@ -44,7 +47,7 @@ detonation_frame:   .res slots
 
 .export     test_explosion2
 .proc       test_explosion2
-            jsr detonation_init
+            jsr i_detonation
             lda #0
             sta s_x
             sta s_y
@@ -61,7 +64,7 @@ loop:
             jmp loop
             rts
 .endproc
-.proc       detonation_init
+.proc       i_detonation
             ldx #slots-1
             lda #255
 loop:
@@ -70,7 +73,7 @@ loop:
             bpl loop
             rts
 .endproc
-
+.include "shapes.mac"
 .proc       queue_explosion
             ldx #slots-1
 loop:
@@ -80,9 +83,9 @@ loop:
             bpl loop
             rts
 available:
-            lda s_x
+            lda _pl_x
             sta detonation_x,x
-            lda s_y
+            lda _pl_y
             sta detonation_y,x
             lda #sz_explosion_frame_table
             sta detonation_frame,x
@@ -90,6 +93,10 @@ available:
 .endproc
 
 .proc       draw_explosions
+            lda s_x
+            pha
+            lda s_y
+            pha
             ldx #slots-1
 loop:
             lda detonation_frame,x
@@ -99,6 +106,10 @@ next:
             dex
             bpl loop
 done:
+            pla
+            sta s_y
+            pla
+            sta s_x
             rts
 .endproc
 

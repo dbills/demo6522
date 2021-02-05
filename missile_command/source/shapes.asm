@@ -18,7 +18,7 @@
 .macro    sh_shift b1,b2,b3,b4,b5,b6,b7,b8
 SHIFT     .set 0
           .repeat 8
-          sh_left  b1 ,SHIFT 
+          sh_left  b1 ,SHIFT
           sh_left  b2 ,SHIFT
           sh_left  b3 ,SHIFT
           sh_left  b4 ,SHIFT
@@ -39,30 +39,33 @@ SHIFT     .set SHIFT + 1
           .endrepeat
           .endmacro
 
-crosshair:      
+crosshair_height = 5
+crosshair_xoff = 2
+crosshair_yoff = 2
+crosshair:
 .linecont
-           sh_shift %00000000,  \
-                    %01000010,  \
-                    %00100100,  \
-                    %00011000,  \
-                    %00011000,  \
-                    %00100100,  \
-                    %01000010,  \
+          sh_shift  %10001000, \
+                    %01010000, \
+                    %00100000, \
+                    %01010000, \
+                    %10001000, \
+                    %00000000, \
+                    %00000000, \
                     %00000000
 
-city_left:     
+city_left:
 	.byte %00000010
 	.byte %00000010
 	.byte %00000110
 	.byte %00001111
 	.byte %00001111
-city_right: 
+city_right:
 	.byte %00000000
 	.byte %10100000
 	.byte %10110100
 	.byte %11111110
 	.byte %11111111
-ground_piece:           
+ground_piece:
 	.byte 0
 	.byte 0
 	.byte 0
@@ -72,7 +75,7 @@ ground_piece:
 	.byte %11111111
 	.byte %11111111
 	.byte %11111111
-base_left:  
+base_left:
           .byte %00000000
           .byte %00000011
           .byte %00000111
@@ -95,6 +98,6 @@ base_right:
 LINE_NUMBER .set 0
 .repeat MAX_LINES
   LINE_NUMBER .set LINE_NUMBER + 1
-  .ident (.sprintf ("BLARGO%04X", LINE_NUMBER)): 
+  .ident (.sprintf ("BLARGO%04X", LINE_NUMBER)):
 .byte 4
 .endrepeat

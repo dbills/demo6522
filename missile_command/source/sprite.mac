@@ -1,4 +1,5 @@
-.macro sp_draw shape
+.macro sp_draw shape, size
           mov #shape,ptr_0
+          lda #size
           jsr draw_sprite
 .endmacro

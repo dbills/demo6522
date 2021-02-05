@@ -90,8 +90,9 @@ done:
 ;;; draw sprite at s_x,x s_y,x
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
 ;;; sprite source data ( left and right side ) ptr0,1,2,3
-;;;
+;;; A = height of sprite
 .proc     draw_sprite
+          pha
           jsr calculate_hires_pointers
 
           modulo8 s_x                   ;find correct bit offset
@@ -106,7 +107,8 @@ done:
           ;; ptr_3 contains pointer to preshifted tiles
 
           ldy s_y
-          ldx #8
+          pla
+          tax
 loop1:
           lda (ptr_1),y
           eor (ptr_3),y
@@ -165,17 +167,34 @@ spacklator: .res 1
             adc #0
             sta dst+1
 .endmacro
+;;; in: ptr,s_x
+;;; out: ptr
+.macro      read_shift_table ptr
+            modulo8 s_x
+            asl
+            tay
+            lda (ptr),y
+            pha
+            iny
+            lda (ptr),y
+            sta ptr+1
+            pla
+            sta ptr
+.endmacro
 ;;; 16 pixel wide, variable height
 ;;; sprites, preshifted
-;;; in:
+;;; in: ptr_0 - pointer to preshifted sprite
 .proc       draw_sprite16
 sp_src0 = smc0 + 1
 sp_src1 = smc1 + 1
 sp_src2 = smc2 + 1
             lda spackle
             pha
+
+            read_shift_table ptr_0
             ;; calculate screen column pointer
             ;; and adjusted sprite source data base pointer
+            ;; ptr_0 must point to pre shifted sprite image
             ldy #0
             lda (ptr_0),y
             sta sprite_height

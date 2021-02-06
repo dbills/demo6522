@@ -2,7 +2,7 @@
 .include "shapes.inc"
 .include "zerop.inc"
 .include "m16.mac"
-.export calculate_hires_pointers,create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height,draw_sprite16,spacklator,spackle
+.export create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height,draw_sprite16,spacklator,spackle
 .exportzp s_x,s_y
 .zeropage
 s_x:        .res 1
@@ -43,10 +43,10 @@ done:
             ;;   ptr_1 pointer to CHRAM column right tile
             ;;   ptr_2 adjusted pointer to sprite source
             ;;         s.t. ptr_2 + s_y = sprite_source data
-.proc       calculate_hires_pointers
+.macro      calculate_hires_pointers _x,_y
             lda ptr_0
             sec
-            sbc s_y
+            sbc _y
             sta ptr_2
             lda ptr_0+1
             sbc #0
@@ -55,7 +55,7 @@ done:
             ;; to get screen character column
             ;; pointer from table, i.e. shift right
             ;; twice and clear low bit
-            lda s_x
+            lda _x
             lsr
             lsr
             and #$fe
@@ -75,10 +75,9 @@ done:
             lda pltbl,y
             sta ptr_1 + 1
             ;; ptr_1 is right half of sprite
-            rts
-.endproc
+.endmacro
 .macro      calculate_hires_pointers16 _1
-            jsr calculate_hires_pointers
+            calculate_hires_pointers s_x,s_y
             ;; put a third CHRAM pointer in _1
             iny
             lda pltbl,y
@@ -93,7 +92,7 @@ done:
 ;;; A = height of sprite
 .proc     draw_sprite
           pha
-          jsr calculate_hires_pointers
+          calculate_hires_pointers s_x,s_y
 
           modulo8 s_x                   ;find correct bit offset
           mul16                         ;in preshifted images
@@ -126,7 +125,7 @@ loop1:
 ;;; draw a sprite that does not have
 ;;; preshifted images
 .proc       draw_unshifted_sprite
-            jsr calculate_hires_pointers
+            calculate_hires_pointers s_x,s_y
             ;; ptr_0, ptr_1 hires column  pointers
             ;; ptr_2 adjusted source bytes
             ldy s_y

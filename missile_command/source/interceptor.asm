@@ -44,34 +44,35 @@ declare_queue_operations "interceptor", \
           rts
 .endproc
 
-.proc     launch
-          lda s_x
-          sta _pl_x
-          lda s_y
-          sta _pl_y
-          jsr queue_explosion
-          rts
-.endproc
 ;; .proc     launch
-;;           lda #4
-;;           clc
-;;           adc s_x
-;;           sta _x2
-;;           lda #4
-;;           clc
-;;           adc s_y
-;;           sta _y2
-
-;;           mov p_next,_lstore
-;;           ldx next
-;;           cpx #29
-;;           beq empty
-;;           lineto #base_x,#base_y,_x2,_y2
-;;           jsr enqueue_interceptor
-;;           jsr missile_away
-;; empty:
+;;           lda s_x
+;;           sta _pl_x
+;;           lda s_y
+;;           sta _pl_y
+;;           jsr queue_explosion
 ;;           rts
 ;; .endproc
+.proc     launch
+          rts
+          lda #4
+          clc
+          adc s_x
+          sta _x2
+          lda #4
+          clc
+          adc s_y
+          sta _y2
+
+          mov p_next,_lstore
+          ldx next
+          cpx #29
+          beq empty
+          lineto #base_x,#base_y,_x2,_y2
+          jsr enqueue_interceptor
+          jsr missile_away
+empty:
+          rts
+.endproc
 .importzp _pl_x,_pl_y
 .include "detonation.inc"
 ;;; called by the queue iterator function we declared

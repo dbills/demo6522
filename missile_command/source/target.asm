@@ -7,8 +7,9 @@
 .include "interceptor.inc"
 .include "zerop.inc"
 .include "sprite.inc"
+.include "shapes.inc"
 .import _ldata1
-.export   move_crosshairs
+.export   move_crosshairs,update_crosshairs
 .data
 trigger_count:      .byte 0
 .code
@@ -48,7 +49,25 @@ done:
           dec s_y
 done:
           .endmacro
+.bss
+draw_crosshair:     .res 1
+.code
+.proc     update_crosshairs
+          lda #1
+          sta draw_crosshair
+          ldx #S_TARGET
+          sp_draw crosshair, 5          ;erase
 
+          ldx #S_TARGET
+          jsr move_crosshairs
+
+          lda draw_crosshair
+          beq done
+          ldx #S_TARGET
+          sp_draw crosshair,5           ;draw
+done:
+          rts
+.endproc
 .proc     move_crosshairs
           jsr j_read
           and #bJOYT
@@ -62,6 +81,9 @@ notrigger:
           beq directions
           lda #0
           sta trigger_count
+          ;; leave a 'x' marks the spot
+          ;; at launch site
+          sp_draw crosshair, crosshair_height
           jsr interceptor::launch
 directions:
           lda LASTJOY
@@ -111,7 +133,4 @@ joyr:
 joyl:
           mov_l
           rts
-joyt:
-          jsr j_tup
-          jmp interceptor::launch
 .endproc

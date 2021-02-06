@@ -138,15 +138,7 @@ loop:
           bcolor_i CYAN
           jsr interceptor::updateall
           jsr draw_explosions
-          ldx #S_TARGET
-          sp_draw crosshair, 5          ;erase
-
-          ldx #S_TARGET
-          jsr move_crosshairs
-
-          ldx #S_TARGET
-          sp_draw crosshair,5           ;draw
-
+          jsr update_crosshairs
 
           bcolor_i BLACK
           jmp loop

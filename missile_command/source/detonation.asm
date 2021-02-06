@@ -82,10 +82,6 @@ available:
 .endproc
 
 .proc       draw_explosions
-            lda s_x
-            pha
-            lda s_y
-            pha
             ldx #slots-1
 loop:
             jsr update_explosion
@@ -93,10 +89,6 @@ next:
             dex
             bpl loop
 done:
-            pla
-            sta s_y
-            pla
-            sta s_x
             rts
 .endproc
 

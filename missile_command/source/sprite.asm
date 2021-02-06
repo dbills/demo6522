@@ -3,10 +3,12 @@
 .include "zerop.inc"
 .include "m16.mac"
 .export create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height,draw_sprite16,spacklator,spackle
-.exportzp s_x,s_y
+.exportzp s_x,s_y,target_x,target_y
 .zeropage
 s_x:        .res 1
 s_y:        .res 1
+target_x:   .res 1
+target_y:   .res 1
 .data
 left_byte:  .byte 0
 right_byte: .byte 0
@@ -92,9 +94,9 @@ done:
 ;;; A = height of sprite
 .proc     draw_sprite
           pha
-          calculate_hires_pointers s_x,s_y
+          calculate_hires_pointers target_x,target_y
 
-          modulo8 s_x                   ;find correct bit offset
+          modulo8 target_x                   ;find correct bit offset
           mul16                         ;in preshifted images
           clc
           adc ptr_2
@@ -105,7 +107,7 @@ done:
           add_wbw ptr_2,#8,ptr_3
           ;; ptr_3 contains pointer to preshifted tiles
 
-          ldy s_y
+          ldy target_y
           pla
           tax
 loop1:

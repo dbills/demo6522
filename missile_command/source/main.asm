@@ -119,10 +119,9 @@ iloop:
 
 .proc     main_loop
           lda #SCRROWS*16/2
-          sta s_y
+          sta target_y
           lda #80
-          sta s_x
-          ldx #S_TARGET
+          sta target_x
           sp_draw crosshair, 5
 loop:
           jsr wait_v

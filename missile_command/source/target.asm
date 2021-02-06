@@ -17,36 +17,36 @@ trigger_count:      .byte 0
           .macro mov_l
           .local done
           lda #detonation_xoff
-          cmp s_x
+          cmp target_x
           beq done
-          dec s_x
+          dec target_x
 done:
           .endmacro
 
           .macro mov_r
           .local done
           lda #(SCRCOLS*8)-8-1-detonation_xoff
-          cmp s_x
+          cmp target_x
           bcc done
-          inc s_x
+          inc target_x
 done:
           .endmacro
 
           .macro mov_d
           .local done
           lda #SCRROWS*16-8-1
-          cmp s_y
+          cmp target_y
           bcc done
-          inc s_y
+          inc target_y
 done:
           .endmacro
 
           .macro mov_u
           .local done
           lda #0
-          cmp s_y
+          cmp target_y
           beq done
-          dec s_y
+          dec target_y
 done:
           .endmacro
 

@@ -54,9 +54,9 @@
           jsr init_lines
           jsr i_detonation
 
-.import test_explosion2
+.import speed_test
 foo:
-;          jsr test_explosion2
+          jsr speed_test
           jsr main_loop
           ;jsr line_tests
           ;jsr queue_tests

@@ -7,7 +7,7 @@
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
-.export queue_explosion, draw_explosions, i_detonation, update_explosion
+.export queue_explosion, draw_explosions, i_detonation, update_explosion, speed_test
 
 spackle1 = %10101010
 spackle2 = %01010101
@@ -40,7 +40,7 @@ sz_explosion_yoffsets = * - explosion_yoffsets
 .endif
 .bss
 slots = 30
-frame_delay = 60
+frame_delay = 1
 i_explosion_frame:      .res 1
 detonation_x:       .res slots
 detonation_y:       .res slots
@@ -48,6 +48,28 @@ detonation_frame:   .res slots
 detonation_delay:   .res slots
 .code
 
+.proc speed_test
+            lda #16
+            sta _pl_y
+            lda #16
+            sta _pl_x
+            ldy #5
+loop:
+            jsr queue_explosion
+            lda _pl_x
+            clc
+            adc #4
+            sta _pl_x
+
+            lda _pl_y
+            clc
+            adc #4
+            sta _pl_y
+
+            dey
+            bpl loop
+            rts
+.endproc
 .proc       i_detonation
             ldx #slots-1
             lda #255
@@ -67,6 +89,7 @@ loop:
             rts
 available:
             lda #1
+            txa                         ;testing only
             sta detonation_delay,x
             lda _pl_x
             sec
@@ -106,15 +129,22 @@ done:
             ;; update animation frame
 draw_first:
             dec detonation_frame,x
-            bmi done
+;            bmi done
+            bmi reset
             jsr drawit2
 done:
             rts
+reset:
+            lda #sz_explosion_frame_table
+            sta detonation_frame,x
+            rts
 .endproc
 
+.zeropage
+drawit_savex:           .res 1
+.code
 .proc       drawit2
-            txa
-            pha
+            stx drawit_savex
             lda detonation_x,x
             sta s_x
             lda detonation_y,x
@@ -132,13 +162,7 @@ done:
             lda explosion_frame_table,y
             sta ptr_0+1
 
-            lda #$ff
-            sta spackle
-            lda #0
-            sta spacklator
-
             jsr draw_sprite16
-            pla
-            tax
+            ldx drawit_savex
             rts
 .endproc

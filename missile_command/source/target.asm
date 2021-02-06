@@ -9,7 +9,7 @@
 .include "sprite.inc"
 .include "shapes.inc"
 .import _ldata1
-.export   move_crosshairs,update_crosshairs
+.export   move_crosshairs
 .data
 trigger_count:      .byte 0
 .code
@@ -50,12 +50,6 @@ done:
 done:
           .endmacro
 
-.proc     update_crosshairs
-          sp_draw crosshair, 5          ;erase
-          jsr move_crosshairs
-          sp_draw crosshair,5           ;draw
-          rts
-.endproc
 .proc     move_crosshairs
           jsr j_read
           and #bJOYT

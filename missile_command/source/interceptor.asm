@@ -9,7 +9,7 @@
 .include "shapes.inc"
 
 .scope interceptor
-.export in_initialize,launch,updateall
+.export in_initialize,launch,queue_iterate_interceptor
 
 base_x = 176/2
 base_y = 176-16
@@ -40,10 +40,6 @@ declare_queue_operations "interceptor", \
                          line_data01,0,\
                          30, LINEMAX,\
                          _lstore, update_interceptor
-.proc     updateall
-          jsr queue_iterate_interceptor
-          rts
-.endproc
 
 .proc     launch
           lda #crosshair_xoff

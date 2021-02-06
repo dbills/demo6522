@@ -7,7 +7,7 @@
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
-.export queue_explosion, draw_explosions, i_detonation, update_explosion,update_frame
+.export queue_explosion, draw_explosions, i_detonation, update_explosion
 
 spackle1 = %10101010
 spackle2 = %01010101
@@ -100,16 +100,15 @@ done:
             rts
 .endproc
 
-.proc       update_frame
+.macro      update_frame
+            .local done
             dec detonation_delay,x
-            beq update
-            rts
-update:
+            bne done
             lda #frame_delay
             sta detonation_delay,x
             dec detonation_frame,x
-            rts
-.endproc
+done:
+.endmacro
 
 .proc       update_explosion
             lda detonation_frame,x
@@ -120,7 +119,7 @@ update:
             jsr drawit2
             ;; update animation frame
 draw_first:
-            jsr update_frame
+            update_frame
             bmi done
             jsr drawit2
 done:

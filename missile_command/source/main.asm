@@ -125,11 +125,11 @@ iloop:
           ldx #S_TARGET
           sp_draw crosshair, 5
 loop:
-;          jsr wait_v
+          jsr wait_v
           bcolor_i CYAN
-          jsr interceptor::updateall
+          jsr interceptor::queue_iterate_interceptor
           jsr draw_explosions
-          jsr update_crosshairs
+          update_crosshairs
 
           bcolor_i BLACK
           jmp loop

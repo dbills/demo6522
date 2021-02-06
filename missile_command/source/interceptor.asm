@@ -44,11 +44,11 @@ declare_queue_operations "interceptor", \
 .proc     launch
           lda #crosshair_xoff
           clc
-          adc s_x
+          adc target_x
           sta _x2
           lda #crosshair_yoff
           clc
-          adc s_y
+          adc target_y
           sta _y2
 
           mov p_next,_lstore
@@ -65,25 +65,25 @@ empty:
 .include "detonation.inc"
 
 .proc     erase_crosshair_mark
-          lda s_x
+          lda target_x
           pha
-          lda s_y
+          lda target_y
           pha
 
           lda _pl_x
           sec
           sbc #crosshair_xoff
-          sta s_x
+          sta target_x
           lda _pl_y
           sec
           sbc #crosshair_yoff
-          sta s_y
+          sta target_y
           sp_draw crosshair, 5
 
           pla
-          sta s_y
+          sta target_y
           pla
-          sta s_x
+          sta target_x
           rts
 .endproc
 

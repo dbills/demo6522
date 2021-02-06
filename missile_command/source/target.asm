@@ -34,7 +34,7 @@ done:
 
           .macro mov_d
           .local done
-          lda #SCRROWS*16-8-1
+          lda #SCRROWS*16-(8*3)-1
           cmp target_y
           bcc done
           inc target_y
@@ -43,7 +43,7 @@ done:
 
           .macro mov_u
           .local done
-          lda #0
+          lda #8
           cmp target_y
           beq done
           dec target_y

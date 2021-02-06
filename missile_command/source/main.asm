@@ -56,7 +56,7 @@
 
 .import speed_test
 foo:
-          ;jsr speed_test
+          jsr speed_test
           jsr main_loop
           ;jsr line_tests
           ;jsr queue_tests
@@ -130,6 +130,12 @@ loop:
           bcolor_i BLACK
           update_crosshairs
           jsr interceptor::queue_iterate_interceptor
+          ;; 0-63 frame counter
+          lda frame_cnt
+          clc
+          adc #1
+          and #%00011111
+          sta frame_cnt
           jmp loop
           rts
 .endproc

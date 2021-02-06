@@ -45,7 +45,6 @@ i_explosion_frame:      .res 1
 detonation_x:       .res slots
 detonation_y:       .res slots
 detonation_frame:   .res slots
-detonation_delay:   .res slots
 .export screen_column
 screen_column:      .res slots
 .code
@@ -55,17 +54,17 @@ screen_column:      .res slots
             sta _pl_y
             lda #16
             sta _pl_x
-            ldy #1
+            ldy #10
 loop:
             jsr queue_explosion
             lda _pl_x
             clc
-            adc #4
+            adc #6
             sta _pl_x
 
             lda _pl_y
             clc
-            adc #4
+            adc #6
             sta _pl_y
 
             dey
@@ -91,9 +90,6 @@ loop:
             bpl loop
             rts
 available:
-            lda #1
-            txa                         ;testing only
-            sta detonation_delay,x
             lda _pl_x
             sec
             sbc #detonation_xoff
@@ -133,10 +129,10 @@ end:
 .proc       draw_explosions
             ldx #slots-1
 loop:
-            dec detonation_delay,x
+            txa
+            ;; draw when frame_cnt match X index
+            eor frame_cnt
             bne next
-            lda #frame_delay
-            sta detonation_delay,x
             update_explosion
 next:
             dex

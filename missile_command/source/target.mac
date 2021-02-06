@@ -1,0 +1,5 @@
+.macro    update_crosshairs
+          sp_draw crosshair, 5          ;erase
+          jsr move_crosshairs
+          sp_draw crosshair,5           ;draw
+.endmacro

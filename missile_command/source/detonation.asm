@@ -84,8 +84,12 @@ loop:
             rts
 available:
             lda _pl_x
+            sec
+            sbc #7
             sta detonation_x,x
             lda _pl_y
+            sec
+            sbc #7
             sta detonation_y,x
             lda #sz_explosion_frame_table
             sta detonation_frame,x

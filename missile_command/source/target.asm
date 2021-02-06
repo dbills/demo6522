@@ -42,30 +42,17 @@ done:
           .endmacro
 
           .macro mov_u
-            .local done
+          .local done
           lda #0
           cmp s_y
           beq done
           dec s_y
 done:
           .endmacro
-.bss
-draw_crosshair:     .res 1
-.code
 .proc     update_crosshairs
-          lda #1
-          sta draw_crosshair
-          ldx #S_TARGET
           sp_draw crosshair, 5          ;erase
-
-          ldx #S_TARGET
           jsr move_crosshairs
-
-          lda draw_crosshair
-          beq done
-          ldx #S_TARGET
           sp_draw crosshair,5           ;draw
-done:
           rts
 .endproc
 .proc     move_crosshairs

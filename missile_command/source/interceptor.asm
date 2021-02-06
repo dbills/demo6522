@@ -6,6 +6,7 @@
 .include "sound.inc"
 .include "debugscreen.inc"
 .include "sprite.inc"
+.include "shapes.inc"
 
 .scope interceptor
 .export in_initialize,launch,updateall
@@ -44,21 +45,12 @@ declare_queue_operations "interceptor", \
           rts
 .endproc
 
-;; .proc     launch
-;;           lda s_x
-;;           sta _pl_x
-;;           lda s_y
-;;           sta _pl_y
-;;           jsr queue_explosion
-;;           rts
-;; .endproc
 .proc     launch
-          rts
-          lda #4
+          lda #crosshair_xoff
           clc
           adc s_x
           sta _x2
-          lda #4
+          lda #crosshair_yoff
           clc
           adc s_y
           sta _y2

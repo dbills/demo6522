@@ -54,15 +54,6 @@
           jsr init_lines
           jsr i_detonation
 
-          lda #40
-          sta s_x
-          sta s_y
-          jsr queue_explosion
-          lda #20
-          sta s_x
-          sta s_y
-          jsr queue_explosion
-
 .import test_explosion2
 foo:
 ;          jsr test_explosion2
@@ -134,7 +125,7 @@ iloop:
           ldx #S_TARGET
           sp_draw crosshair, 5
 loop:
-          jsr wait_v
+;          jsr wait_v
           bcolor_i CYAN
           jsr interceptor::updateall
           jsr draw_explosions

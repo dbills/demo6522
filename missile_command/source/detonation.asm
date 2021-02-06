@@ -6,7 +6,8 @@
 .include "system.inc"
 .include "jstick.inc"
 .include "screen.inc"
-.export queue_explosion, draw_explosions, i_detonation
+.include "shapes.mac"
+.export queue_explosion, draw_explosions, i_detonation, update_explosion,update_frame
 
 spackle1 = %10101010
 spackle2 = %01010101
@@ -47,25 +48,6 @@ detonation_frame:   .res slots
 detonation_delay:   .res slots
 .code
 
-.export     test_explosion2
-.proc       test_explosion2
-            jsr i_detonation
-            lda #0
-            sta s_x
-            sta s_y
-
-            jsr queue_explosion
-
-            lda #80
-            sta s_x
-            sta s_y
-            jsr queue_explosion
-loop:
-            jsr draw_explosions
-            jsr j_wfire
-            jmp loop
-            rts
-.endproc
 .proc       i_detonation
             ldx #slots-1
             lda #255
@@ -75,7 +57,6 @@ loop:
             bpl loop
             rts
 .endproc
-.include "shapes.mac"
 .proc       queue_explosion
             ldx #slots-1
 loop:
@@ -85,7 +66,7 @@ loop:
             bpl loop
             rts
 available:
-            lda #0
+            lda #1
             sta detonation_delay,x
             lda _pl_x
             sec
@@ -107,8 +88,6 @@ available:
             pha
             ldx #slots-1
 loop:
-            lda detonation_frame,x
-            bmi next
             jsr update_explosion
 next:
             dex
@@ -121,12 +100,18 @@ done:
             rts
 .endproc
 
-.proc       update_explosion
-            lda detonation_delay,x
-            bne done
+.proc       update_frame
+            dec detonation_delay,x
+            beq update
+            rts
+update:
             lda #frame_delay
             sta detonation_delay,x
+            dec detonation_frame,x
+            rts
+.endproc
 
+.proc       update_explosion
             lda detonation_frame,x
             bmi done
             cmp #sz_explosion_frame_table
@@ -135,11 +120,10 @@ done:
             jsr drawit2
             ;; update animation frame
 draw_first:
-            dec detonation_frame,x
+            jsr update_frame
             bmi done
             jsr drawit2
 done:
-            dec detonation_delay,x
             rts
 .endproc
 

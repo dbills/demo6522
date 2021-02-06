@@ -84,6 +84,10 @@ available:
 .proc       draw_explosions
             ldx #slots-1
 loop:
+            dec detonation_delay,x
+            bne next
+            lda #frame_delay
+            sta detonation_delay,x
             jsr update_explosion
 next:
             dex
@@ -91,16 +95,6 @@ next:
 done:
             rts
 .endproc
-
-.macro      update_frame
-            .local done
-            dec detonation_delay,x
-            bne done
-            lda #frame_delay
-            sta detonation_delay,x
-            dec detonation_frame,x
-done:
-.endmacro
 
 .proc       update_explosion
             lda detonation_frame,x
@@ -111,7 +105,7 @@ done:
             jsr drawit2
             ;; update animation frame
 draw_first:
-            update_frame
+            dec detonation_frame,x
             bmi done
             jsr drawit2
 done:

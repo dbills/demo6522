@@ -2,6 +2,7 @@
 .include "shapes.inc"
 .include "zerop.inc"
 .include "m16.mac"
+.include "sprite.mac"
 .export create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height,draw_sprite16,spacklator,spackle
 .exportzp s_x,s_y,target_x,target_y
 .zeropage
@@ -35,6 +36,8 @@ loop:
 done:
             rts
 .endproc
+.macro      calculate_adjusted_sprite_source
+.endmacro
             ;; preshifted sprite drawing
             ;; s_x: X coordinate
             ;; s_y: Y coordinate
@@ -46,21 +49,9 @@ done:
             ;;   ptr_2 adjusted pointer to sprite source
             ;;         s.t. ptr_2 + s_y = sprite_source data
 .macro      calculate_hires_pointers _x,_y
-            lda ptr_0
-            sec
-            sbc _y
-            sta ptr_2
-            lda ptr_0+1
-            sbc #0
-            sta ptr_2+1
-            ;; divide by 8, multiply by 2
-            ;; to get screen character column
-            ;; pointer from table, i.e. shift right
-            ;; twice and clear low bit
+            sub_wbw ptr_0,_y,ptr_2
             lda _x
-            lsr
-            lsr
-            and #$fe
+            calc_screen_column
             tay
             ;; copy correct ptr to ptr_0
             lda pltbl,y                   ;
@@ -78,15 +69,31 @@ done:
             sta ptr_1 + 1
             ;; ptr_1 is right half of sprite
 .endmacro
-.macro      calculate_hires_pointers16 _1
-            calculate_hires_pointers s_x,s_y
-            ;; put a third CHRAM pointer in _1
+.import screen_column
+.macro      opto_calculate_hires_pointers _x,_y,p_column3
+            sub_wbw ptr_0,_y,ptr_2
+            ldy screen_column,x
+            ;; copy correct ptr to ptr_0
+            lda pltbl,y                   ;
+            sta ptr_0
             iny
             lda pltbl,y
-            sta _1
+            sta ptr_0 + 1
+            ;; ptr_0 is location in CHRAM
+            ;; of the correct character column
             iny
             lda pltbl,y
-            sta _1+1
+            sta ptr_1
+            iny
+            lda pltbl,y
+            sta ptr_1 + 1
+            ;; ptr_1 is right half of sprite
+            iny
+            lda pltbl,y
+            sta p_column3
+            iny
+            lda pltbl,y
+            sta p_column3+1
 .endmacro
 ;;; draw sprite at s_x,x s_y,x
 ;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
@@ -197,7 +204,7 @@ sp_src2 = smc2 + 1
             lda (ptr_0),y
             sta sprite_height
             incw ptr_0
-            calculate_hires_pointers16 sp_col2
+            opto_calculate_hires_pointers s_x,s_y,sp_col2
             ;; setup three strips of bytes to copy to screen
             mov ptr_2,sp_src0
             add_sprite_height sp_src0, sp_src1

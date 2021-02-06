@@ -56,7 +56,7 @@
 
 .import speed_test
 foo:
-          jsr speed_test
+          ;jsr speed_test
           jsr main_loop
           ;jsr line_tests
           ;jsr queue_tests
@@ -126,11 +126,10 @@ iloop:
 loop:
           jsr wait_v
           bcolor_i CYAN
-          jsr interceptor::queue_iterate_interceptor
           jsr draw_explosions
-          update_crosshairs
-
           bcolor_i BLACK
+          update_crosshairs
+          jsr interceptor::queue_iterate_interceptor
           jmp loop
           rts
 .endproc

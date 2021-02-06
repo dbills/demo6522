@@ -7,7 +7,7 @@
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
-.export queue_explosion, draw_explosions, i_detonation, update_explosion, speed_test
+.export queue_explosion, draw_explosions, i_detonation, speed_test
 
 spackle1 = %10101010
 spackle2 = %01010101
@@ -40,12 +40,14 @@ sz_explosion_yoffsets = * - explosion_yoffsets
 .endif
 .bss
 slots = 30
-frame_delay = 1
+frame_delay = 20
 i_explosion_frame:      .res 1
 detonation_x:       .res slots
 detonation_y:       .res slots
 detonation_frame:   .res slots
 detonation_delay:   .res slots
+.export screen_column
+screen_column:      .res slots
 .code
 
 .proc speed_test
@@ -53,7 +55,7 @@ detonation_delay:   .res slots
             sta _pl_y
             lda #16
             sta _pl_x
-            ldy #5
+            ldy #1
 loop:
             jsr queue_explosion
             lda _pl_x
@@ -79,6 +81,7 @@ loop:
             bpl loop
             rts
 .endproc
+
 .proc       queue_explosion
             ldx #slots-1
 loop:
@@ -95,6 +98,8 @@ available:
             sec
             sbc #detonation_xoff
             sta detonation_x,x
+            calc_screen_column
+            sta screen_column,x
             lda _pl_y
             sec
             sbc #detonation_yoff
@@ -104,24 +109,10 @@ available:
             rts
 .endproc
 
-.proc       draw_explosions
-            ldx #slots-1
-loop:
-            dec detonation_delay,x
-            bne next
-            lda #frame_delay
-            sta detonation_delay,x
-            jsr update_explosion
-next:
-            dex
-            bpl loop
-done:
-            rts
-.endproc
-
-.proc       update_explosion
+.macro      update_explosion
+            .local draw_first,done,reset
             lda detonation_frame,x
-            bmi done
+            bmi end
             cmp #sz_explosion_frame_table
             beq draw_first
             ;; erase
@@ -132,11 +123,25 @@ draw_first:
 ;            bmi done
             bmi reset
             jsr drawit2
-done:
-            rts
+            jmp end
 reset:
             lda #sz_explosion_frame_table
             sta detonation_frame,x
+end:
+.endmacro
+
+.proc       draw_explosions
+            ldx #slots-1
+loop:
+            dec detonation_delay,x
+            bne next
+            lda #frame_delay
+            sta detonation_delay,x
+            update_explosion
+next:
+            dex
+            bpl loop
+done:
             rts
 .endproc
 

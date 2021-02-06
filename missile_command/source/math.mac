@@ -45,13 +45,13 @@
           ;; move _1 to _2
           ;; subtracting byte 3
           .macro sub_wbw _1,_2,_3
+          lda _1+0
           sec
-          lda [_1]+0
-          sbc [_3]+0
-          sta [_2]+0
-          lda [_1]+1
+          sbc _2+0
+          sta _3+0
+          lda _1+1
           sbc #0
-          sta [_2]+1
+          sta _3+1
           .endmacro
 
           .macro sub_wb _1,_2

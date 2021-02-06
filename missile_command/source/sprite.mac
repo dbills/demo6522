@@ -3,3 +3,14 @@
           lda #size
           jsr draw_sprite
 .endmacro
+
+;;; A = x coord
+.macro      calc_screen_column
+            ;; divide by 8, multiply by 2
+            ;; to get screen character column
+            ;; pointer from table, i.e. shift right
+            ;; twice and clear low bit
+            lsr
+            lsr
+            and #$fe
+.endmacro

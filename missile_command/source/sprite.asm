@@ -189,9 +189,6 @@ spacklator: .res 1
 sp_src0 = smc0 + 1
 sp_src1 = smc1 + 1
 sp_src2 = smc2 + 1
-            lda spackle
-            pha
-
             read_shift_table ptr_0
             ;; calculate screen column pointer
             ;; and adjusted sprite source data base pointer
@@ -212,34 +209,21 @@ loop:
             lda (sp_col0),y
 smc0:
             eor 0,y
-            and spackle
-;            lda #255
             sta (sp_col0),y
 
             lda (sp_col1),y
 smc1:
             eor 0,y
-            and spackle
-;            lda #255
             sta (sp_col1),y
 
             lda (sp_col2),y
 smc2:
             eor 0,y
-            and spackle
-;            lda #255
             sta (sp_col2),y
-
-            ;; alternate spackling pattern
-            lda spackle
-            eor spacklator
-            sta spackle
 
             iny
             dex
             bne loop
 
-            pla
-            sta spackle
             rts
 .endproc

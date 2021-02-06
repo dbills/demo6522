@@ -16,7 +16,7 @@ trigger_count:      .byte 0
 
           .macro mov_l
           .local done
-          lda #0
+          lda #detonation_xoff
           cmp s_x
           beq done
           dec s_x
@@ -25,7 +25,7 @@ done:
 
           .macro mov_r
           .local done
-          lda #(SCRCOLS*8)-8-1
+          lda #(SCRCOLS*8)-8-1-detonation_xoff
           cmp s_x
           bcc done
           inc s_x
@@ -49,6 +49,7 @@ done:
           dec s_y
 done:
           .endmacro
+
 .proc     update_crosshairs
           sp_draw crosshair, 5          ;erase
           jsr move_crosshairs

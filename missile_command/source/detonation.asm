@@ -39,10 +39,12 @@ sz_explosion_yoffsets = * - explosion_yoffsets
 .endif
 .bss
 slots = 30
+frame_delay = 60
 i_explosion_frame:      .res 1
 detonation_x:       .res slots
 detonation_y:       .res slots
 detonation_frame:   .res slots
+detonation_delay:   .res slots
 .code
 
 .export     test_explosion2
@@ -83,13 +85,15 @@ loop:
             bpl loop
             rts
 available:
+            lda #0
+            sta detonation_delay,x
             lda _pl_x
             sec
-            sbc #7
+            sbc #detonation_xoff
             sta detonation_x,x
             lda _pl_y
             sec
-            sbc #7
+            sbc #detonation_yoff
             sta detonation_y,x
             lda #sz_explosion_frame_table
             sta detonation_frame,x
@@ -118,6 +122,11 @@ done:
 .endproc
 
 .proc       update_explosion
+            lda detonation_delay,x
+            bne done
+            lda #frame_delay
+            sta detonation_delay,x
+
             lda detonation_frame,x
             bmi done
             cmp #sz_explosion_frame_table
@@ -130,6 +139,7 @@ draw_first:
             bmi done
             jsr drawit2
 done:
+            dec detonation_delay,x
             rts
 .endproc
 

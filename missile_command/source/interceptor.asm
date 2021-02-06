@@ -67,6 +67,30 @@ empty:
 .endproc
 .importzp _pl_x,_pl_y
 .include "detonation.inc"
+
+.proc     erase_crosshair_mark
+          lda s_x
+          pha
+          lda s_y
+          pha
+
+          lda _pl_x
+          sec
+          sbc #crosshair_xoff
+          sta s_x
+          lda _pl_y
+          sec
+          sbc #crosshair_yoff
+          sta s_y
+          sp_draw crosshair, 5
+
+          pla
+          sta s_y
+          pla
+          sta s_x
+          rts
+.endproc
+
 ;;; called by the queue iterator function we declared
 ;;; IN:
 ;;;   X: line index
@@ -80,6 +104,7 @@ empty:
           jsr dequeue_interceptor
           ;; explosion
           stx i_line
+          jsr erase_crosshair_mark
           jsr queue_explosion
           ldx i_line
           rts

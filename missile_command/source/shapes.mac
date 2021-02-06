@@ -1,3 +1,5 @@
 crosshair_height = 5
 crosshair_xoff = 2
 crosshair_yoff = 2
+detonation_xoff = 7
+detonation_yoff = 7

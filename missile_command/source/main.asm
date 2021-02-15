@@ -54,12 +54,11 @@
           jsr init_lines
           jsr i_detonation
 
-.import speed_test
+.import test_detonation
 foo:
-          jsr speed_test
-          jsr main_loop
+          ;jsr main_loop
           ;jsr line_tests
-          ;jsr queue_tests
+          jsr test_detonation
           jmp loop
 ;          debug_string "missilecommandtheend"
 loop:
@@ -120,7 +119,7 @@ iloop:
 .proc     main_loop
           lda #SCRROWS*16/2
           sta target_y
-          lda #80
+          lda #79
           sta target_x
           sp_draw crosshair, 5
 loop:

@@ -1,90 +1,67 @@
 ;;; missile detonations
 .include "zerop.inc"
-.include "detonation_graphics.inc"
+.include "screen_draw.inc"
 .include "sprite.inc"
 .include "m16.mac"
 .include "system.inc"
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
-.export queue_explosion, draw_explosions, i_detonation, speed_test
+.export queue_explosion, draw_explosions, i_detonation, test_detonation
 
 spackle1 = %10101010
 spackle2 = %01010101
 
 .linecont
 .data
+;;; this is a table of tables
+;;; each entry in here is a pointer to a table of pointers
+;;; e.g. draw_explosion_2_table - is the list of function
+;;; pointers for drawing all preshifted images for explosion
+;;; of radius = 2
+explosion_drawtable_by_offset_table:
+.word \
+             draw_explosion_R_0_table \
+            ,draw_explosion_R_1_table \
+            ,draw_explosion_R_2_table \
+            ,draw_explosion_R_3_table \
+            ,draw_explosion_R_4_table \
+            ,draw_explosion_R_5_table \
+            ,draw_explosion_R_6_table \
+            ,draw_explosion_R_7_table
 
 explosion_frame_table:
-.word        explosion_1_table \
-            ,explosion_2_table \
-            ,explosion_3_table \
-            ,explosion_4_table \
-            ,explosion_5_table \
-            ,explosion_6_table \
-            ,explosion_7_table \
-            ,explosion_8_table \
-            ,explosion_8_table \
-            ,explosion_7_table \
-            ,explosion_6_table \
-            ,explosion_5_table \
-            ,explosion_4_table \
-            ,explosion_3_table \
-            ,explosion_2_table \
-            ,explosion_8_table
-sz_explosion_frame_table = (* - explosion_frame_table)/2
-explosion_yoffsets:     .byte  7,6,5,4,3,2,1,0,0,1,2,3,4,5,6,0
-sz_explosion_yoffsets = * - explosion_yoffsets
-.if ( sz_explosion_yoffsets <> sz_explosion_frame_table )
-.error "explosion tables, check sizes"
-.endif
+            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
+sz_explosion_frame_table = (* - explosion_frame_table)
+.macro explosion_y_offset_from_frame frame
+            7 - frame
+.endmacro
 .bss
 slots = 30
 frame_delay = 20
-i_explosion_frame:      .res 1
-detonation_x:       .res slots
-detonation_y:       .res slots
-detonation_frame:   .res slots
+detonation_table:   .word slots
+detonation_proc:    .word slots
+i_detonation_frame: .res slots
+detonation_y:       .res slots          ;orig Y coor
+detonation_cy:      .res slots          ;next Y draw
 .export screen_column
 screen_column:      .res slots
 .code
 
-.proc speed_test
-            lda #16
-            sta _pl_y
-            lda #16
-            sta _pl_x
-            ldy #10
-loop:
-            jsr queue_explosion
-            lda _pl_x
-            clc
-            adc #6
-            sta _pl_x
-
-            lda _pl_y
-            clc
-            adc #6
-            sta _pl_y
-
-            dey
-            bpl loop
-            rts
-.endproc
 .proc       i_detonation
             ldx #slots-1
             lda #255
 loop:
-            sta detonation_frame,x
+            sta i_detonation_frame,x
             dex
             bpl loop
             rts
 .endproc
-
+;;;
 .proc       queue_explosion
             ldx #slots-1
 loop:
-            lda detonation_frame,x
+            lda i_detonation_frame,x
             bmi available
             dex
             bpl loop
@@ -93,77 +70,129 @@ available:
             lda _pl_x
             sec
             sbc #detonation_xoff
-            sta detonation_x,x
-            calc_screen_column
+            tay                         ;save x coord
+            calc_screen_column          ;x/8
             sta screen_column,x
+            tya                         ;restore x coord
+            and #7                      ;modulo8
+            asl                         ;* 2
+            tay
+            ;; we have the bit offset, place the
+            ;; table of explosion draw routines, for this
+            ;; offset into the detonation_table for this
+            ;; explosion
+            lda explosion_drawtable_by_offset_table,y
+            sta detonation_table,x
+            lda explosion_drawtable_by_offset_table+1,y
+            sta detonation_table+1,x
             lda _pl_y
             sec
             sbc #detonation_yoff
             sta detonation_y,x
+            ;; initialize to just beyond end of table
             lda #sz_explosion_frame_table
-            sta detonation_frame,x
+            sta i_detonation_frame,x
             rts
 .endproc
 
-.macro      update_explosion
-            .local draw_first,done,reset
-            lda detonation_frame,x
-            bmi end
-            cmp #sz_explosion_frame_table
-            beq draw_first
-            ;; erase
-            jsr drawit2
-            ;; update animation frame
-draw_first:
-            dec detonation_frame,x
-;            bmi done
-            bmi reset
-            jsr drawit2
-            jmp end
-reset:
-            lda #sz_explosion_frame_table
-            sta detonation_frame,x
-end:
+.proc       test_detonation
+            lda #79
+            sta _pl_x
+            sta _pl_y
+            jsr queue_explosion
+            ldx #$1d
+            jsr update_explosion
+            ldx #$1d
+            jsr draw_explosion
+            rts
+.endproc
+.macro      setup_draw
+            lda pltbl+0,y
+            sta sp_col0
+            lda pltbl+1,y
+            sta sp_col0+1
+            lda pltbl+2,y
+            sta sp_col1
+            lda pltbl+3,y
+            sta sp_col1+1
+            lda pltbl+4,y
+            sta sp_col2
+            lda pltbl+5,y
+            sta sp_col2+1
 .endmacro
+;;; x = explosion to update
+;;; frame = -1 not filled
+.proc       update_explosion
+            lda i_detonation_frame,x
+            sec
+            sbc #1
+            bpl active
+            sta i_detonation_frame,x
+            rts
+active:
+            tay                         ;index into explosion_frame_table
+            lda #7                      ;7-frame
+            sec
+            sbc explosion_frame_table,y
+            sta detonation_cy,x
+            ;; calculate the current Y coordinate to draw at
+            ;; it's differenct for every frame, as frame are different
+            ;; heights
+            lda detonation_y,x
+            clc
+            adc detonation_cy,x
+            sta detonation_cy,x
+            ;; for each frame, there is a rendering/drawing functions
+            ;; ptr_0 = detonation_table[x]
+            lda detonation_table,x
+            sta ptr_0
+            lda detonation_table+1,x
+            sta ptr_0+1
+            ;;
+            ;; detonation_proc[x] = detonation_table[explosion_frame]
+            lda explosion_frame_table,y
+            asl                         ;*2 to access table of words
+            tay
+            lda (ptr_0),y
+            sta detonation_proc,x
+            iny
+            lda (ptr_0),y
+            sta detonation_proc+1,x
+            rts
+.endproc
+;;; x = explosion to draw
+.proc       draw_explosion
+            lda detonation_proc,x
+            sta proc_0
+            lda detonation_proc+1,x
+            sta proc_0+1
+            ldy screen_column,x
+            setup_draw
+            ldy detonation_cy,x
+            jmp (proc_0)
+            rts
+.endproc
 
 .proc       draw_explosions
-            ldx #slots-1
-loop:
-            txa
-            ;; draw when frame_cnt match X index
-            eor frame_cnt
-            bne next
-            update_explosion
-next:
-            dex
-            bpl loop
-done:
+;;             ldx #slots-1
+;; loop:
+;;             txa
+;;             ;; draw when frame_cnt match X index
+;;             eor frame_cnt
+;;             bne next
+;;             update_explosion
+;; next:
+;;             dex
+;;             bpl loop
+;; done:
             rts
 .endproc
+
 
 .zeropage
 drawit_savex:           .res 1
 .code
-.proc       drawit2
-            stx drawit_savex
-            lda detonation_x,x
-            sta s_x
-            lda detonation_y,x
-            clc
-            ldy detonation_frame,x
-            adc explosion_yoffsets,y
-            sta s_y
-            tya
-            ;; multiple detonation_frame * 2
-            asl
-            tay
-            lda explosion_frame_table,y
-            sta ptr_0
-            iny
-            lda explosion_frame_table,y
-            sta ptr_0+1
 
-            jsr draw_sprite16
-            ldx drawit_savex
+.proc       drawit2
             rts
 .endproc

@@ -29,9 +29,9 @@ explosion_drawtable_by_offset_table:
             ,draw_explosion_R_5_table \
             ,draw_explosion_R_6_table \
             ,draw_explosion_R_7_table
-
+;;; which frame to show, and it what order
 explosion_frame_table:
-            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
+            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,7
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -162,15 +162,16 @@ active:
 .endproc
 ;;; x = explosion to draw
 .proc       draw_explosion
+jmp_operand = jmp0 + 1
             lda detonation_proc,x
-            sta proc_0
+            sta jmp_operand
             lda detonation_proc+1,x
-            sta proc_0+1
+            sta jmp_operand+1
             ldy screen_column,x
             setup_draw
             ldy detonation_cy,x
-            jmp (proc_0)
-            rts
+jmp0:
+            jmp 0                       ;dynamic operand
 .endproc
 
 .proc       draw_explosions

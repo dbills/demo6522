@@ -125,7 +125,7 @@ iloop:
 loop:
           jsr wait_v
           bcolor_i CYAN
-          jsr draw_explosions
+          jsr draw_detonations
           bcolor_i BLACK
           update_crosshairs
           jsr interceptor::queue_iterate_interceptor

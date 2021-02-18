@@ -7,7 +7,7 @@
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
-.export queue_explosion, draw_explosions, i_detonation, test_detonation
+.export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations
 
 spackle1 = %10101010
 spackle2 = %01010101
@@ -31,7 +31,7 @@ explosion_drawtable_by_offset_table:
             ,draw_explosion_R_7_table
 ;;; which frame to show, and it what order
 explosion_frame_table:
-            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,7
+            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -58,7 +58,7 @@ loop:
             rts
 .endproc
 ;;;
-.proc       queue_explosion
+.proc       queue_detonation
             ldx #slots-1
 loop:
             lda i_detonation_frame,x
@@ -99,11 +99,16 @@ available:
             lda #79
             sta _pl_x
             sta _pl_y
-            jsr queue_explosion
+            jsr queue_detonation
+loop:
             ldx #$1d
-            jsr update_explosion
+            jsr update_detonation
             ldx #$1d
-            jsr draw_explosion
+            jsr draw_detonation
+            jsr j_wfire
+            jsr draw_detonation
+
+            jmp loop
             rts
 .endproc
 .macro      setup_draw
@@ -122,7 +127,7 @@ available:
 .endmacro
 ;;; x = explosion to update
 ;;; frame = -1 not filled
-.proc       update_explosion
+.proc       update_detonation
             lda i_detonation_frame,x
             sec
             sbc #1
@@ -130,6 +135,7 @@ available:
             sta i_detonation_frame,x
             rts
 active:
+            sta i_detonation_frame,x
             tay                         ;index into explosion_frame_table
             lda #7                      ;7-frame
             sec
@@ -161,7 +167,7 @@ active:
             rts
 .endproc
 ;;; x = explosion to draw
-.proc       draw_explosion
+.proc       draw_detonation
 jmp_operand = jmp0 + 1
             lda detonation_proc,x
             sta jmp_operand
@@ -174,21 +180,31 @@ jmp0:
             jmp 0                       ;dynamic operand
 .endproc
 
-.proc       draw_explosions
-;;             ldx #slots-1
-;; loop:
-;;             txa
-;;             ;; draw when frame_cnt match X index
-;;             eor frame_cnt
-;;             bne next
-;;             update_explosion
-;; next:
-;;             dex
-;;             bpl loop
-;; done:
+.macro      iterate_detonations routine
+            .local loop,next,done
+            ldx #slots-1
+loop:
+            txa
+            ;; draw when frame_cnt match X index
+            eor frame_cnt
+            bne next
+            routine
+next:
+            dex
+            bpl loop
+done:
+            rts
+.endmacro
+
+.proc       update_detonations
+            iterate_detonations jsr update_detonations
             rts
 .endproc
 
+.proc       draw_detonations
+            iterate_detonations jsr draw_detonations
+            rts
+.endproc
 
 .zeropage
 drawit_savex:           .res 1

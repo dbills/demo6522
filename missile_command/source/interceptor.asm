@@ -101,7 +101,7 @@ empty:
           ;; explosion
           stx i_line
           jsr erase_crosshair_mark
-          jsr queue_explosion
+          jsr queue_detonation
           ldx i_line
           rts
 active:

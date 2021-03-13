@@ -117,14 +117,19 @@ available:
             sta _pl_x
             sta _pl_y
             jsr queue_detonation
+            ldx #$1d
+            ;; setup initial values
+            jsr update_detonation
+            jmp entry1
 loop:
             ldx #$1d
             jsr update_detonation
             ldx #$1d
+            jsr erase_detonation
+entry1:
+            ldx #$1d
             jsr draw_detonation
             jsr j_wfire
-            jsr draw_detonation
-
             jmp loop
             rts
 .endproc
@@ -189,6 +194,18 @@ active:
             lda (ptr_0),y
             sta detonation_proc+1,x
             rts
+.endproc
+.proc       erase_detonation
+jmp_operand = jmp0 + 1
+            lda detonation_proc2,x
+            sta jmp_operand
+            lda detonation_proc2+1,x
+            sta jmp_operand+1
+            ldy screen_column,x
+            setup_draw
+            ldy detonation_cy2,x
+jmp0:
+            jmp 0                       ;dynamic operand
 .endproc
 ;;; x = explosion to draw
 .proc       draw_detonation

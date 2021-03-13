@@ -39,8 +39,16 @@ sz_explosion_frame_table = (* - explosion_frame_table)
 .bss
 slots = 30
 frame_delay = 20
+;;; pointer to the list of rendering routines for this detonation
+;;; there is a set of routines for each possible preshifted bit
+;;; pattern of detonation
+;;; e.g. if we are drawing at screen X = 1
+;;; then we need the preshifted=1 set of drawing routines
+;;; and detonation_table is what points to those
 detonation_table:   .word slots
+;;; the current rendering routine based on preshift and animation frame
 detonation_proc:    .word slots
+detonation_proc2:    .word slots
 ;;; there is a  form of 'double buffering' for shapes
 ;;; the versions of a variable if the number 2 suffixed
 ;;; are the old versions of the variable, i.e.
@@ -134,20 +142,6 @@ loop:
             lda pltbl+5,y
             sta sp_col2+1
 .endmacro
-;;; figure out what offset to draw an explosion image at
-;;; on the screen based on it's animation frame
-;;; the formula is Y = 7 - frame #
-;;; in: A = frame #
-;;;     X = detonation index
-;;; out: detonation_cy,x
-;;;
-.macro      calculate_detonation_yoffset
-            tay                         ;index into explosion_frame_table
-            lda #7                      ;Y=7-frame number
-            sec
-            sbc explosion_frame_table,y
-            sta detonation_cy,x
-.endmacro
 ;;; x = explosion to update
 ;;; frame = -1 not filled
 .proc       update_detonation
@@ -166,21 +160,25 @@ active:
             lda #7                      ;Y=7-frame number
             sec
             sbc explosion_frame_table,y
-            sta detonation_cy,x
             ;; calculate the current Y coordinate to draw at
             ;; it's differenct for every frame, as frame are different
             ;; heights
-            lda detonation_y,x
             clc
-            adc detonation_cy,x
+            adc detonation_y,x
             sta detonation_cy,x
-            ;; for each frame, there is a rendering/drawing functions
+            ;; for each frame, there is a rendering/drawing functions.
+            ;; detonation_table points to the correct set of those functions
+            ;; for our preshifted animation images.
             ;; ptr_0 = detonation_table[x]
             lda detonation_table,x
             sta ptr_0
             lda detonation_table+1,x
             sta ptr_0+1
-            ;;
+            ;; copy old detonation proc for double buffering
+            lda detonation_proc,x
+            sta detonation_proc2,x
+            lda detonation_proc+1,x
+            sta detonation_proc2+1,x
             ;; detonation_proc[x] = detonation_table[explosion_frame]
             lda explosion_frame_table,y
             asl                         ;*2 to access table of words

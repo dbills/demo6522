@@ -41,9 +41,18 @@ slots = 30
 frame_delay = 20
 detonation_table:   .word slots
 detonation_proc:    .word slots
+;;; there is a  form of 'double buffering' for shapes
+;;; the versions of a variable if the number 2 suffixed
+;;; are the old versions of the variable, i.e.
+;;; the version to be erased for example
 i_detonation_frame: .res slots
-detonation_y:       .res slots          ;orig Y coor
-detonation_cy:      .res slots          ;next Y draw
+i_detonation_frame2: .res slots
+;;; Y coordinate of center of explosion
+detonation_y:       .res slots
+;;; Y coordinate to render the current frame at, taking
+;;; into account the individual frame's offset
+detonation_cy:      .res slots
+detonation_cy2:      .res slots
 .export screen_column
 screen_column:      .res slots
 .code
@@ -125,10 +134,27 @@ loop:
             lda pltbl+5,y
             sta sp_col2+1
 .endmacro
+;;; figure out what offset to draw an explosion image at
+;;; on the screen based on it's animation frame
+;;; the formula is Y = 7 - frame #
+;;; in: A = frame #
+;;;     X = detonation index
+;;; out: detonation_cy,x
+;;;
+.macro      calculate_detonation_yoffset
+            tay                         ;index into explosion_frame_table
+            lda #7                      ;Y=7-frame number
+            sec
+            sbc explosion_frame_table,y
+            sta detonation_cy,x
+.endmacro
 ;;; x = explosion to update
 ;;; frame = -1 not filled
 .proc       update_detonation
+            lda detonation_cy,x
+            sta detonation_cy2,x
             lda i_detonation_frame,x
+            sta i_detonation_frame2,x
             sec
             sbc #1
             bpl active
@@ -137,7 +163,7 @@ loop:
 active:
             sta i_detonation_frame,x
             tay                         ;index into explosion_frame_table
-            lda #7                      ;7-frame
+            lda #7                      ;Y=7-frame number
             sec
             sbc explosion_frame_table,y
             sta detonation_cy,x

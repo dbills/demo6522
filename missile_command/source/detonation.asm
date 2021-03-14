@@ -31,7 +31,8 @@ explosion_drawtable_by_offset_table:
             ,draw_explosion_R_7_table
 ;;; which frame to show, and it what order
 explosion_frame_table:
-            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
+;            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
+            .byte 7
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -49,10 +50,7 @@ detonation_table:   .word slots
 ;;; the current rendering routine based on preshift and animation frame
 detonation_proc:    .word slots
 detonation_proc2:    .word slots
-;;; there is a  form of 'double buffering' for shapes
-;;; the versions of a variable if the number 2 suffixed
-;;; are the old versions of the variable, i.e.
-;;; the version to be erased for example
+;;; when frame is < 0, then this detonation is not active
 i_detonation_frame: .res slots
 i_detonation_frame2: .res slots
 ;;; Y coordinate of center of explosion
@@ -67,9 +65,11 @@ screen_column:      .res slots
 
 .proc       i_detonation
             ldx #slots-1
-            lda #255
 loop:
+            lda #$fe
             sta i_detonation_frame,x
+            lda #$ff                    ;-1
+            sta i_detonation_frame2,x
             dex
             bpl loop
             rts
@@ -107,8 +107,11 @@ available:
             sbc #detonation_yoff
             sta detonation_y,x
             ;; initialize to just beyond end of table
-            lda #sz_explosion_frame_table
+            lda #sz_explosion_frame_table-1
             sta i_detonation_frame,x
+            jsr update_detonation_data
+            lda #$fe
+            sta i_detonation_frame2,x
             rts
 .endproc
 
@@ -118,21 +121,19 @@ available:
             sta _pl_y
             jsr queue_detonation
             ldx #$1d
-            ;; setup initial values
-            jsr update_detonation
-            jmp entry1
 loop:
             ldx #$1d
-            jsr update_detonation
-            ldx #$1d
             jsr erase_detonation
-entry1:
             ldx #$1d
             jsr draw_detonation
             jsr j_wfire
+            ldx #$1d
+            jsr update_detonation
             jmp loop
             rts
 .endproc
+;;; load the screen and sprite
+;;; pointer for a draw
 .macro      setup_draw
             lda pltbl+0,y
             sta sp_col0
@@ -148,21 +149,37 @@ entry1:
             sta sp_col2+1
 .endmacro
 ;;; x = explosion to update
-;;; frame = -1 not filled
+;;; note: there is a sequence of animation 'frames' to
+;;; show, that sequence is stored at explosion_frame_table
+;;; after an explosion is erased
+;;; i_detonation_frame = -2
+;;; i_detonation_frame2 = -1
 .proc       update_detonation
+            lda i_detonation_frame,x
+            cmp #$fe                     ;-2
+            beq inactive
+            ;; copy for double buffering
+            sta i_detonation_frame2,x
             lda detonation_cy,x
             sta detonation_cy2,x
-            lda i_detonation_frame,x
-            sta i_detonation_frame2,x
-            sec
-            sbc #1
-            bpl active
-            sta i_detonation_frame,x
+            lda detonation_proc,x
+            sta detonation_proc2,x
+            lda detonation_proc+1,x
+            sta detonation_proc2+1,x
+
+            dec i_detonation_frame,x
+            bmi inactive
+            jmp update_detonation_data
+inactive:
             rts
+.endproc
+;;; in: A = detonation frame
+;;;     X = detonation number
+.proc       update_detonation_data
 active:
-            sta i_detonation_frame,x
             tay                         ;index into explosion_frame_table
-            lda #7                      ;Y=7-frame number
+            ;; animation frame offset: y=7-frame number
+            lda #7
             sec
             sbc explosion_frame_table,y
             ;; calculate the current Y coordinate to draw at
@@ -179,11 +196,6 @@ active:
             sta ptr_0
             lda detonation_table+1,x
             sta ptr_0+1
-            ;; copy old detonation proc for double buffering
-            lda detonation_proc,x
-            sta detonation_proc2,x
-            lda detonation_proc+1,x
-            sta detonation_proc2+1,x
             ;; detonation_proc[x] = detonation_table[explosion_frame]
             lda explosion_frame_table,y
             asl                         ;*2 to access table of words
@@ -197,6 +209,8 @@ active:
 .endproc
 .proc       erase_detonation
 jmp_operand = jmp0 + 1
+            lda i_detonation_frame2,x
+            bmi done
             lda detonation_proc2,x
             sta jmp_operand
             lda detonation_proc2+1,x
@@ -206,9 +220,13 @@ jmp_operand = jmp0 + 1
             ldy detonation_cy2,x
 jmp0:
             jmp 0                       ;dynamic operand
+done:
+            rts
 .endproc
 ;;; x = explosion to draw
 .proc       draw_detonation
+            lda i_detonation_frame,x
+            bmi done
 jmp_operand = jmp0 + 1
             lda detonation_proc,x
             sta jmp_operand
@@ -219,6 +237,8 @@ jmp_operand = jmp0 + 1
             ldy detonation_cy,x
 jmp0:
             jmp 0                       ;dynamic operand
+done:
+            rts
 .endproc
 
 .macro      iterate_detonations routine
@@ -238,12 +258,17 @@ done:
 .endmacro
 
 .proc       update_detonations
-            iterate_detonations jsr update_detonations
+            iterate_detonations jsr update_detonation
+            rts
+.endproc
+
+.proc       erase_detonations
+            iterate_detonations jsr erase_detonation
             rts
 .endproc
 
 .proc       draw_detonations
-            iterate_detonations jsr draw_detonations
+            iterate_detonations jsr draw_detonation
             rts
 .endproc
 

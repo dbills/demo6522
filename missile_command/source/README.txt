@@ -22,3 +22,8 @@ procedure and macro header comments are:
 ;;;   X is clobbered
 .proc foo arg1
 .endproc
+
+there is a  form of 'double buffering' for shapes
+the versions of a variable if the number 2 suffixed
+are the old versions of the variable, i.e.
+the version to be erased for example

@@ -32,13 +32,13 @@ explosion_drawtable_by_offset_table:
 ;;; which frame to show, and it what order
 explosion_frame_table:
 ;            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
-            .byte 7
+            .byte 7,2
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
 .endmacro
 .bss
-slots = 30
+slots = 1
 frame_delay = 20
 ;;; pointer to the list of rendering routines for this detonation
 ;;; there is a set of routines for each possible preshifted bit
@@ -120,15 +120,20 @@ available:
             sta _pl_x
             sta _pl_y
             jsr queue_detonation
-            ldx #$1d
 loop:
-            ldx #$1d
-            jsr erase_detonation
-            ldx #$1d
-            jsr draw_detonation
             jsr j_wfire
-            ldx #$1d
-            jsr update_detonation
+            ldx #(slots-1)
+            jsr erase_detonations
+
+            jsr j_wfire
+            ldx #(slots-1)
+            jsr draw_detonations
+
+            ldx #(slots-1)
+            ;; this appears to be failing because
+            ;; the pointers for the next draw are all
+            ;; effed up
+            jsr update_detonations
             jmp loop
             rts
 .endproc
@@ -177,6 +182,7 @@ inactive:
 ;;;     X = detonation number
 .proc       update_detonation_data
 active:
+            lda i_detonation_frame,x
             tay                         ;index into explosion_frame_table
             ;; animation frame offset: y=7-frame number
             lda #7

@@ -9,9 +9,18 @@
 .include "shapes.mac"
 .export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations
 
-spackle1 = %10101010
-spackle2 = %01010101
-
+;;; i_detonation_frame = -1 => don't draw, but erase
+;;;                    = -2 => don't draw or erase
+;;; or, put another way:
+;;; Let A = i_frame, B = i_frame2
+;;;  0  1  =>  -1  0  =>  -2  -1
+;;;  A  B       A  B       A   B
+;;; ----------------------------
+;;;   T0         T1          T2
+;;;
+;;; T0 = drawing the last frame of an animation
+;;; T1 = drawing nothing, but erasing the last frame
+;;; T2 = drawing nothing, erasing nothing
 .linecont
 .data
 ;;; this is a table of tables
@@ -31,8 +40,8 @@ explosion_drawtable_by_offset_table:
             ,draw_explosion_R_7_table
 ;;; which frame to show, and it what order
 explosion_frame_table:
-;            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
-            .byte 7,2
+            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
+;            .byte 7,2
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -66,8 +75,10 @@ screen_column:      .res slots
 .proc       i_detonation
             ldx #slots-1
 loop:
-            lda #$fe
+            ;; load -2, implies no draw, no erase
+            lda #$fe                    ;-2
             sta i_detonation_frame,x
+            ;; load -1, implies no erase
             lda #$ff                    ;-1
             sta i_detonation_frame2,x
             dex
@@ -110,7 +121,7 @@ available:
             lda #sz_explosion_frame_table-1
             sta i_detonation_frame,x
             jsr update_detonation_data
-            lda #$fe
+            lda #$ff                    ;-1
             sta i_detonation_frame2,x
             rts
 .endproc

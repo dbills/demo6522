@@ -18,3 +18,15 @@ TODO:
   next thing to work on is creating a quad_sprite_draw
   which, I thin is as simpe as widening the loop of bytes
   to copy from 8 to 16
+
+WOW: this is the last time I worked on this after all the
+     medical drama
+  4/10
+  picking up where left off, double buffering
+  the main loop woul be something like this:
+  begin time critical
+    erase missiles old position
+    draw missiles new position
+  end time critical
+    copy current missile position to old
+    update new missile position

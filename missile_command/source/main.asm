@@ -5,7 +5,7 @@
 .include "colors.equ"
 .include "line.inc"
 .include "math.mac"
-.include "system.mac"
+.include "system.inc"
 .include "jstick.inc"
 .include "kplane.mac"
 .include "target.inc"
@@ -38,6 +38,7 @@
           jsr i_chrset
           jsr i_hires
           jsr i_joy
+          jsr i_rand
           screenmem SCREEN
 
           ;; border colors
@@ -131,11 +132,6 @@ loop:
           update_crosshairs
           jsr interceptor::queue_iterate_interceptor
 
-          lda frame_cnt
-          clc
-          adc #1
-          and #%00011111
-          sta frame_cnt
           jmp loop
           rts
 .endproc

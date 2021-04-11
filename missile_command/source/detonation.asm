@@ -125,6 +125,28 @@ available:
             sta i_detonation_frame2,x
             rts
 .endproc
+rmax = 140
+.proc       myrand
+            jsr rand_8
+check:
+            cmp #rmax
+            bcc done
+            sec
+            sbc #rmax
+            jmp check
+done:
+            clc
+            adc #10
+            rts
+.endproc
+
+.proc       rand_detonation
+            jsr myrand
+            sta _pl_x
+            jsr myrand
+            sta _pl_y
+            rts
+.endproc
 .data
 fubar:      .res 1
 .code
@@ -135,10 +157,17 @@ fubar:      .res 1
             sta _pl_y
 ;            jsr queue_detonation
 loop:
-            inc fubar
-            bne skip
+            lda fubar
+            clc
+            adc #1
+            sta fubar
+            cmp #170
+            bne inrange
+            lda #0
+            sta fubar
+            jsr rand_detonation
             jsr queue_detonation
-skip:
+inrange:
             jsr wait_v
             update_frame
 

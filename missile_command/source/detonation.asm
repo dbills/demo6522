@@ -125,25 +125,32 @@ available:
             sta i_detonation_frame2,x
             rts
 .endproc
-
+.data
+fubar:      .res 1
+.code
+.import wait_v
 .proc       test_detonation
             lda #79
             sta _pl_x
             sta _pl_y
-            jsr queue_detonation
+;            jsr queue_detonation
 loop:
-            jsr j_wfire
+            inc fubar
+            bne skip
+            jsr queue_detonation
+skip:
+            jsr wait_v
+            update_frame
+
+            ;jsr j_wfire
             ldx #(slots-1)
             jsr erase_detonations
 
-            jsr j_wfire
+            ;jsr j_wfire
             ldx #(slots-1)
             jsr draw_detonations
 
             ldx #(slots-1)
-            ;; this appears to be failing because
-            ;; the pointers for the next draw are all
-            ;; effed up
             jsr update_detonations
             jmp loop
             rts
@@ -263,8 +270,7 @@ done:
             ldx #slots-1
 loop:
             txa
-            ;; draw when frame_cnt match X index
-            eor frame_cnt
+            cmp frame_cnt
             bne next
             routine
 next:

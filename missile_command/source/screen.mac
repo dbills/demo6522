@@ -151,5 +151,12 @@ bit10_12  = (addr & %0001110000000000) >> 6
           sta (ptr_0),y
 ;          ldy save_y
 .endmacro
-
+detonation_div = 128
+.macro      update_frame
+            lda frame_cnt
+            clc
+            adc #1
+            and #%00000111
+            sta frame_cnt
+.endmacro
 .endif

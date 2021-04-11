@@ -109,6 +109,7 @@ done:
           rts
 .endproc
 ;;; wait vertical blank
+.export wait_v
 .proc       wait_v
 iloop:
           lda VICRASTER           ;load raster line
@@ -129,7 +130,7 @@ loop:
           bcolor_i BLACK
           update_crosshairs
           jsr interceptor::queue_iterate_interceptor
-          ;; 0-63 frame counter
+
           lda frame_cnt
           clc
           adc #1

@@ -47,18 +47,20 @@ sz_explosion_frame_table = (* - explosion_frame_table)
             7 - frame
 .endmacro
 .bss
-slots = 1
-frame_delay = 20
+slots = 2
 ;;; pointer to the list of rendering routines for this detonation
 ;;; there is a set of routines for each possible preshifted bit
 ;;; pattern of detonation
 ;;; e.g. if we are drawing at screen X = 1
 ;;; then we need the preshifted=1 set of drawing routines
 ;;; and detonation_table is what points to those
-detonation_table:   .word slots
+detonation_tableL:   .res slots
+detonation_tableH:   .res slots
 ;;; the current rendering routine based on preshift and animation frame
-detonation_proc:    .word slots
-detonation_proc2:    .word slots
+detonation_procL:    .res slots
+detonation_procH:    .res slots
+detonation_proc2L:    .res slots
+detonation_proc2H:    .res slots
 ;;; when frame is < 0, then this detonation is not active
 i_detonation_frame: .res slots
 i_detonation_frame2: .res slots
@@ -110,9 +112,9 @@ available:
             ;; offset into the detonation_table for this
             ;; explosion
             lda explosion_drawtable_by_offset_table,y
-            sta detonation_table,x
+            sta detonation_tableL,x
             lda explosion_drawtable_by_offset_table+1,y
-            sta detonation_table+1,x
+            sta detonation_tableH,x
             lda _pl_y
             sec
             sbc #detonation_yoff
@@ -156,18 +158,11 @@ fubar:      .res 1
             sta _pl_x
             sta _pl_y
 ;            jsr queue_detonation
-loop:
-            lda fubar
-            clc
-            adc #1
-            sta fubar
-            cmp #170
-            bne inrange
-            lda #0
-            sta fubar
-            jsr rand_detonation
+            lda #30
+            sta _pl_x
+            sta _pl_y
             jsr queue_detonation
-inrange:
+loop:
             jsr wait_v
             update_frame
 
@@ -214,10 +209,10 @@ inrange:
             sta i_detonation_frame2,x
             lda detonation_cy,x
             sta detonation_cy2,x
-            lda detonation_proc,x
-            sta detonation_proc2,x
-            lda detonation_proc+1,x
-            sta detonation_proc2+1,x
+            lda detonation_procL,x
+            sta detonation_proc2L,x
+            lda detonation_procH,x
+            sta detonation_proc2H,x
 
             dec i_detonation_frame,x
             bmi inactive
@@ -245,28 +240,28 @@ active:
             ;; detonation_table points to the correct set of those functions
             ;; for our preshifted animation images.
             ;; ptr_0 = detonation_table[x]
-            lda detonation_table,x
+            lda detonation_tableL,x
             sta ptr_0
-            lda detonation_table+1,x
+            lda detonation_tableH,x
             sta ptr_0+1
             ;; detonation_proc[x] = detonation_table[explosion_frame]
             lda explosion_frame_table,y
             asl                         ;*2 to access table of words
             tay
             lda (ptr_0),y
-            sta detonation_proc,x
+            sta detonation_procL,x
             iny
             lda (ptr_0),y
-            sta detonation_proc+1,x
+            sta detonation_procH,x
             rts
 .endproc
 .proc       erase_detonation
 jmp_operand = jmp0 + 1
             lda i_detonation_frame2,x
             bmi done
-            lda detonation_proc2,x
+            lda detonation_proc2L,x
             sta jmp_operand
-            lda detonation_proc2+1,x
+            lda detonation_proc2H,x
             sta jmp_operand+1
             ldy screen_column,x
             setup_draw
@@ -281,9 +276,9 @@ done:
             lda i_detonation_frame,x
             bmi done
 jmp_operand = jmp0 + 1
-            lda detonation_proc,x
+            lda detonation_procL,x
             sta jmp_operand
-            lda detonation_proc+1,x
+            lda detonation_procH,x
             sta jmp_operand+1
             ldy screen_column,x
             setup_draw

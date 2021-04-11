@@ -40,14 +40,14 @@ explosion_drawtable_by_offset_table:
             ,draw_explosion_R_7_table
 ;;; which frame to show, and it what order
 explosion_frame_table:
-            .byte 1,2,3,4,5,6,7,6,5,4,3,2,1,0
+            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
 ;            .byte 7,2
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
 .endmacro
 .bss
-slots = 2
+slots = 30
 ;;; pointer to the list of rendering routines for this detonation
 ;;; there is a set of routines for each possible preshifted bit
 ;;; pattern of detonation
@@ -92,7 +92,8 @@ loop:
             ldx #slots-1
 loop:
             lda i_detonation_frame,x
-            bmi available
+            cmp #$fe
+            beq available
             dex
             bpl loop
             rts
@@ -127,7 +128,7 @@ available:
             sta i_detonation_frame2,x
             rts
 .endproc
-rmax = 140
+rmax = 159-8
 .proc       myrand
             jsr rand_8
 check:
@@ -138,7 +139,7 @@ check:
             jmp check
 done:
             clc
-            adc #10
+            adc #8
             rts
 .endproc
 
@@ -147,6 +148,7 @@ done:
             sta _pl_x
             jsr myrand
             sta _pl_y
+            jsr queue_detonation
             rts
 .endproc
 .data
@@ -163,6 +165,11 @@ fubar:      .res 1
             sta _pl_y
             jsr queue_detonation
 loop:
+            jsr rand_8
+            and #7
+            bne skip
+            jsr rand_detonation
+skip:
             jsr wait_v
             update_frame
 
@@ -294,6 +301,7 @@ done:
             ldx #slots-1
 loop:
             txa
+            and #7                      ;modulo 8
             cmp frame_cnt
             bne next
             routine

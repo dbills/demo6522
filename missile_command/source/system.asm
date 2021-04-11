@@ -1,7 +1,8 @@
 .include "system.mac"
 .export _sleep, rand_8, i_rand
 .data
-r_seed:   .res 1
+seedlo:    .res 1
+seedhi:    .res 1
 .code
 .proc _sleep
 loop:
@@ -19,16 +20,21 @@ loop:
 loop:
           lda VICRASTER
           beq loop
-          sta r_seed
+          cmp #41
+          beq loop
+          sta seedlo
+          lda #41
+          sta seedhi
           rts
 .endproc
 .proc     rand_8
-	LDA	r_seed		; get seed
-	ASL			; shift byte
-	BCC	no_eor		; branch if no carry
-
-	EOR	#$CF		; else EOR with $CF
-no_eor:
-	STA	r_seed		; save number as next seed
-	RTS			; done
+lda seedhi
+  lsr
+  rol seedlo
+  bcc noeor
+  eor #$B4
+noeor:
+  sta seedhi
+  eor seedlo
+  RTS
 .endproc

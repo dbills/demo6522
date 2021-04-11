@@ -57,9 +57,9 @@
 
 .import test_detonation
 foo:
-          ;jsr main_loop
+          jsr main_loop
           ;jsr line_tests
-          jsr test_detonation
+          ;;jsr test_detonation
           jmp loop
 ;          debug_string "missilecommandtheend"
 loop:

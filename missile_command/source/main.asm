@@ -65,6 +65,7 @@ foo:
           ;; lda #1
           ;; sta bigx
           ;; sta bigy
+          lda #1
           jsr bigletter
           ;jsr bigstring
           ;jsr main_loop

@@ -19,4 +19,5 @@ no_add:
 	  BNE  loop
 	  STA  factor2
 	  ; done, high result in factor2, low result in factor1
+              rts
 .endproc

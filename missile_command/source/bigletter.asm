@@ -1,4 +1,4 @@
-.include "zerop.inc"
+;.include "zerop.inc"
 .include "screen.inc"
 .include "system.inc"
 .include "m16.mac"
@@ -13,6 +13,8 @@ counter2:      .res 1
 charrow:    .res 1
 message1:    .byte 13,9,19,19,9,12,5,0
 message2:   .byte 3,15,13,13,1,14,4
+.zeropage
+chrom1:     .res 2
 .code
 
 
@@ -45,20 +47,20 @@ done:
 .endproc
 
 .proc       bigletter
-            ;; pha
-            ;; sta factor1
-            ;; lda #8
-            ;; sta factor2
-            ;; jsr mul8
-            ;; mov factor1, ptr_0
-            ;; add #$8000,ptr_0
-            ;; pla
+            pha
+            sta factor1
+            lda #8
+            sta factor2
+            jsr mul8
+            mov factor1, chrom1
+            add #$8000, chrom1
+            pla
             saveall
 
             ldy #$ff
 loop1:
             iny
-            lda $8000,y
+            lda (chrom1),y
             sta charrow
             ldx #7
 loop2:

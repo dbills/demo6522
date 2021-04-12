@@ -11,8 +11,8 @@
 .scope interceptor
 .export in_initialize,launch,queue_iterate_interceptor
 
-base_x = 176/2
-base_y = 176-16
+base_x = XMAX/2
+base_y = YMAX-16
 
 .bss
 i_line:   .res 1

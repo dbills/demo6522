@@ -56,8 +56,18 @@
           jsr i_detonation
 
 .import test_detonation
+.include "bigletter.inc"
 foo:
-          jsr main_loop
+          lda #0
+          sta bigx
+          sta bigy
+          ;; jsr bigplot
+          ;; lda #1
+          ;; sta bigx
+          ;; sta bigy
+          jsr bigletter
+          ;jsr bigstring
+          ;jsr main_loop
           ;jsr line_tests
           ;;jsr test_detonation
           jmp loop
@@ -76,6 +86,8 @@ loop:
 .proc     i_hires
           chbase CHBASE1
           setrows SCRROWS
+          setcolumns SCRCOLS
+          setleft 3
           tallchar
           ldy SCRMAP_SZ
           ;; fill screen with chars tile
@@ -128,7 +140,7 @@ loop:
           jsr wait_v
           bcolor_i CYAN
           jsr draw_detonations
-          bcolor_i BLACK
+;          bcolor_i BLACK
           update_crosshairs
           jsr interceptor::queue_iterate_interceptor
 

@@ -27,7 +27,7 @@ HZ16        = $f424           ; 1/16th
             pha
 .endmacro
 
-.macro       resall
+.macro      resall
             pla
             tay
             pla

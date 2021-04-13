@@ -4,7 +4,7 @@
 .include "m16.mac"
 .include "math.inc"
 
-.export bigx,bigy,bigplot,bigletter,bigstring
+.export bigx,bigy,bigplot,bigletter,bigstring,mcommand
 .data
 bigx:         .res 1
 bigy:         .res 1
@@ -12,32 +12,46 @@ counter1:      .res 1
 counter2:      .res 1
 charrow:    .res 1
 message1:    .byte 13,9,19,19,9,12,5,0
-message2:   .byte 3,15,13,13,1,14,4
+message2:   .byte 3,15,13,13,1,14,4,0
+bigwidth = 7
+left_offset = ( (XMAX / 3) / 2 )- ( ( bigwidth * 7 ) / 2 )
 .zeropage
 chrom1:     .res 2
+msg1:       .res 2
 .code
 
+.proc       mcommand
+            lda #left_offset
+            sta bigx
+            lda #16
+            sta bigy
+            mov #message1, msg1
+            jsr bigstring
+
+            lda bigy
+            clc
+            adc #8
+            sta bigy
+
+            lda #left_offset
+            sta bigx
+            mov #message2, msg1
+            jsr bigstring
+            rts
+.endproc
 
 .proc       bigstring
             ldy  #0
 loop:
-            ;lda (ptr_string),y
-            lda  message1,y
+            lda  (msg1),y
             beq done
-
-            lda bigx
-            pha
-            lda bigy
-            pha
 
             jsr bigletter
 
-            pla
-            sta bigy
-            pla
             ;; increment letter position
+            lda bigx
             clc
-            adc #8
+            adc #7
             sta bigx
             ;; next letter
             iny
@@ -47,15 +61,18 @@ done:
 .endproc
 
 .proc       bigletter
-            pha
             sta factor1
             lda #8
             sta factor2
+            saveall
             jsr mul8
             mov factor1, chrom1
             add #$8000, chrom1
-            pla
-            saveall
+            lda bigx
+            pha
+            lda bigy
+            pha
+
 
             ldy #$ff
 loop1:
@@ -80,6 +97,11 @@ nextbit:
             ;; next char row
             cpy #7
             bne loop1
+
+            pla
+            sta bigy
+            pla
+            sta bigx
             resall
             rts
 .endproc

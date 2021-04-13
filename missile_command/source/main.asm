@@ -66,11 +66,12 @@ foo:
           ;; sta bigx
           ;; sta bigy
           lda #1
-          jsr bigletter
+          ;jsr bigletter
           ;jsr bigstring
+          jsr mcommand
           ;jsr main_loop
           ;jsr line_tests
-          ;;jsr test_detonation
+          jsr test_detonation
           jmp loop
 ;          debug_string "missilecommandtheend"
 loop:

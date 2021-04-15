@@ -11,7 +11,7 @@
 .define TEXT_HEIGHT 7
 
 .data
-string1:    
+string1:
 .asciiz     "abcdefghijklmnopqrstuvwxyz012"
 letter_table:
 OFFSET      .set 0
@@ -20,7 +20,7 @@ OFFSET      .set 0
 OFFSET      .set OFFSET + 7
 .endrep
 
-string_offset:          
+string_offset:
             .byte 0
 .code
 .proc       _draw_string
@@ -28,10 +28,12 @@ string_offset:
             sta string_offset
             lda #TEXT_HEIGHT
             sta height
-loop:       
+loop:
             ldy string_offset
             lda (ptr_string),y
             beq done
+            cmp #' '
+            beq next
             sec
             sbc #'a'
             tax
@@ -45,14 +47,14 @@ loop:
             sta ptr_0+1
 
             jsr draw_unshifted_sprite
-
+next:
             inc string_offset
             lda #6
             clc
             adc s_x
             sta s_x
             jmp loop
-done:       
+done:
             rts
 .endproc
 
@@ -71,7 +73,7 @@ done:
 .endproc
 
 .data
-_LETTERS:    
+_LETTERS:
 	.byte  %00100000,%01010000,%10001000,%11111000,%10001000,%10001000,%10001000 ;A
 	.byte  %11110000,%10001000,%10001000,%11110000,%10001000,%10001000,%11110000 ;B
 	.byte  %01110000,%10001000,%10000000,%10000000,%10000000,%10001000,%01110000 ;C
@@ -109,5 +111,3 @@ _LETTERS:
 	.byte  %11111000,%00001000,%00010000,%00100000,%01000000,%01000000,%01000000
 	.byte  %01110000,%10001000,%10001000,%01110000,%10001000,%10001000,%01110000
 	.byte  %01110000,%10001000,%10001000,%01111000,%00001000,%00010000,%01100000
-
-

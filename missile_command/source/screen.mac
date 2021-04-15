@@ -9,7 +9,7 @@ _SCREEN_H = 1
 .endif
 SCRROWS = 23 / 2
 YMAX = SCRROWS * 16
-SCRCOLS = 23
+SCRCOLS .set 23
 XMAX = SCRCOLS * 8
 LINEMAX = (SCRCOLS * 8)
 .define DEBUG_SCREEN $2000
@@ -145,6 +145,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           ;; and place in Y
           lsr
           lsr
+          ;; instead of lsr,asl
           and #$fe
           tay
           ;; ptr_0 will be location in CHRAM

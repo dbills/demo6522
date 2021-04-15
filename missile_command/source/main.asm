@@ -30,7 +30,7 @@
           mov #sound_interrupt, $0314
           ;mov #MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
-          cli
+;          cli
           lda #8
           sta 36878
 
@@ -50,7 +50,7 @@
 
           jsr sound_init
 
-          jsr draw_cities
+          ;jsr draw_cities
           jsr interceptor::in_initialize
           jsr init_lines
           jsr i_detonation
@@ -65,13 +65,15 @@ foo:
           ;; lda #1
           ;; sta bigx
           ;; sta bigy
-          lda #1
           ;jsr bigletter
           ;jsr bigstring
-          jsr mcommand
+          ;;jsr mcommand
           ;jsr main_loop
           ;jsr line_tests
-          jsr test_detonation
+          ;jsr test_detonation
+.import attract
+          jsr attract
+
           jmp loop
 ;          debug_string "missilecommandtheend"
 loop:

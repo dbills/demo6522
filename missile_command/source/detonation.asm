@@ -47,7 +47,7 @@ sz_explosion_frame_table = (* - explosion_frame_table)
             7 - frame
 .endmacro
 .bss
-slots = 30
+slots = 20
 ;;; pointer to the list of rendering routines for this detonation
 ;;; there is a set of routines for each possible preshifted bit
 ;;; pattern of detonation

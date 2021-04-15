@@ -1,3 +1,4 @@
+;;; produces the attract screen
 ;.include "zerop.inc"
 .include "screen.inc"
 .include "system.inc"
@@ -6,13 +7,15 @@
 
 .export bigx,bigy,bigplot,bigletter,bigstring,mcommand
 .data
+message1:    .byte 13,9,19,19,9,12,5,0
+message2:   .byte 3,15,13,13,1,14,4,0
+lwidth:     .byte 3
+.bss
 bigx:         .res 1
 bigy:         .res 1
 counter1:      .res 1
 counter2:      .res 1
 charrow:    .res 1
-message1:    .byte 13,9,19,19,9,12,5,0
-message2:   .byte 3,15,13,13,1,14,4,0
 bigwidth = 7
 left_offset = ( (XMAX / 3) / 2 )- ( ( bigwidth * 7 ) / 2 )
 .zeropage
@@ -23,7 +26,9 @@ msg1:       .res 2
 .proc       mcommand
             lda #left_offset
             sta bigx
-            lda #16
+            ;lda #16
+            lda #0
+
             sta bigy
             mov #message1, msg1
             jsr bigstring
@@ -119,25 +124,25 @@ nextbit:
             adc bigy
             sta _pl_y
 
-            lda #2
+            lda lwidth
             sta counter1
 xloop:
-            lda #2
+            lda lwidth
             sta counter2
 drawx:
             jsr _plot
             inc _pl_x
             dec counter2
-            bpl drawx
+            bne drawx
 
             lda _pl_x
             sec
-            sbc #3
+            sbc lwidth
             sta _pl_x
 
             inc _pl_y
             dec counter1
-            bpl xloop
+            bne xloop
 
             resall
             rts

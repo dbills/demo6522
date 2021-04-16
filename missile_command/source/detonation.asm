@@ -128,7 +128,7 @@ available:
             sta i_detonation_frame2,x
             rts
 .endproc
-rmax = 159-8
+rmax = YMAX-32
 .proc       myrand
             jsr rand_8
 check:

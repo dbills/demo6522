@@ -26,8 +26,7 @@ msg1:       .res 2
 .proc       mcommand
             lda #left_offset
             sta bigx
-            lda #12
-
+            lda #11
             sta bigy
             mov #message1, msg1
             jsr bigstring

@@ -7,6 +7,7 @@
 .include "detonation.inc"
 .include "scroller.inc"
 .include "colors.equ"
+.include "playfield.inc"
 
 .export attract
 
@@ -15,6 +16,9 @@
 .proc attract
             jsr mcommand
             jsr i_scroller
+            lda #YMAX-16
+            sta city_base
+            jsr draw_cities
 
 loop:
             jsr rand_8

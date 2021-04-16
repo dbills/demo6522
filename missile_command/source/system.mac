@@ -34,6 +34,10 @@ HZ16        = $f424           ; 1/16th
             tax
             pla
 .endmacro
+.macro      push _1
+            lda _1
+            pha
+.endmacro
 .macro      pushw ptr
             lda ptr
             pha

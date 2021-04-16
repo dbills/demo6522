@@ -4,7 +4,7 @@
 .include "colors.equ"
 .include "text.inc"
 .include "m16.mac"
-.export scroller, i_scroller
+.export i_scroller, scroll1
 .import wait_v
 .importzp s_x,s_y
 .bss
@@ -29,13 +29,12 @@ iloop:
             lda #0
             sta s_x
             jsr _draw_string
-.endproc
-
-scroller:
             lda #0
             sta store
-loop:
-            bcolor_i CYAN
+            rts
+.endproc
+
+scroll1:
             rol store
             .repeat 8, PIXELROW
 COL           .set SCRCOLS-1
@@ -45,6 +44,4 @@ COL             .set COL - 1
               .endrep
               rol store
             .endrep
-            bcolor_i BLACK
-            jsr wait1
-            jmp loop
+            rts

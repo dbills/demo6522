@@ -26,8 +26,7 @@ msg1:       .res 2
 .proc       mcommand
             lda #left_offset
             sta bigx
-            ;lda #16
-            lda #0
+            lda #12
 
             sta bigy
             mov #message1, msg1
@@ -35,7 +34,7 @@ msg1:       .res 2
 
             lda bigy
             clc
-            adc #8
+            adc #12
             sta bigy
 
             lda #left_offset

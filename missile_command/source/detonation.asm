@@ -7,7 +7,7 @@
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
-.export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations
+.export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations,erase_detonations, rand_detonation
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
 ;;;                    = -2 => don't draw or erase
@@ -156,14 +156,6 @@ fubar:      .res 1
 .code
 .import wait_v
 .proc       test_detonation
-            lda #79
-            sta _pl_x
-            sta _pl_y
-;            jsr queue_detonation
-            lda #30
-            sta _pl_x
-            sta _pl_y
-            jsr queue_detonation
 loop:
             jsr rand_8
             and #7

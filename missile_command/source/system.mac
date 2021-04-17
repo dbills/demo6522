@@ -19,6 +19,19 @@ HZ120       = $208d           ; 1/120th
 HZ30        = $8235           ; 1/30th
 HZ60        = $411A           ; 1/60th
 HZ16        = $f424           ; 1/16th
+
+.macro      savexy
+            txa
+            pha
+            tya
+            pha
+.endmacro
+.macro      resxy
+            pla
+            tay
+            pla
+            tax
+.endmacro
 .macro      saveall
             pha
             txa

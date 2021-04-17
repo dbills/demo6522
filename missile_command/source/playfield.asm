@@ -3,7 +3,7 @@
 .include "m16.mac"
 .include "zerop.inc"
 .include "screen.mac"
-.export draw_cities, city_base
+.export draw_cities, city_base, city_x_positions
 .bss
 city_base:  .res 1
 .data

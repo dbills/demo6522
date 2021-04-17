@@ -6,10 +6,13 @@
 .include "system.mac"
 .include "screen.mac"
 
-.export _draw_string,_debug_string
+.export _draw_string,_debug_string,text_x,text_y,_debug_number
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
-
+.define TEXT_WIDTH 6
+.bss
+text_x:     .res 1
+text_y:     .res 1
 .data
 string1:
 .asciiz     "abcdefghijklmnopqrstuvwxyz012"
@@ -19,10 +22,26 @@ OFFSET      .set 0
             .byte OFFSET
 OFFSET      .set OFFSET + 7
 .endrep
+;;; calculate pointer to given letter
+;;; IN: A = letter
+;;;     font: base addr of glyphs
+;;;     ptr: zp pointer to set
+.macro      letter_pointer font,ptr
+            tax
+            lda letter_table,x
+
+            clc
+            adc #<(font)
+            sta ptr
+            lda #>(font)
+            adc #0
+            sta ptr+1
+.endmacro
 
 string_offset:
             .byte 0
 .code
+
 .proc       _draw_string
             lda #0
             sta string_offset
@@ -36,20 +55,12 @@ loop:
             beq next
             sec
             sbc #'a'
-            tax
-            lda letter_table,x
-
-            clc
-            adc #<(_LETTERS)
-            sta ptr_0
-            lda #>(_LETTERS)
-            adc #0
-            sta ptr_0+1
+            letter_pointer _LETTERS, ptr_0
 
             jsr draw_unshifted_sprite
 next:
             inc string_offset
-            lda #6
+            lda #TEXT_WIDTH
             clc
             adc s_x
             sta s_x
@@ -58,6 +69,29 @@ done:
             rts
 .endproc
 
+;;; IN: A = number to display
+.proc       _debug_number
+            pha
+            ldx #TEXT_HEIGHT
+            stx height
+            ;; display high nibble
+            lsr
+            lsr
+            lsr
+            lsr
+            letter_pointer _NUMBERS, ptr_0
+            jsr draw_unshifted_sprite
+            lda #TEXT_WIDTH
+            clc
+            adc s_x
+            sta s_x
+            pla
+            ;; display low nibble
+            and #$0f
+            letter_pointer _NUMBERS, ptr_0
+            jsr draw_unshifted_sprite
+            rts
+.endproc
 
 .proc       _debug_string
             saveall
@@ -91,7 +125,7 @@ _LETTERS:
 	.byte  %00100000,%01010000,%10001000,%10001000,%10001000,%01010000,%00100000 ;O
 	.byte  %11110000,%10001000,%10001000,%11110000,%10000000,%10000000,%10000000 ;P
 	.byte  %00100000,%01010000,%10001000,%10001000,%10101000,%01010000,%00101000 ;Q
-	.byte  %11110000,%10001000,%10001000,%11110000,%10010000,%10001000,%10000000 ;R
+	.byte  %11110000,%10001000,%10001000,%11110000,%10010000,%10001000,%10001000 ;R
 	.byte  %01110000,%10001000,%10000000,%01110000,%00001000,%00001000,%11110000 ;S
 	.byte  %11111000,%00100000,%00100000,%00100000,%00100000,%00100000,%00100000 ;T
 	.byte  %10001000,%10001000,%10001000,%10001000,%10001000,%10001000,%01110000 ;U
@@ -100,6 +134,7 @@ _LETTERS:
 	.byte  %10001000,%10001000,%01010000,%00100000,%01010000,%10001000,%10001000 ;X
 	.byte  %10001000,%10001000,%10001000,%01110000,%00100000,%00100000,%00100000 ;Y
 	.byte  %11111000,%00001000,%00010000,%00100000,%01000000,%10000000,%11111000 ;Z
+_NUMBERS:
 	;; digits
 	.byte  %01110000,%10001000,%10001000,%10101000,%10001000,%10001000,%01110000
 	.byte  %00100000,%01100000,%10100000,%00100000,%00100000,%00100000,%11111000
@@ -111,3 +146,9 @@ _LETTERS:
 	.byte  %11111000,%00001000,%00010000,%00100000,%01000000,%01000000,%01000000
 	.byte  %01110000,%10001000,%10001000,%01110000,%10001000,%10001000,%01110000
 	.byte  %01110000,%10001000,%10001000,%01111000,%00001000,%00010000,%01100000
+	.byte  %00100000,%01010000,%10001000,%11111000,%10001000,%10001000,%10001000 ;A
+	.byte  %11110000,%10001000,%10001000,%11110000,%10001000,%10001000,%11110000 ;B
+	.byte  %01110000,%10001000,%10000000,%10000000,%10000000,%10001000,%01110000 ;C
+	.byte  %11100000,%10010000,%10001000,%10001000,%10001000,%10010000,%11100000 ;D
+	.byte  %11111000,%10000000,%10000000,%11100000,%10000000,%10000000,%11111000 ;E
+	.byte  %11111000,%10000000,%10000000,%11100000,%10000000,%10000000,%10000000 ;F

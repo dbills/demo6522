@@ -8,27 +8,14 @@
 
 .include "m16.mac"
 debug = 1
-.struct PointerQueue
-          head .word
-          tail .word
-          index   .byte
-.endstruct
-
-.macro    add2 _1
-.local done
-          lda #1
-          clc
-          adc #2
-          sta _1
-          bcc done
-          inc _1+1
-done:
-.endmacro
-
 ;;; increment the head or tail pointer
 ;;; IN:
 ;;;   pointer_label: label of queue pointer (e.g. p_head|p_tail)
 ;;;   index_label: label of queue index (e.g.i_head|i_tail)
+;;;   array_element_size: how big the items in the queue are
+;;;                       e.g. byte or word
+;;;   i_head_begin: where this label started?
+;;;   qsize: total size of queue in bytes
 .macro    increment_queue_label pointer_label, index_label, array_element_size, i_head_begin, qsize
 .local done,inbounds
 .ifdef debug
@@ -88,6 +75,8 @@ done:
           increment_queue_label p_tail, i_tail, array_element_size, i_head_begin, qsize
           rts
 .endproc
+;;; p_iterator is the label of the foreach variable
+;;; for P_iterator in Q
 .export .ident (.sprintf ("queue_iterate_%s", queue_name))
 .proc .ident   (.sprintf ("queue_iterate_%s", queue_name))
           mov p_tail, p_iterator
@@ -101,7 +90,7 @@ loop:
           ;; next item
           add #LINEMAX,p_iterator
           inx
-          bne loop                      ; => jmp
+          bne loop                      ; branch always
 done:
           rts
 .endproc

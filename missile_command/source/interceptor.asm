@@ -15,7 +15,7 @@ base_x = XMAX/2
 base_y = YMAX-16
 
 .bss
-i_line:   .res 1
+i_line:   .res 1                        ;tmpvar save current line index
 .data
 p_next:
           .word line_data01
@@ -99,10 +99,10 @@ empty:
           ;; remove it
           jsr dequeue_interceptor
           ;; explosion
-          stx i_line
+          stx i_line                    ;save x
           jsr erase_crosshair_mark
           jsr queue_detonation
-          ldx i_line
+          ldx i_line                    ;restore x
           rts
 active:
           jmp render_single_pixel

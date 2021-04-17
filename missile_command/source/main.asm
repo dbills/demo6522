@@ -68,14 +68,20 @@ foo:
           ;jsr bigletter
           ;jsr bigstring
           ;;jsr mcommand
-          ;jsr main_loop
+            ;;jsr main_loop
           ;jsr line_tests
           ;jsr test_detonation
 .import attract
-          jsr attract
+            ;jsr attract
 
+          lda #140
+          sta s_x
+          lda #$21
+          sta s_y
+          lda #$ff
+          jsr _debug_number
+          debug_string "rmissilecommandtheend"
           jmp loop
-;          debug_string "missilecommandtheend"
 loop:
           jsr j_wfire
           jsr show_debug_screen
@@ -143,7 +149,7 @@ iloop:
 loop:
           jsr wait_v
           bcolor_i CYAN
-          jsr draw_detonations
+;          jsr draw_detonations
 ;          bcolor_i BLACK
           update_crosshairs
           jsr interceptor::queue_iterate_interceptor

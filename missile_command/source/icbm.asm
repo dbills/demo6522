@@ -12,5 +12,5 @@
 
 ;;; mirvs are preselected and in a table with the index of one
 ;;; of the existing lines
-.proc fubar
+.proc gen_attack_wave
 .endproc

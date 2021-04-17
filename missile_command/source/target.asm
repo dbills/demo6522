@@ -13,6 +13,13 @@
 .data
 trigger_count:      .byte 0
 .code
+          ;; crosshair inc
+          .macro ch_inc b
+          lda b
+          clc
+          adc #2
+          sta b
+          .endmacro
 
           .macro mov_l
           .local done
@@ -28,7 +35,8 @@ done:
           lda #(SCRCOLS*8)-8-1-detonation_xoff
           cmp target_x
           bcc done
-          inc target_x
+          ;inc target_x
+          ch_inc target_x
 done:
           .endmacro
 
@@ -87,10 +95,6 @@ directions:
           cmp #JOYR & JOYD
           beq joyrd
           rts
-joyrd:
-          mov_r
-          mov_d
-          rts
 joyru:
           mov_r
           mov_u
@@ -114,5 +118,9 @@ joyr:
           rts
 joyl:
           mov_l
+          rts
+joyrd:
+          mov_r
+          mov_d
           rts
 .endproc

@@ -74,12 +74,8 @@ foo:
 .import attract
             ;jsr attract
 
-          lda #140
-          sta s_x
-          lda #$21
-          sta s_y
-          lda #$ff
-          jsr _debug_number
+          debug_number #92
+          debug_number #$33
           debug_string "rmissilecommandtheend"
           jmp loop
 loop:

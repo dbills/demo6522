@@ -2,9 +2,16 @@
 .macro      debug_string s
             .local mystring
 .data
-mystring:   
+mystring:
             .asciiz s
 .code
             mov #mystring, ptr_string
             jsr _debug_string
+.endmacro
+
+.macro       debug_number mem
+            saveall
+            lda mem
+            jsr _debug_number
+            resall
 .endmacro

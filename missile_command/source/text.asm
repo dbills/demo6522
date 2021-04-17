@@ -11,9 +11,9 @@
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
 .bss
-text_x:     .res 1
-text_y:     .res 1
 .data
+text_x:     .byte 140
+text_y:     .byte 30
 string1:
 .asciiz     "abcdefghijklmnopqrstuvwxyz012"
 letter_table:
@@ -74,6 +74,10 @@ done:
             pha
             ldx #TEXT_HEIGHT
             stx height
+            ldx text_x
+            stx s_x
+            ldx text_y
+            stx s_y
             ;; display high nibble
             lsr
             lsr
@@ -90,6 +94,10 @@ done:
             and #$0f
             letter_pointer _NUMBERS, ptr_0
             jsr draw_unshifted_sprite
+            lda text_y
+            sec                         ;+1
+            adc height
+            sta text_y
             rts
 .endproc
 

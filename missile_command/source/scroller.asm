@@ -8,6 +8,7 @@
 .import wait_v
 .importzp s_x,s_y
 .bss
+rowcount:
 store:      .res 1
 .data
 defend:
@@ -23,6 +24,11 @@ iloop:
 .endproc
 
 .proc       i_scroller
+
+            lda pltbl
+
+
+            ldx #0
             mov #defend,ptr_string
             lda #YMAX-8
             sta s_y

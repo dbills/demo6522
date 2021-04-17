@@ -55,7 +55,7 @@ The general_render_template takes care of knowing wich direction to
 traverse the line data in
 
 Recall, we don't store long axis coordinates -- we generate those
-while we are rengering the line.
+while we are rendering the line.
 The current long axis value is stored in:
   long_axis_current_values,x
 The short axis values are _always_ iterated down toward 0

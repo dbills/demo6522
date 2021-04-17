@@ -1,11 +1,22 @@
         processor 6502
         org $1200               ;8K expansion
-        
+
+  MAC         rand8
+  lda seedhi
+  lsr
+  rol seedlo
+  bcc noeor
+  eor #$B4
+noeor
+  sta seedhi
+  eor seedlo
+  ENDM
+
 ;;; some modulated notes
 ;;; 2 bytes, switches between them
-F       equ     $d0d1        
+F       equ     $d0d1
 E       equ     $cdce
-D       equ     $c8c8        
+D       equ     $c8c8
 D_s     equ     $cbcb
 B       equ     $bdbf
 C_s     equ     $c5c5
@@ -22,65 +33,63 @@ EIGHTH  equ     95
 ;;; 1MHz = 1/1,000,000s
 ;;; x = 1e06/120 => x = 8333 cycles
 HZ800   equ     $4e2
-HZ300   equ     $d05        
-HZ200   equ     $1388        
+HZ300   equ     $d05
+HZ200   equ     $1388
 HZ400   equ     $9c4
 HZ120   equ     $208d           ; 1/120th
 HZ30    equ     $8235           ; 1/30th
 HZ60    equ     $411A           ; 1/60th
 HZ16    equ     $f424           ; 1/16th
-        
+
 ;;; some zero page variables
-        
+
 CNOTEP  equ     $F8             ;note 1 or 2 pointer
 CNOTEI  equ     $F9             ;current note index
 CNOTE1  equ     $FB             ;current note to play
-CNOTE2  equ     $FC             ;interpolation note
+            CNOTE2  equ     $FC             ;interpolation note
 CDUR_L  equ     $FD             ;note duration
 CDUR_H  equ     $FE
-        
+
 VOICE   equ     36876
 
-#include "macros.asm"           ;16 bit macros
-        
+;#include "macros.asm"           ;16 bit macros
+
         lda #15
         sta 36878               ;volume to max
         lda #0
         sta CNOTEI              ;set start note index
         sta CNOTEP              ;trill note 1 first
-        sta CDUR_H              ;set initial duration to 1 
+        sta CDUR_H              ;set initial duration to 1
         lda #1
         sta CDUR_L              ;of first note
-        
+
         sei                     ;disable interrupts
         ;; load countdown value into via 2, timer1 latch
-        store16 HZ400, $9124
+        store16 HZ800, $9124
         ;; install our own interrupt handler for IRQ
         store16 INTR, $314
-
+        lda #200
+        sta 36875
         cli                     ;enable interrupts
         ;; do nothing, forever
-.loop        
+.loop
         nop
         jmp .loop
-        
+
 ;;; our interrupt handler
 INTR
-        dec16 CDUR_L            ;decrement note duration
-        beq .next_n             ;note is over
-
-        ;; note still plays
-        ldx CNOTEP              ;note a or b?
-        lda CNOTE1,x            ;load it
-        sta VOICE               ;play it
-        lda #1                  ;switch note
-        eor CNOTEP
-        sta CNOTEP
-        jmp $eb15               ;rti via OS minimal IRQ 
+        lda #200
+        sta 36875
+        rand8
+        and #1
+        bne .blarg
+        sta 36875
+.blarg
+        jmp $eb15               ;rti via OS minimal IRQ
 .next_n
         ldx CNOTEI
         cpx #[END-NOTES]
-        bne .play    
+        bne .play
         ldx #0                  ;reset to start
 .play
         lda NOTES,x             ;get note1
@@ -90,7 +99,7 @@ INTR
         lda NOTES,x             ;get note2
         sta CNOTE2
         inx                     ;get duration low byte
-        lda NOTES,x             
+        lda NOTES,x
         sta CDUR_L              ;save current duration
         inx                     ;get duration high byte
         lda NOTES,x
@@ -98,7 +107,7 @@ INTR
         inx                     ;increment track index
         stx CNOTEI
 .done
-        jmp $eb15               ;rti via OS minimal IRQ 
+        jmp $eb15               ;rti via OS minimal IRQ
 
 NOTES
         dc.w E          ,EIGHTH
@@ -137,10 +146,10 @@ NOTES
         dc.w B          ,EIGHTH
         dc.w A          ,EIGHTH*2
         dc.w 0          ,EIGHTH*2
-        dc.w E          ,EIGHTH 
-        dc.w D_s        ,EIGHTH 
+        dc.w E          ,EIGHTH
+        dc.w D_s        ,EIGHTH
         dc.w A          ,EIGHTH*2
-        dc.w 0          ,EIGHTH 
+        dc.w 0          ,EIGHTH
         dc.w B          ,EIGHTH
         dc.w C          ,EIGHTH
         dc.w D          ,EIGHTH
@@ -153,5 +162,9 @@ NOTES
         dc.w E          ,EIGHTH
         dc.w D          ,EIGHTH
         dc.w 0          ,EIGHTH*10
-END      
+END
 
+seedlo
+            dc.b 13
+seedhi
+            dc.b 137

@@ -28,7 +28,7 @@ loop:
           rts
 .endproc
 .proc     rand_8
-lda seedhi
+  lda seedhi
   lsr
   rol seedlo
   bcc noeor
@@ -36,5 +36,5 @@ lda seedhi
 noeor:
   sta seedhi
   eor seedlo
-  RTS
+  rts
 .endproc

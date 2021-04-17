@@ -32,7 +32,8 @@ graphics:
 	(cd ../build_support && ./explosions2.sh) > screen_draw.asm
 
 port: graphics
-	rm -f *.o
+	if [ ! -d obj ]; then mkdir obj;fi
+	rm -f *.o *.inc
 	rm -f test.asm
 #	ca65 --cpu 6502 -I headers source/jstick.asm
 #	ca65 --cpu 6502 -I headers source/line.asm 2>&1 | $(CA65FIX)
@@ -41,8 +42,8 @@ port: graphics
 	for i in *.asm;do ../build_support/assemble.sh $$i asm;done
 # make sure main is first so the start addr is always the same
 #cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o test.o $(OBJS)
-	cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o $(OBJS)
-	perl ../build_support/mapfile.pl a.map > a.lst
+	cd obj;cl65 -o ../a.p00 -tvic20 -Ln vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug main.o $(OBJS)
+	cd obj;perl ../../build_support/mapfile.pl a.map > a.lst
 
 foo1:
 	ca65 --cpu 6502 shapes.asm -l foo.lst

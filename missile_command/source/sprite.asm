@@ -141,8 +141,6 @@ loop1:
             ;; calculate loop end in scratch
             tya
             clc
-            ;; letters are only 7 tall
-            ;adc #7
             adc height
             sta scratch
 loop:

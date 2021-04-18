@@ -15,6 +15,7 @@ mystring:
             txa
             .elseif (.match (.left (1, {mem}), Y))
             tya
+            .elseif (.match (.left (1, {mem}), A))
             .else
             lda mem
             .endif

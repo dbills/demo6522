@@ -30,7 +30,7 @@
           mov #sound_interrupt, $0314
           ;mov #MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
-;          cli
+          cli
           lda #8
           sta 36878
 

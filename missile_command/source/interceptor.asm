@@ -21,6 +21,10 @@ p_next:   .word 0
 next:     .byte 0
 p_tail: .word 0
 tail:   .byte 0
+;;; indices of interceptors sorted by line length
+;;; the missile nearest completion is always at tail
+;;; all missile lengths decreases on each frame
+sorted_indices:     .res MAX_LINES
 .code
 .linecont
 ;;; lstore = iterator variable
@@ -33,6 +37,14 @@ declare_queue_operations "interceptor", \
 
 .proc     in_initialize
           jsr queue_init_interceptor
+          ldx #MAX_LINES-1
+          lda #$ff
+          ;; clear sorted_indices
+loop:
+          sta sorted_indices,x
+          dex
+          bpl loop
+
           rts
 .endproc
 
@@ -49,11 +61,63 @@ declare_queue_operations "interceptor", \
           mov p_next,_lstore
           ldx next
           cpx #MAX_LINES
-          beq fubar
+          bne ok
+          jmp fubar
+ok:
           lineto #base_x,#base_y,_x2,_y2
           jsr enqueue_interceptor
+          debug_number X
           jsr missile_away
+          ;; sort
+          ;; X = index of line just inserted
+          ;; A = length of new line
+          lda line_data_indices,x
+          debug_number A
+          ldy tail
+loop:
+          cpy next
+          beq insert_here
+          ldx sorted_indices,y
+;          bmi insert_here
+          ;; compare current line length
+          pha
+          lda line_data_indices,x
+          debug_number A
+          pla
+          cmp line_data_indices,x
+          ;; this line is longer than us, we should
+          ;; insert here
+          bcc insert_here
+          iny
+          jmp loop
+insert_here:
+.bss
+insert_point:      .res 1
+.code
+          ;; Y is index in sorted to insert at
+          debug_number #$AA
+          debug_number Y
+          sty insert_point
+          ldy next
+          dey
+move_loop:                              ;while q.items
+          cpy tail
+          beq insert
+          cpy insert_point
+          beq insert
+          lda sorted_indices-1,y
+          sta sorted_indices,y
+          dey
+          jmp move_loop
+insert:
+          lda next
+          sec
+          sbc #1
+          sta sorted_indices,y
 empty:
+          debug_number sorted_indices
+          debug_number sorted_indices+1
+          debug_number #$EE
           rts
 fubar:
           debug_number #$99
@@ -95,7 +159,7 @@ fubar:
           ;; erase the line
           jsr _general_render
           ;; remove it
-          debug_number tail
+          ;debug_number tail
           jsr dequeue_interceptor
           ;; explosion
           stx i_line                    ;save x

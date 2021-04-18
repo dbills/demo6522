@@ -90,6 +90,7 @@ normal:
 ;;; IN: _x1,_x2,_y1,_y2,_lstore
 ;;;   coords are closed interval
 ;;;   _lstore is pointer to where to store data
+;;;   X: index of line
 ;;; OUT: _dy,_dx,err
 ;;; A=_dy on exit
 ;;; 0  q1_steep

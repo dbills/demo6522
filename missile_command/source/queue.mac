@@ -58,6 +58,7 @@ done:
           mov #p_head_begin, p_tail
           lda #i_head_begin
           sta i_head
+          sta i_tail
           rts
 .endproc
 .export .ident (.sprintf ("enqueue_%s", queue_name))

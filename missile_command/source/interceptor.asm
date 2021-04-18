@@ -17,31 +17,24 @@ base_y = YMAX-16
 
 .bss
 i_line:   .res 1                        ;tmpvar save current line index
-.data
-p_next:
-          .word line_data01
-next:
-          .byte 0
-p_active:
-          .word line_data01
-active:
-          .byte 0
-p_erased:
-          .word line_data01
-erased:
-          .byte 0
-
-.proc     in_initialize
-          rts
-.endproc
+p_next:   .word 0
+next:     .byte 0
+p_tail: .word 0
+tail:   .byte 0
+.code
 .linecont
 ;;; lstore = iterator variable
 declare_queue_operations "interceptor", \
-                         next, active,\
-                         p_next, p_active,\
+                         next, tail,\
+                         p_next, p_tail,\
                          line_data01,0,\
-                         30, LINEMAX,\
+                         MAX_LINES, LINEMAX,\
                          _lstore, update_interceptor
+
+.proc     in_initialize
+          jsr queue_init_interceptor
+          rts
+.endproc
 
 .proc     launch
           lda #crosshair_xoff
@@ -102,7 +95,7 @@ fubar:
           ;; erase the line
           jsr _general_render
           ;; remove it
-          debug_number X
+          debug_number tail
           jsr dequeue_interceptor
           ;; explosion
           stx i_line                    ;save x

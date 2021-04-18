@@ -25,7 +25,9 @@ debug = 1
           brk
 inbounds:
 .endif
+          ;; increment head index
           inc index_label
+          ;; now increment the head pointer (word)
           clc
           lda pointer_label
           adc #array_element_size

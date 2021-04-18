@@ -11,6 +11,9 @@ SCRROWS = 23 / 2
 YMAX = SCRROWS * 16
 SCRCOLS .set 23
 XMAX = SCRCOLS * 8
+;;; maximum number of points a line could have
+;;; this can probably be tightened up quite a bit
+;;; considering launch from BASE and top screen border
 LINEMAX = (SCRCOLS * 8)
 .define DEBUG_SCREEN $2000
 DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)

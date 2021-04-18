@@ -38,7 +38,7 @@ _line_h=1
   ltype_steep_forward
   ltype_steep_reverse
 .endenum
-.define MAX_LINES 30
+.define MAX_LINES 2
 
 .macro    next_line line_pointer, line_index
           inc line_index

@@ -11,7 +11,13 @@ mystring:
 
 .macro       debug_number mem
             saveall
+            .if (.match (.left (1, {mem}), X))
+            txa
+            .elseif (.match (.left (1, {mem}), Y))
+            tya
+            .else
             lda mem
+            .endif
             jsr _debug_number
             resall
 .endmacro

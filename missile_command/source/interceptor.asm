@@ -4,7 +4,8 @@
 .include "zerop.inc"
 .include "queue.mac"
 .include "sound.inc"
-.include "debugscreen.inc"
+;.include "debugscreen.inc"
+.include "text.inc"
 .include "sprite.inc"
 .include "shapes.inc"
 
@@ -34,6 +35,7 @@ erased:
           rts
 .endproc
 .linecont
+;;; lstore = iterator variable
 declare_queue_operations "interceptor", \
                          next, active,\
                          p_next, p_active,\
@@ -53,12 +55,15 @@ declare_queue_operations "interceptor", \
 
           mov p_next,_lstore
           ldx next
-          cpx #29
-          beq empty
+          cpx #MAX_LINES
+          beq fubar
           lineto #base_x,#base_y,_x2,_y2
           jsr enqueue_interceptor
           jsr missile_away
 empty:
+          rts
+fubar:
+          debug_number #$99
           rts
 .endproc
 .importzp _pl_x,_pl_y
@@ -97,6 +102,7 @@ empty:
           ;; erase the line
           jsr _general_render
           ;; remove it
+          debug_number X
           jsr dequeue_interceptor
           ;; explosion
           stx i_line                    ;save x

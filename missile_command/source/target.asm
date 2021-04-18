@@ -21,12 +21,20 @@ trigger_count:      .byte 0
           sta b
           .endmacro
 
+          .macro ch_dec b
+          lda b
+          sec
+          sbc #2
+          sta b
+          .endmacro
+
           .macro mov_l
           .local done
           lda #detonation_xoff
           cmp target_x
           beq done
-          dec target_x
+          ;dec target_x
+          ch_dec target_x
 done:
           .endmacro
 
@@ -45,7 +53,8 @@ done:
           lda #SCRROWS*16-(8*3)-1
           cmp target_y
           bcc done
-          inc target_y
+          ;inc target_y
+          ch_inc target_y
 done:
           .endmacro
 
@@ -54,7 +63,8 @@ done:
           lda #8
           cmp target_y
           beq done
-          dec target_y
+          ;dec target_y
+          ch_dec target_y
 done:
           .endmacro
 
@@ -93,30 +103,32 @@ directions:
           cmp #JOYL & JOYD
           beq joydl
           cmp #JOYR & JOYD
-          beq joyrd
+          bne done
+          jmp joyrd
+done:
+          rts
+joyu:
+          mov_u
+          rts
+joyd:
+          mov_d
+          rts
+joyl:
+          mov_l
+          rts
+joyr:
+          mov_r
           rts
 joyru:
           mov_r
           mov_u
           rts
-joydl:
-          mov_d
-          mov_l
-          rts
 joyul:
           mov_u
           mov_l
           rts
-joyd:
+joydl:
           mov_d
-          rts
-joyu:
-          mov_u
-          rts
-joyr:
-          mov_r
-          rts
-joyl:
           mov_l
           rts
 joyrd:

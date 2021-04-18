@@ -68,15 +68,15 @@ foo:
           ;jsr bigletter
           ;jsr bigstring
           ;;jsr mcommand
-            ;;jsr main_loop
+          jsr main_loop
           ;jsr line_tests
           ;jsr test_detonation
 .import attract
             ;jsr attract
 
-          debug_number #92
-          debug_number #$33
-          debug_string "rmissilecommandtheend"
+          ;; debug_number #92
+          ;; debug_number #$33
+          ;; debug_string "rmissilecommandtheend"
           jmp loop
 loop:
           jsr j_wfire

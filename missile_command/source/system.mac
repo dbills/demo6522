@@ -68,10 +68,19 @@ HZ16        = $f424           ; 1/16th
             pha
 .endmacro
 .macro      pushw ptr
+            ;; push address
+            .if (.match (.left (1, {ptr}), #))
+            lda #<(.right (.tcount ({ptr})-1, {ptr}))
+            pha
+            lda #>(.right (.tcount ({ptr})-1, {ptr}))
+            pha
+            .else
+            ;; push word
             lda ptr
             pha
             lda ptr+1
             pha
+            .endif
 .endmacro
 .macro      popw ptr
             pla

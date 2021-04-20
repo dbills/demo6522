@@ -11,6 +11,7 @@
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
 .bss
+string_offset:   .byte 0
 .data
 text_x:     .byte 140
 text_y:     .byte 30
@@ -22,10 +23,14 @@ OFFSET      .set 0
             .byte OFFSET
 OFFSET      .set OFFSET + 7
 .endrep
+
+.code
+
 ;;; calculate pointer to given letter
 ;;; IN: A = letter
 ;;;     font: base addr of glyphs
 ;;;     ptr: zp pointer to set
+;;; CLOBBERS: X
 .macro      letter_pointer font,ptr
             tax
             lda letter_table,x
@@ -38,9 +43,6 @@ OFFSET      .set OFFSET + 7
             sta ptr+1
 .endmacro
 
-string_offset:
-            .byte 0
-.code
 
 .proc       _draw_string
             lda #0
@@ -69,15 +71,100 @@ done:
             rts
 .endproc
 
+.macro      myprintf s,a3
+            .local mystring
+.data
+mystring:
+            .asciiz s
+.code
+            ;; .ifnblank a3
+            ;; pushw #a3
+            ;; .endif
+            ;; .ifnblank a2
+            ;; pushw #a2
+            ;; .endif
+            ;; .ifnblank a1
+            ;; pushw #a1
+            ;; .endif
+            mov #mystring, ptr_string
+            jsr _myprintf
+.endmacro
+
+.export fubar
+.proc fubar
+            lda #40
+            sta s_x
+            sta s_y
+            myprintf "cze"
+            rts
+.endproc
+
+
+.proc       _myprintf
+            lda #TEXT_HEIGHT
+            sta height
+            lda #0
+            sta string_offset
+loop:
+            ldy string_offset
+            lda (ptr_string),y
+            bne notempty
+            rts
+notempty:
+            cmp #'%'
+            beq param
+            cmp #' '
+            beq next
+            cmp #'a'
+            bcc number
+letters:
+            sec
+            sbc #'a'
+            letter_pointer _LETTERS, ptr_0
+            jsr draw_unshifted_sprite
+            jmp next
+number:
+            sec
+            sbc '0'                     ;todo move to macro below
+            letter_pointer _NUMBERS, ptr_0
+            jsr draw_unshifted_sprite
+            jmp next
+next:
+            inc string_offset
+            add8 #TEXT_WIDTH, s_x
+            jmp loop
+param:
+            inc string_offset
+            ldy string_offset
+            lda (ptr_string),y
+            cmp #'d'
+            beq show_byte
+            cmp #'w'
+            beq show_word
+            ;; show 'E' for error
+            lda #'e'
+            letter_pointer _LETTERS, ptr_0
+            jsr draw_unshifted_sprite
+            jmp next
+show_byte:
+            popw ptr_0
+            ldy #0
+            lda (ptr_0),y
+            jsr _debug_number
+            jmp next
+show_word:
+            popw ptr_0
+            ldy #1
+            lda (ptr_0),y
+            jsr _debug_number
+            dey
+            lda (ptr_0),y
+            jsr _debug_number
+            jmp next
+.endproc
 ;;; IN: A = number to display
 .proc       _debug_number
             pha
-            ldx #TEXT_HEIGHT
-            stx height
-            ldx text_x
-            stx s_x
-            ldx text_y
-            stx s_y
             ;; display high nibble
             lsr
             lsr
@@ -85,19 +172,12 @@ done:
             lsr
             letter_pointer _NUMBERS, ptr_0
             jsr draw_unshifted_sprite
-            lda #TEXT_WIDTH
-            clc
-            adc s_x
-            sta s_x
+            add8 #TEXT_WIDTH, s_x
             pla
             ;; display low nibble
             and #$0f
             letter_pointer _NUMBERS, ptr_0
             jsr draw_unshifted_sprite
-            lda text_y
-            sec                         ;+1
-            adc height
-            sta text_y
             rts
 .endproc
 

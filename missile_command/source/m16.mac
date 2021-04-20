@@ -52,6 +52,12 @@ done:
             sta dst+1
 .endif
 .endmacro
+.macro      add8 src, dst
+            lda src
+            clc
+            adc dst
+            sta dst
+.endmacro
 ;;; compare word
 ;;; _1 may be immediate or direct
 ;;; _2 is always direct

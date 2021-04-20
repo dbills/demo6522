@@ -48,6 +48,21 @@ loop:
           rts
 .endproc
 
+;;; perform an insertion sort on the interceptors
+.macro    first_greater array, i_start, i_end
+          .local loop,done
+          ldy i_start
+          ldy i_start
+loop:
+          cpy i_end
+          beq done
+          ldx array,y
+          compare
+          bcc done
+          bcs loop
+done:
+.endmacro
+
 .proc     launch
           lda #crosshair_xoff
           clc
@@ -80,10 +95,6 @@ loop:
           ldx sorted_indices,y
 ;          bmi insert_here
           ;; compare current line length
-          pha
-          lda line_data_indices,x
-          debug_number A
-          pla
           cmp line_data_indices,x
           ;; this line is longer than us, we should
           ;; insert here

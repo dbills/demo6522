@@ -15,7 +15,7 @@ string_offset:   .byte 0
 .data
 text_x:     .byte 140
 text_y:     .byte 30
-blarg:      .byte $42
+blarg:      .word $abcd
 string1:
 .asciiz     "abcdefghijklmnopqrstuvwxyz012"
 letter_table:
@@ -72,26 +72,35 @@ done:
             rts
 .endproc
 
-.macro      myprintf s,a3
+.macro      myprintf s,a1,a2,a3
             .local mystring
 .data
 mystring:
             .asciiz s
 .code
-            .ifnblank a3
-
-            pushw #a3
+            .ifnblank a1
+            pushw #a1
             .endif
-            ;; .ifnblank a2
-            ;; pushw #a2
-            ;; .endif
-            ;; .ifnblank a1
-            ;; pushw #a1
-            ;; .endif
+            .ifnblank a2
+            pushw #a2
+            .endif
+            .ifnblank a1
+            pushw #a1
+            .endif
             mov #mystring, ptr_string
             jsr _myprintf
+            .ifnblank a1
             pla
             pla
+            .endif
+            .ifnblank a2
+            pla
+            pla
+            .endif
+            .ifnblank a1
+            pla
+            pla
+            .endif
 .endmacro
 
 .export fubar
@@ -99,7 +108,7 @@ mystring:
             lda #40
             sta s_x
             sta s_y
-            myprintf "c %d", blarg
+            myprintf "c %dz%w", text_x,blarg
             rts
 .endproc
 
@@ -152,22 +161,23 @@ param:
             jmp next
 show_byte:
             tsx
-            lda $103,x
-            sta ptr_0+1
-            inx
-            lda $103,x
-            sta ptr_0
+            init_varg
+            popw_varg ptr_0
             ldy #0
             lda (ptr_0),y
             jsr _debug_number
             jmp next
 show_word:
-            popw ptr_0
-            ldy #1
+            tsx
+            init_varg
+            popw_varg ptr_0
+            ldy #0
+            lda (ptr_0),y
+            pha
+            iny
             lda (ptr_0),y
             jsr _debug_number
-            dey
-            lda (ptr_0),y
+            pla
             jsr _debug_number
             jmp next
 .endproc
@@ -187,6 +197,7 @@ show_word:
             and #$0f
             letter_pointer _NUMBERS, ptr_0
             jsr draw_unshifted_sprite
+            add8 #TEXT_WIDTH, s_x
             rts
 .endproc
 

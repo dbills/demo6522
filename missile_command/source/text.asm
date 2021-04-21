@@ -15,6 +15,7 @@ string_offset:   .byte 0
 .data
 text_x:     .byte 140
 text_y:     .byte 30
+blarg:      .byte $42
 string1:
 .asciiz     "abcdefghijklmnopqrstuvwxyz012"
 letter_table:
@@ -77,9 +78,10 @@ done:
 mystring:
             .asciiz s
 .code
-            ;; .ifnblank a3
-            ;; pushw #a3
-            ;; .endif
+            .ifnblank a3
+
+            pushw #a3
+            .endif
             ;; .ifnblank a2
             ;; pushw #a2
             ;; .endif
@@ -88,6 +90,8 @@ mystring:
             ;; .endif
             mov #mystring, ptr_string
             jsr _myprintf
+            pla
+            pla
 .endmacro
 
 .export fubar
@@ -95,7 +99,7 @@ mystring:
             lda #40
             sta s_x
             sta s_y
-            myprintf "cze"
+            myprintf "c %d", blarg
             rts
 .endproc
 
@@ -147,7 +151,12 @@ param:
             jsr draw_unshifted_sprite
             jmp next
 show_byte:
-            popw ptr_0
+            tsx
+            lda $103,x
+            sta ptr_0+1
+            inx
+            lda $103,x
+            sta ptr_0
             ldy #0
             lda (ptr_0),y
             jsr _debug_number

@@ -67,6 +67,17 @@ HZ16        = $f424           ; 1/16th
             lda _1
             pha
 .endmacro
+.macro      init_varg
+VARG = $103
+.endmacro
+.macro      popw_varg arity,ptr
+            lda VARG,x
+            sta ptr+1
+            inx
+            lda VARG+1,x
+            sta ptr
+            VARG = VARG + 2
+.endmacro
 .macro      pushw ptr
             ;; push address
             .if (.match (.left (1, {ptr}), #))

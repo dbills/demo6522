@@ -1,8 +1,9 @@
 .include "system.mac"
-.export _sleep, rand_8, i_rand
+.export _sleep, rand_8, i_rand, stack
 .data
 seedlo:    .res 1
 seedhi:    .res 1
+stack:    .res 1
 .code
 .proc _sleep
 loop:

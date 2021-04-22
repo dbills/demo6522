@@ -68,14 +68,18 @@ HZ16        = $f424           ; 1/16th
             pha
 .endmacro
 .macro      init_varg
-VARG .set $103
+            tsx
+            stx stack
 .endmacro
 .macro      popw_varg ptr
-            lda VARG,x
+            ldx stack
+            lda $103,x
             sta ptr+1
-            lda VARG+1,x
+            inx
+            lda $103,x
             sta ptr
-VARG .set VARG + 2
+            inx
+            stx stack
 .endmacro
 .macro      pushw ptr
             ;; push address

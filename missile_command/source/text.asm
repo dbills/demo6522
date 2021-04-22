@@ -3,7 +3,7 @@
 .include "shapes.inc"
 .include "m16.mac"
 .include "math.mac"
-.include "system.mac"
+.include "system.inc"
 .include "screen.mac"
 
 .export _draw_string,_debug_string,text_x,text_y,_debug_number
@@ -112,13 +112,14 @@ mystring:
             rts
 .endproc
 
-
 .proc       _myprintf
+            init_varg
             lda #TEXT_HEIGHT
             sta height
-            lda #0
+            lda #$ff
             sta string_offset
 loop:
+            inc string_offset
             ldy string_offset
             lda (ptr_string),y
             bne notempty
@@ -127,7 +128,7 @@ notempty:
             cmp #'%'
             beq param
             cmp #' '
-            beq next
+            beq advance
             cmp #'a'
             bcc number
 letters:
@@ -135,16 +136,14 @@ letters:
             sbc #'a'
             letter_pointer _LETTERS, ptr_0
             jsr draw_unshifted_sprite
-            jmp next
+advance:
+            add8 #TEXT_WIDTH, s_x
+            jmp loop
 number:
             sec
             sbc '0'                     ;todo move to macro below
             letter_pointer _NUMBERS, ptr_0
             jsr draw_unshifted_sprite
-            jmp next
-next:
-            inc string_offset
-            add8 #TEXT_WIDTH, s_x
             jmp loop
 param:
             inc string_offset
@@ -158,18 +157,14 @@ param:
             lda #'e'
             letter_pointer _LETTERS, ptr_0
             jsr draw_unshifted_sprite
-            jmp next
+            jmp advance
 show_byte:
-            tsx
-            init_varg
             popw_varg ptr_0
             ldy #0
             lda (ptr_0),y
             jsr _debug_number
-            jmp next
+            jmp loop
 show_word:
-            tsx
-            init_varg
             popw_varg ptr_0
             ldy #0
             lda (ptr_0),y
@@ -179,7 +174,7 @@ show_word:
             jsr _debug_number
             pla
             jsr _debug_number
-            jmp next
+            jmp loop
 .endproc
 ;;; IN: A = number to display
 .proc       _debug_number

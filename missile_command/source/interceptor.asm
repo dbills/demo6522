@@ -10,7 +10,9 @@
 .include "shapes.inc"
 
 .scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor
+.export in_initialize,launch,queue_iterate_interceptor,unit_tests
+
+
 
 base_x = XMAX/2
 base_y = YMAX-16
@@ -48,18 +50,40 @@ loop:
           rts
 .endproc
 
-;;; perform an insertion sort on the interceptors
-.macro    first_greater array, i_start, i_end
-          .local loop,done
-          ldy i_start
-          ldy i_start
+;;; find first greater ( insert point ) in inteceptor array. first part
+;;; of an insertion sort
+;;; out: Y = insert point
+.macro    find_insert_point
+          .local loop, done
+          ;; sort
+          ;; X = index of line just inserted
+          ;; A = length of new line
+          lda line_data_indices,x
+          debug_number A
+          ldy tail                      ;start at beginning
 loop:
-          cpy i_end
+          cpy next                      ;did we reach end
           beq done
-          ldx array,y
-          compare
-          bcc done
-          bcs loop
+          ldx sorted_indices,y          ;load index of item to compare
+          cmp line_data_indices,x       ;compare remaining length
+          bcc done                      ;this line is longer than us
+          iny                           ;increment loop counter
+          jmp loop
+done:
+.endmacro
+
+;;; move array down from (start,end]
+;;; leaving a hole at start
+.macro    move_array array,start,end
+          .local move_loop,done
+          ldy end
+move_loop:
+          cpy start
+          beq done
+          lda array-1,y
+          sta array,y
+          dey
+          bpl move_loop                 ;branch always
 done:
 .endmacro
 
@@ -83,43 +107,15 @@ ok:
           jsr enqueue_interceptor
           debug_number X
           jsr missile_away
-          ;; sort
-          ;; X = index of line just inserted
-          ;; A = length of new line
-          lda line_data_indices,x
-          debug_number A
-          ldy tail
-loop:
-          cpy next
-          beq insert_here
-          ldx sorted_indices,y
-;          bmi insert_here
-          ;; compare current line length
-          cmp line_data_indices,x
-          ;; this line is longer than us, we should
-          ;; insert here
-          bcc insert_here
-          iny
-          jmp loop
-insert_here:
+          find_insert_point             ;insert point in Y
 .bss
 insert_point:      .res 1
 .code
           ;; Y is index in sorted to insert at
-          debug_number #$AA
-          debug_number Y
           sty insert_point
           ldy next
           dey
-move_loop:                              ;while q.items
-          cpy tail
-          beq insert
-          cpy insert_point
-          beq insert
-          lda sorted_indices-1,y
-          sta sorted_indices,y
-          dey
-          jmp move_loop
+          move_array sorted_indices,next,insert_point
 insert:
           lda next
           sec
@@ -183,5 +179,37 @@ active:
 .endproc
 
 .proc     erase_line
+.endproc
+;;; =============================================
+;;; unit tests
+;;; =============================================
+.proc     unit_tests
+insert_point = 6
+.data
+test_array:         .byte 1,2,3,5,6,7,0
+.bss
+scratch:  .res 1
+.code
+          ;; initialize test data
+          lda #0
+          sta s_x
+          sta s_y
+          myprintf "unit test"
+          add8 #8,s_y
+          move_array test_array, #insert_point, #6
+          lda #4
+          sta test_array+insert_point
+          lda #0
+          sta s_x
+          myprintf "sorted:"
+          ldy #0
+loop:
+          lda test_array,y
+          sta scratch
+          myprintf "%d,", scratch
+          iny
+          cpy #7
+          bne loop
+          rts
 .endproc
 .endscope

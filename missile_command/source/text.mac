@@ -22,3 +22,35 @@ mystring:
             jsr _debug_number
             resall
 .endmacro
+.macro      myprintf s,a1,a2,a3
+            saveall
+            .local mystring
+.data
+mystring:
+            .asciiz s
+.code
+            .ifnblank a1
+            pushw #a1
+            .endif
+            .ifnblank a2
+            pushw #a2
+            .endif
+            .ifnblank a1
+            pushw #a1
+            .endif
+            mov #mystring, ptr_string
+            jsr _myprintf
+            .ifnblank a1
+            pla
+            pla
+            .endif
+            .ifnblank a2
+            pla
+            pla
+            .endif
+            .ifnblank a1
+            pla
+            pla
+            .endif
+            resall
+.endmacro

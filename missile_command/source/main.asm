@@ -73,8 +73,7 @@ foo:
           ;jsr test_detonation
 .import attract
             ;jsr attract
-.import fubar
-          jsr fubar
+          jsr interceptor::unit_tests
           ;; debug_string "rmissilecommandtheend"
           jmp loop
 loop:

@@ -6,7 +6,7 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export _draw_string,_debug_string,text_x,text_y,_debug_number
+.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
@@ -72,46 +72,6 @@ done:
             rts
 .endproc
 
-.macro      myprintf s,a1,a2,a3
-            .local mystring
-.data
-mystring:
-            .asciiz s
-.code
-            .ifnblank a1
-            pushw #a1
-            .endif
-            .ifnblank a2
-            pushw #a2
-            .endif
-            .ifnblank a1
-            pushw #a1
-            .endif
-            mov #mystring, ptr_string
-            jsr _myprintf
-            .ifnblank a1
-            pla
-            pla
-            .endif
-            .ifnblank a2
-            pla
-            pla
-            .endif
-            .ifnblank a1
-            pla
-            pla
-            .endif
-.endmacro
-
-.export fubar
-.proc fubar
-            lda #40
-            sta s_x
-            sta s_y
-            myprintf "c %dz%w", text_x,blarg
-            rts
-.endproc
-
 .proc       _myprintf
             init_varg
             lda #TEXT_HEIGHT
@@ -129,11 +89,27 @@ notempty:
             beq param
             cmp #' '
             beq advance
+            cmp #'$'
+            bne l1
+            lda #1
+            jmp symbol
+l1:
+            cmp #':'
+            bne l2
+            lda #0
+            beq symbol                  ;branch always
+l2:
+            cmp #','
+            bne l3
+            lda #2
+            bne symbol
+l3:
             cmp #'a'
             bcc number
 letters:
             sec
             sbc #'a'
+draw:
             letter_pointer _LETTERS, ptr_0
             jsr draw_unshifted_sprite
 advance:
@@ -141,10 +117,14 @@ advance:
             jmp loop
 number:
             sec
-            sbc '0'                     ;todo move to macro below
+            sbc #'0'                     ;todo move to macro below
             letter_pointer _NUMBERS, ptr_0
             jsr draw_unshifted_sprite
-            jmp loop
+            jmp advance
+symbol:
+            letter_pointer _SYMBOLS, ptr_0
+            jsr draw_unshifted_sprite
+            jmp advance
 param:
             inc string_offset
             ldy string_offset
@@ -154,9 +134,10 @@ param:
             cmp #'w'
             beq show_word
             ;; show 'E' for error
-            lda #'e'
+             lda #'e' - 'a'
             letter_pointer _LETTERS, ptr_0
             jsr draw_unshifted_sprite
+            popw_varg ptr_0
             jmp advance
 show_byte:
             popw_varg ptr_0
@@ -244,8 +225,17 @@ _NUMBERS:
 	.byte  %11110000,%00001000,%00001000,%00110000,%11000000,%10000000,%11111000
 	.byte  %11110000,%00001000,%00001000,%01110000,%00001000,%00001000,%11110000
 	.byte  %00010000,%00110000,%01010000,%10010000,%11111000,%00010000,%00010000
+
 	.byte  %11111000,%10000000,%11100000,%00010000,%00001000,%00010000,%11100000
-	.byte  %00000000,%00000000,%00000000,%00000010,%00000000,%00000000,%00000000
+
+	.byte  %00110000
+            .byte  %01000000
+	.byte  %10000000
+            .byte  %11110000
+	.byte  %10001000
+            .byte  %10001000
+	.byte  %01110000
+
 	.byte  %11111000,%00001000,%00010000,%00100000,%01000000,%01000000,%01000000
 	.byte  %01110000,%10001000,%10001000,%01110000,%10001000,%10001000,%01110000
 	.byte  %01110000,%10001000,%10001000,%01111000,%00001000,%00010000,%01100000
@@ -255,3 +245,28 @@ _NUMBERS:
 	.byte  %11100000,%10010000,%10001000,%10001000,%10001000,%10010000,%11100000 ;D
 	.byte  %11111000,%10000000,%10000000,%11100000,%10000000,%10000000,%11111000 ;E
 	.byte  %11111000,%10000000,%10000000,%11100000,%10000000,%10000000,%10000000 ;F
+_SYMBOLS:
+            ;; ':','$',','
+	.byte  %00000000
+            .byte  %00000000
+	.byte  %00010000
+            .byte  %00000000
+	.byte  %00000000
+            .byte  %00010000
+	.byte  %00000000
+
+            .byte  %00100000
+	.byte  %01110000
+            .byte  %01000000
+	.byte  %01110000
+            .byte  %00010000
+	.byte  %01110000
+            .byte  %00100000
+
+            .byte  %00000000
+	.byte  %00000000
+            .byte  %00000000
+	.byte  %00000000
+            .byte  %00000000
+	.byte  %00100000
+            .byte  %01000000

@@ -52,20 +52,23 @@ loop:
 
 ;;; find first greater ( insert point ) in inteceptor array. first part
 ;;; of an insertion sort
+;;; in:  X = index of unsorted item in value_array
+;;;      start = size iterator of sorted array
+;;;      end = end of sorted array
 ;;; out: Y = insert point
-.macro    find_insert_point
+;;; uses: Y
+.macro    find_insert_point sorted_array, value_array, start, end
           .local loop, done
           ;; sort
           ;; X = index of line just inserted
           ;; A = length of new line
-          lda line_data_indices,x
-          debug_number A
-          ldy tail                      ;start at beginning
+          lda value_array,x
+          ldy start                     ;start at beginning
 loop:
-          cpy next                      ;did we reach end
+          cpy end                       ;did we reach end
           beq done
-          ldx sorted_indices,y          ;load index of item to compare
-          cmp line_data_indices,x       ;compare remaining length
+          ldx sorted_array,y            ;load index of item to compare
+          cmp value_array,x             ;compare remaining length
           bcc done                      ;this line is longer than us
           iny                           ;increment loop counter
           jmp loop
@@ -107,7 +110,7 @@ ok:
           jsr enqueue_interceptor
           debug_number X
           jsr missile_away
-          find_insert_point             ;insert point in Y
+;          find_insert_point             ;insert point in Y
 .bss
 insert_point:      .res 1
 .code
@@ -183,33 +186,78 @@ active:
 ;;; =============================================
 ;;; unit tests
 ;;; =============================================
+.macro    print_array array,size
+          .local loop
+          ldy #0
+loop:
+          lda array,y
+          sta scratch
+          myprintf "%d,", scratch
+          iny
+          cpy #size
+          bne loop
+.endmacro
 .proc     unit_tests
-insert_point = 6
+insert_point = 1
 .data
 test_array:         .byte 1,2,3,5,6,7,0
+test_array_sz = * - test_array
+value_array:        .byte 7,6,5,4,3,2,1
+sorted_array:
+.repeat test_array_sz,I
+          .byte $A0 + I
+.endrepeat
 .bss
 scratch:  .res 1
+loop_x:   .res 1
+array_end:          .res 1
 .code
           ;; initialize test data
           lda #0
           sta s_x
           sta s_y
-          myprintf "unit test"
+          myprintf "abcdefghijklmnopqrstuvwxyz0123"
           add8 #8,s_y
-          move_array test_array, #insert_point, #6
-          lda #4
+          move_array test_array, #insert_point, #test_array_sz-1
+          lda #$ee
           sta test_array+insert_point
           lda #0
           sta s_x
-          myprintf "sorted:"
-          ldy #0
+          myprintf "moved:"
+          print_array test_array, test_array_sz
+          ;; test 2
+          ;; test building arrays up from scratch
+          ;; by inserting into them, similar
+          ;; to how the actual game would do
+          crlf
+          myprintf "varr:"
+          print_array value_array, test_array_sz
+          crlf
+          lda #0
+          sta loop_x
+          sta array_end
 loop:
-          lda test_array,y
-          sta scratch
-          myprintf "%d,", scratch
-          iny
-          cpy #7
-          bne loop
+          ldx loop_x
+          find_insert_point  sorted_array, value_array, #0, array_end
+          sty scratch
+          crlf
+          myprintf "x:%d i:%d, ae:%d", loop_x, scratch, array_end
+          move_array sorted_array, scratch, array_end
+          ;; x should still contain the value we want to insert
+          ;; now that array has been moved, let's insert it
+          txa
+          sta sorted_array,y
+          inc array_end
+          crlf
+          print_array sorted_array, test_array_sz
+
+          inc loop_x
+          lda #3
+          cmp loop_x
+          beq done
+          jmp loop
+done:
           rts
 .endproc
+
 .endscope

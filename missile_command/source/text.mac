@@ -54,3 +54,8 @@ mystring:
             .endif
             resall
 .endmacro
+.macro      crlf
+            lda #0
+            sta s_x
+            add8 #8,s_y
+.endmacro

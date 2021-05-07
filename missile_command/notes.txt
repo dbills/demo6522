@@ -16,7 +16,7 @@ TODO:
   if we start the detonation sound on a missile end, then that
   solves the problem to what to do on short missiles
   next thing to work on is creating a quad_sprite_draw
-  which, I thin is as simpe as widening the loop of bytes
+  which, I think is as simpe as widening the loop of bytes
   to copy from 8 to 16
 
 WOW: this is the last time I worked on this after all the
@@ -30,3 +30,70 @@ WOW: this is the last time I worked on this after all the
   end time critical
     copy current missile position to old
     update new missile position
+  5/3 ( taking some leave after medical drama )
+  routine to keep missiles sorted, shorted first
+
+  what are the edges cases?
+  insertion with length = 0
+  insertion at end ( covered by length = 0? )
+  inserstion at beginning of collection
+
+  // an insert _always occurs
+
+  let lines = array of pointers to lines
+              (indexes)
+  x = new line
+  end = 1 past the end of the collection
+        i.e. a blank collection end = 0
+        a collection of 1 end = 1
+
+  i = end
+  while(i > start) {
+    // we are either going to insert here, or
+    // move everything to the right one and
+    // try again
+    if(line[i-1].length < line[x].length)
+      break
+    line[i] = line[i-1]
+    i--
+  }
+  line[i] = x
+
+  minimum length = 2
+  L[0] = n/a
+  [[1] = n/a
+  start = 0
+  end = 0
+
+  we'll use single character identifier for lines to simplify
+  the example and make it easier to distinguish lines from sorted line indices
+  A length 50
+  B length 10
+  C length 100
+  D length 5
+
+  insert A
+  fails to execute body of while loop
+  line[0] = A
+  e = e + 1
+
+  insert B
+  s=0,e=1
+  1 > 0
+  execute loop
+  line[0].length = 50
+  line.length = 10
+  50 < 10 = false
+  line[1]=A
+  --
+  0 > 0 = false
+  line[0]=B
+  done correct
+
+  (redo, but insert C)
+  50 < 100 = true
+  break
+  line[1] = C
+
+
+  insert D

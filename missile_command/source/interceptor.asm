@@ -104,33 +104,25 @@ done:
           ldx next
           cpx #MAX_LINES
           bne ok
-          jmp fubar
+          jmp empty
 ok:
           lineto #base_x,#base_y,_x2,_y2
-          jsr enqueue_interceptor
-          debug_number X
-          jsr missile_away
-;          find_insert_point             ;insert point in Y
+          ;; sorted array is 1 smaller until we insert
+          dex
+          find_insert_point sorted_indices, long_axis_current_values, \
+                            tail, next
 .bss
-insert_point:      .res 1
+insert_point:       .res 1
 .code
-          ;; Y is index in sorted to insert at
           sty insert_point
-          ldy next
-          dey
-          move_array sorted_indices,next,insert_point
-insert:
+          move_array sorted_indices, next, insert_point
+          ;; insert
           lda next
-          sec
-          sbc #1
           sta sorted_indices,y
+
+          jsr enqueue_interceptor
+          jsr missile_away
 empty:
-          debug_number sorted_indices
-          debug_number sorted_indices+1
-          debug_number #$EE
-          rts
-fubar:
-          debug_number #$99
           rts
 .endproc
 .importzp _pl_x,_pl_y
@@ -202,7 +194,7 @@ insert_point = 1
 .data
 test_array:         .byte 1,2,3,5,6,7,0
 test_array_sz = * - test_array
-value_array:        .byte 7,6,5,4,3,2,1
+value_array:        .byte 7,1,5,4,3,2,6
 sorted_array:
 .repeat test_array_sz,I
           .byte $A0 + I
@@ -242,17 +234,18 @@ loop:
           sty scratch
           crlf
           myprintf "x:%d i:%d, ae:%d", loop_x, scratch, array_end
-          move_array sorted_array, scratch, array_end
+          inc array_end
+          move_array sorted_array, scratch , array_end
           ;; x should still contain the value we want to insert
           ;; now that array has been moved, let's insert it
-          txa
+          lda loop_x
+          ldy scratch
           sta sorted_array,y
-          inc array_end
           crlf
           print_array sorted_array, test_array_sz
 
           inc loop_x
-          lda #3
+          lda #6
           cmp loop_x
           beq done
           jmp loop
@@ -260,4 +253,13 @@ done:
           rts
 .endproc
 
+;;; in:
+;;;   X = index in value array of 'to insert' item
+;;; out:
+.macro    insertion_sort sorted_array, value_array, start, end
+          find_insert_point  sorted_array, value_array, #0, end
+          ;; inc end
+          move_array sorted_array, scratch , array_end
+
+.endmacro
 .endscope

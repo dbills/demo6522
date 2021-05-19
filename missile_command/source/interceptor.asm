@@ -10,9 +10,7 @@
 .include "shapes.inc"
 
 .scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor,unit_tests
-
-
+.export in_initialize,launch,queue_iterate_interceptor,unit_tests,fubar
 
 base_x = XMAX/2
 base_y = YMAX-16
@@ -50,46 +48,6 @@ loop:
           rts
 .endproc
 
-;;; find first greater ( insert point ) in inteceptor array. first part
-;;; of an insertion sort
-;;; in:  X = index of unsorted item in value_array
-;;;      start = size iterator of sorted array
-;;;      end = end of sorted array
-;;; out: Y = insert point
-;;; uses: Y
-.macro    find_insert_point sorted_array, value_array, start, end
-          .local loop, done
-          ;; sort
-          ;; X = index of line just inserted
-          ;; A = length of new line
-          lda value_array,x
-          ldy start                     ;start at beginning
-loop:
-          cpy end                       ;did we reach end
-          beq done
-          ldx sorted_array,y            ;load index of item to compare
-          cmp value_array,x             ;compare remaining length
-          bcc done                      ;this line is longer than us
-          iny                           ;increment loop counter
-          jmp loop
-done:
-.endmacro
-
-;;; move array down from (start,end]
-;;; leaving a hole at start
-.macro    move_array array,start,end
-          .local move_loop,done
-          ldy end
-move_loop:
-          cpy start
-          beq done
-          lda array-1,y
-          sta array,y
-          dey
-          bpl move_loop                 ;branch always
-done:
-.endmacro
-
 .proc     launch
           lda #crosshair_xoff
           clc
@@ -109,13 +67,11 @@ ok:
           lineto #base_x,#base_y,_x2,_y2
           ;; sorted array is 1 smaller until we insert
           dex
-          find_insert_point sorted_indices, long_axis_current_values, \
-                            tail, next
 .bss
 insert_point:       .res 1
 .code
           sty insert_point
-          move_array sorted_indices, next, insert_point
+;          move_array sorted_indices, next, insert_point
           ;; insert
           lda next
           sta sorted_indices,y
@@ -173,12 +129,43 @@ active:
           jmp render_single_pixel
 .endproc
 
-.proc     erase_line
-.endproc
+;;; sorted: array of sorted indices
+;;; values: array of values
+;;; 
+.macro    insertion_sort sorted, values, start, end, inserted
+          .local done,loop
+          ldx inserted
+          ldy values, x
+          ldx end
+          ;; walk backwards from end to start
+          ;; while X > start
+loop:     
+          cpx start
+          blte done
+          ;; if line[x-1].length < line[insert].length
+          ;;   break
+          tya
+          cmp values-1,x                ;line[x]-line[x-1]
+          bcs done
+          beq done
+          ;; line[x]=line[x-1]
+          lda sorted-1,x
+          sta sorted,x
+          dex
+          jmp loop                      ;bpl? for bra
+done:     
+          ;; insert here, load index of inserted
+          ;; and store in sorted
+          tya                           ;lda inserted  
+          sta sorted,x
+.endmacro
 ;;; =============================================
 ;;; unit tests
 ;;; =============================================
 .macro    print_array array,size
+.bss
+scratch:  .res 1
+.code
           .local loop
           ldy #0
 loop:
@@ -195,13 +182,14 @@ insert_point = 1
 test_array:         .byte 1,2,3,5,6,7,0
 test_array_sz = * - test_array
 value_array:        .byte 7,1,5,4,3,2,6
+;;; set a test pattern in the sorted array starting at $A0
+;;; so it's easy to spot parts that haven't been set yet
 sorted_array:
 .repeat test_array_sz,I
           .byte $A0 + I
 .endrepeat
 .bss
-scratch:  .res 1
-loop_x:   .res 1
+array_start:        .res 1
 array_end:          .res 1
 .code
           ;; initialize test data
@@ -209,57 +197,16 @@ array_end:          .res 1
           sta s_x
           sta s_y
           myprintf "abcdefghijklmnopqrstuvwxyz0123"
-          add8 #8,s_y
-          move_array test_array, #insert_point, #test_array_sz-1
-          lda #$ee
-          sta test_array+insert_point
-          lda #0
-          sta s_x
-          myprintf "moved:"
-          print_array test_array, test_array_sz
-          ;; test 2
-          ;; test building arrays up from scratch
-          ;; by inserting into them, similar
-          ;; to how the actual game would do
-          crlf
-          myprintf "varr:"
-          print_array value_array, test_array_sz
           crlf
           lda #0
-          sta loop_x
+          sta array_start
           sta array_end
-loop:
-          ldx loop_x
-          find_insert_point  sorted_array, value_array, #0, array_end
-          sty scratch
-          crlf
-          myprintf "x:%d i:%d, ae:%d", loop_x, scratch, array_end
+          insertion_sort sorted_array, value_array, array_start, array_end, #0
           inc array_end
-          move_array sorted_array, scratch , array_end
-          ;; x should still contain the value we want to insert
-          ;; now that array has been moved, let's insert it
-          lda loop_x
-          ldy scratch
-          sta sorted_array,y
-          crlf
+::fubar:    
+          insertion_sort sorted_array, value_array, array_start, array_end, #1  
           print_array sorted_array, test_array_sz
-
-          inc loop_x
-          lda #6
-          cmp loop_x
-          beq done
-          jmp loop
-done:
           rts
 .endproc
 
-;;; in:
-;;;   X = index in value array of 'to insert' item
-;;; out:
-.macro    insertion_sort sorted_array, value_array, start, end
-          find_insert_point  sorted_array, value_array, #0, end
-          ;; inc end
-          move_array sorted_array, scratch , array_end
-
-.endmacro
 .endscope

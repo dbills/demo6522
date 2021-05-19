@@ -28,7 +28,7 @@ foo:
 OBJS=jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o interceptor.o queue.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o
 
 graphics:
-	cd ../build_support && g++ sprite.cc -lm
+	cd ../build_support && g++-8 sprite.cc -lm
 	(cd ../build_support && ./explosions2.sh) > screen_draw.asm
 
 port: graphics
@@ -42,7 +42,7 @@ port: graphics
 	for i in *.asm;do ../build_support/assemble.sh $$i asm;done
 # make sure main is first so the start addr is always the same
 #cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o test.o $(OBJS)
-	cd obj;cl65 -o ../a.p00 -tvic20 -Ln vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug main.o $(OBJS)
+	cd obj;cl65 -o ../a.p00 -tvic20 -Ln ../vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug main.o $(OBJS)
 	cd obj;perl ../../build_support/mapfile.pl a.map > a.lst
 
 foo1:

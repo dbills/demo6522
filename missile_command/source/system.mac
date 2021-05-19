@@ -114,4 +114,13 @@ iloop:
           jsr _sleep
           resall
 .endmacro
+;;; branch less than or equal to
+.macro    blte _1
+          beq _1
+          bcc _1
+.endmacro
+.macro    bgte _1
+          beq _1
+          bcs _1
+.endmacro
 .endif

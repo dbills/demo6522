@@ -6,12 +6,13 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf
+.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf,scratch
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
 .bss
 string_offset:   .byte 0
+scratch:  .byte 0
 .data
 text_x:     .byte 140
 text_y:     .byte 30

@@ -54,8 +54,41 @@ mystring:
             .endif
             resall
 .endmacro
+
 .macro      crlf
             lda #0
             sta s_x
             add8 #8,s_y
+.endmacro
+
+;;; print direct array contents
+.macro    direct_access array
+          lda array,y
+.endmacro
+;;; print indirect array contents
+.macro    indirect_access array,pointer
+          ldx pointer,y
+          lda array,x
+.endmacro
+
+.macro    print_array_ start,end,accessor
+          .local loop,done
+          ldy start
+loop:
+          accessor
+          sta scratch
+          myprintf "%d,", scratch
+          cpy end
+          beq done
+          iny
+          jmp loop
+done:     
+.endmacro
+
+.macro    print_array array,start,end
+          print_array_ start,end,{direct_access array}
+.endmacro
+
+.macro    print_indirect_array array,pointer,size
+          print_array_ start,end,{indirect_access array, pointer}
 .endmacro

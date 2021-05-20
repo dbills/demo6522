@@ -1,0 +1,6 @@
+.macro    snd_missile_empty
+          lda #245
+          sta 36876
+          lda #10
+          sta i_empty_sound
+.endmacro

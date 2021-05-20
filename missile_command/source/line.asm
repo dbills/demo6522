@@ -52,11 +52,12 @@ LINE_NUMBER .set 0
 .endrepeat
 line_types:               .res MAX_LINES
 long_axis_start_values:   .res MAX_LINES
+;;; total length ( const )
 long_axis_lengths:        .res MAX_LINES
+;;; current index in the line?
 line_data_indices:        .res MAX_LINES
+;;; short axis point?
 long_axis_current_values: .res MAX_LINES
-new_missile_index:        .res 1
-old_missile_index:        .res 1
 .code
           ;; distance beteen _1 and _2
           ;; Y=value if _2 < _1

@@ -10,7 +10,9 @@ LASTJOY:  .res 1
           sta VIA2DDR             ;setup VIA for joystick read
 
           lda #0
-          sta $9113               ;joy VIA to input
+          ;; data direction register A to input
+          ;; this interferes with keyboard scan
+          sta $9113              
           rts
 .endproc
 ;;; waits for joystick to be pressed

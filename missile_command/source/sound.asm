@@ -1,31 +1,40 @@
 .include "system.inc"
-.export sound_interrupt,test_sound,sound_init,missile_away
+.export sound_interrupt,test_sound,sound_init,snd_missile_away, i_empty_sound
 MISSILE_DELAY = 6
 .zeropage
 .data
 i_missile_sound:    .byte table_end - missile_away_table
 missile_delay:      .res 1
+.bss
+i_empty_sound:      .res 1
 .code
 
 .proc     sound_interrupt
           sei
-          lda i_missile_sound
-          cmp #table_end - missile_away_table
-          beq done
-
-          tax
+          ;; run interceptor sounds
+          ldx i_missile_sound
+          cpx #table_end - missile_away_table
+          bne _1
+          sta 36877
+          beq _2                        ;bra
+_1:        
           lda missile_away_table,x
           sta 36877
           inx
           stx i_missile_sound
-          jmp MINISR
-done:
-          lda #0
-          sta 36877
+          ;; run 'empty' sound if applicable
+_2:       
+          lda i_empty_sound
+          bne _3
+          sta 36876
+_3:       
+          sec
+          sbc #1
+          sta i_empty_sound
           jmp MINISR
 .endproc
 
-.proc     missile_away
+.proc     snd_missile_away
           lda #MISSILE_DELAY
           sta missile_delay
           lda #0

@@ -4,36 +4,11 @@
 .include "zerop.inc"
 ;;; todo: make text routines _not_ use sprite vars
 .include "sprite.inc"
+.export sort_key
 .bss
 sort_key:           .res 1              ;last insert values
 .code
 
-;;; print direct array contents
-.macro    direct_access array
-          lda array,y
-.endmacro
-;;; print indirect array contents
-.macro    indirect_access array,pointer
-          ldx pointer,y
-          lda array,x
-.endmacro
-.macro    print_array_ size,accessor
-          .local loop
-          ldy #0
-loop:
-          accessor
-          sta scratch
-          myprintf "%d,", scratch
-          iny
-          cpy #size
-          bne loop
-.endmacro
-.macro    print_array array,size
-          print_array_ size,{direct_access array}
-.endmacro
-.macro    print_indirect_array array,pointer,size
-          print_array_ size,{indirect_access array, pointer}
-.endmacro
 .ifdef TESTS
 .export insertion_sort_tests
 .proc     insertion_sort_tests

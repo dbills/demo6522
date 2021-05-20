@@ -7,6 +7,8 @@
 .include "sprite.inc"
 .include "shapes.inc"
 .include "system.mac"
+.include "insertion_sort.inc"
+.include "text.inc"
 
 .scope interceptor
 .export in_initialize,launch,queue_iterate_interceptor
@@ -17,9 +19,12 @@ base_y = YMAX-16
 .bss
 i_line:   .res 1                        ;tmpvar save current line index
 p_next:   .word 0
-next:     .byte 0
+;;; location of next free line/interceptor slot
+next:     .byte 0 
 p_tail: .word 0
 tail:   .byte 0
+;;; last inserted
+;inserted .byte 0
 ;;; indices of interceptors sorted by line length
 ;;; the missile nearest completion is always at tail
 ;;; all missile lengths decreases on each frame
@@ -44,6 +49,10 @@ loop:
           dex
           bpl loop
 
+          lda #0
+          sta s_x
+          lda #40
+          sta s_y
           rts
 .endproc
 
@@ -64,20 +73,16 @@ loop:
           jmp empty
 ok:
           lineto #base_x,#base_y,_x2,_y2
-          ;; sorted array is 1 smaller until we insert
-          dex
-.bss
-insert_point:       .res 1
-.code
-          sty insert_point
-;          move_array sorted_indices, next, insert_point
-          ;; insert
-          lda next
-          sta sorted_indices,y
-
+          ;; X has index of line just inserted
+;          insertion_sort sorted_indices,line_data_indices,tail,next,next
           jsr enqueue_interceptor
-          jsr missile_away
+          jsr snd_missile_away
+
+;          print_array sorted_indices, #0, #2
+;          crlf
+          rts
 empty:
+          snd_missile_empty
           rts
 .endproc
 .importzp _pl_x,_pl_y
@@ -105,6 +110,12 @@ empty:
           sta target_x
           rts
 .endproc
+
+;; .macro    remove_interceptor
+;;           ;; get the 'shortest' line
+;;           ldx tail
+;;           lda sorted_indicies, x
+;; .endmacro
 
 ;;; called by the queue iterator function we declared
 ;;; IN:

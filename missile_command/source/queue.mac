@@ -28,14 +28,13 @@ inbounds:
           ;; increment head index
           inc index_label
           ;; now increment the head pointer (word)
-          clc
           lda pointer_label
+          clc
           adc #array_element_size
           sta pointer_label
           bcc done
           inc pointer_label+1
 done:
-          rts
 .endmacro
 ;;; queue name is used to generate the function names
 ;;; i_head, i_tail, p_head, p_tail are labels
@@ -64,6 +63,7 @@ done:
 .export .ident (.sprintf ("enqueue_%s", queue_name))
 .proc .ident (.sprintf ("enqueue_%s", queue_name))
           increment_queue_label p_head, i_head, array_element_size, i_head_begin, qsize
+          rts
 .endproc
 .export .ident (.sprintf ("queue_size_%s", queue_name))
 ;;; return size in A

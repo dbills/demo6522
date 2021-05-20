@@ -68,7 +68,7 @@
           ;jsr bigletter
           ;jsr bigstring
           ;;jsr mcommand
-          ;jsr main_loop
+          jsr main_loop
           ;jsr line_tests
           ;jsr test_detonation
 .import attract

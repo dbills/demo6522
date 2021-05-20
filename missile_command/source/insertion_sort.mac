@@ -31,3 +31,4 @@ done:
           lda inserted  
           sta sorted,x
 .endmacro
+

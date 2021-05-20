@@ -4,13 +4,12 @@
 .include "zerop.inc"
 .include "queue.mac"
 .include "sound.inc"
-;.include "debugscreen.inc"
-.include "text.inc"
 .include "sprite.inc"
 .include "shapes.inc"
+.include "system.mac"
 
 .scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor,unit_tests,fubar
+.export in_initialize,launch,queue_iterate_interceptor
 
 base_x = XMAX/2
 base_y = YMAX-16
@@ -128,112 +127,4 @@ empty:
 active:
           jmp render_single_pixel
 .endproc
-
-;;; sorted: array of sorted indices
-;;; values: array of values
-;;; end is 1 past end of array?
-;;; we can never enter loop body with x = start
-.macro    insertion_sort sorted, values, start, end, inserted
-          .local done,loop
-          ldx inserted
-          lda values,x
-          sta sort_key
-          ldx end
-          ;; walk backwards from end to start
-          ;; while X > start
-loop:     
-          cpx start
-          blte done
-          ;; if line[x-1].length < line[insert].length
-          ;;   break
-          ldy sorted-1,x
-          lda values,y
-          cmp sort_key                ;line[x]-line[x-1]
-          bcc done
-          beq done
-          ;; line[x]=line[x-1]
-          lda sorted-1,x
-          sta sorted,x
-          dex
-          jmp loop                      ;bpl? for bra
-done:     
-          ;; insert here, load index of inserted
-          ;; and store in sorted
-          lda inserted  
-          sta sorted,x
-.endmacro
-;;; =============================================
-;;; unit tests
-;;; =============================================
-;;; print direct array contents
-.macro    direct_access array
-          lda array,y
-.endmacro
-;;; print indirect array contents
-.macro    indirect_access array,pointer
-          ldx pointer,y
-          lda array,x
-.endmacro
-.macro    print_array_ size,accessor
-          .local loop
-          ldy #0
-loop:
-          accessor
-          sta scratch
-          myprintf "%d,", scratch
-          iny
-          cpy #size
-          bne loop
-.endmacro
-.macro    print_array array,size
-          print_array_ size,{direct_access array}
-.endmacro
-.macro    print_indirect_array array,pointer,size
-          print_array_ size,{indirect_access array, pointer}
-.endmacro
-.proc     unit_tests
-insert_point = 1
-.data
-value_array:        .byte 7,1,5,4,3,2,6
-test_array_sz = * - value_array
-;;; set a test pattern in the sorted array starting at $A0
-;;; so it's easy to spot parts that haven't been set yet
-sorted_array:
-.repeat test_array_sz,I
-          .byte $A0 + I
-.endrepeat
-.bss
-array_start:        .res 1
-array_end:          .res 1
-scratch:            .res 1
-sort_key:           .res 1              ;last insert values
-.code
-          ;; initialize test data
-          lda #0
-          sta s_x
-          sta s_y
-          myprintf "abcdefghijklmnopqrstuvwxyz0123"
-          lda #0
-          sta array_start
-          sta array_end
-
-          insertion_sort sorted_array, value_array, array_start, array_end, array_end
-          crlf
-          print_indirect_array value_array, sorted_array,test_array_sz
-          inc array_end
-          insertion_sort sorted_array, value_array, array_start, array_end, array_end
-          crlf
-          print_indirect_array value_array, sorted_array,test_array_sz
-          inc array_end
-::fubar:
-          insertion_sort sorted_array, value_array, array_start, array_end, array_end
-          crlf
-          print_indirect_array value_array, sorted_array,test_array_sz
-          inc array_end
-done:     
-          rts
-.endproc
-
 .endscope
-
-

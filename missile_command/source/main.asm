@@ -18,6 +18,9 @@
 .include "queue.inc"
 .include "sound.inc"
 .include "detonation.inc"
+.ifdef TESTS
+.include "unit_tests.inc"          
+.endif
 ;.segment "STARTUP"
 ;          jmp demo
           .CODE
@@ -55,12 +58,9 @@
           jsr init_lines
           jsr i_detonation
 
-.import test_detonation
-.include "bigletter.inc"
-foo:
-          lda #0
-          sta bigx
-          sta bigy
+.ifdef TESTS
+          jsr unit_tests
+.endif
           ;; jsr bigplot
           ;; lda #1
           ;; sta bigx
@@ -73,7 +73,6 @@ foo:
           ;jsr test_detonation
 .import attract
             ;jsr attract
-          jsr interceptor::unit_tests
           ;; debug_string "rmissilecommandtheend"
           jmp loop
 loop:

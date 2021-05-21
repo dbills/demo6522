@@ -9,9 +9,10 @@
 .include "system.mac"
 .include "insertion_sort.inc"
 .include "text.inc"
+.include "debugscreen.inc"
 
 .scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor
+.export in_initialize,launch,queue_iterate_interceptor,update_interceptors
 
 base_x = XMAX/2
 base_y = YMAX-16
@@ -74,12 +75,12 @@ loop:
 ok:
           lineto #base_x,#base_y,_x2,_y2
           ;; X has index of line just inserted
-;          insertion_sort sorted_indices,line_data_indices,tail,next,next
+          insertion_sort sorted_indices,line_data_indices,tail,next,next
           jsr enqueue_interceptor
           jsr snd_missile_away
 
-;          print_array sorted_indices, #0, #2
-;          crlf
+          print_array sorted_indices, #0, #2
+          crlf
           rts
 empty:
           snd_missile_empty
@@ -111,31 +112,42 @@ empty:
           rts
 .endproc
 
-;; .macro    remove_interceptor
-;;           ;; get the 'shortest' line
-;;           ldx tail
-;;           lda sorted_indicies, x
-;; .endmacro
+.proc     update_interceptors
+.bss
+sort_index:         .res 1
+.code
+          lda tail
+          sta sort_index
+          ;; walk through the sorted array of interceptor
+          ;; index values
+loop:     
+          ldy sort_index
+          cpy next
+          beq done
+          ;; load index of interceptor we are going to update
+          ;; into x
+          ldx sorted_indices,y
+          ;; increment iterator in sorted array
+          iny
+          sty sort_index
 
-;;; called by the queue iterator function we declared
-;;; IN:
-;;;   X: line index
-.proc update_interceptor
-          ;; check if this interceptor is still active
-          lda line_data_indices,x
+          lda queue_offsetsL_interceptor,x
+          sta _lstore
+          lda queue_offsetsH_interceptor,x
+          sta _lstore+1
+          jsr render_single_pixel
+          ;; if Z on return the line is done
           bne active
           ;; erase the line
           jsr _general_render
-          ;; remove it
-          ;debug_number tail
           jsr dequeue_interceptor
           ;; explosion
-          stx i_line                    ;save x
           jsr erase_crosshair_mark
           jsr queue_detonation
-          ldx i_line                    ;restore x
+active:   
+          jmp loop
+done:     
           rts
-active:
-          jmp render_single_pixel
 .endproc
+
 .endscope

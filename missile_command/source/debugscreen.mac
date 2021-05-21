@@ -7,7 +7,7 @@ _DEBUGSCREEN_H = 1
           jsr _debug_screen_write_char
           lda #58
           jsr _debug_screen_write_char
-          lda b
+          loadA b
           jsr _debug_screen_write_byte
           lda #32
           jsr _debug_screen_write_char
@@ -19,5 +19,12 @@ _DEBUGSCREEN_H = 1
           jsr _debug_screen_write_char
           resall
 .endmacro
-
+;;; abort by showing the debug screen
+;;; with a message, and allow toggling back and forth
+;;; between screens with the fire button
+.macro    abort msgchar,b
+          dbgmsg msgchar,b
+          jsr show_debug_screen
+          jmp abort_
+.endmacro
 .endif

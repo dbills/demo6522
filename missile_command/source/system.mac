@@ -123,4 +123,15 @@ iloop:
           beq _1
           bcs _1
 .endmacro
+;;; load A from any register, ram or immediate
+.macro    loadA mem
+            .if (.match (.left (1, {mem}), X))
+            txa
+            .elseif (.match (.left (1, {mem}), Y))
+            tya
+            .elseif (.match (.left (1, {mem}), A))
+            .else
+            lda mem
+            .endif
+.endmacro
 .endif

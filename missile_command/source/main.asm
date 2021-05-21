@@ -74,54 +74,6 @@
 .import attract
             ;jsr attract
           ;; debug_string "rmissilecommandtheend"
-          jmp loop
-loop:
-          jsr j_wfire
-          jsr show_debug_screen
-          jsr j_wfire
-          jsr i_hires
-          jmp loop
-          rts
-.endproc
-;;; fill screen with a tiled
-;;; set of chars to allow bitmapped
-;;; graphics
-.proc     i_hires
-          chbase CHBASE1
-          setrows SCRROWS
-          setcolumns SCRCOLS
-          setleft 3
-          tallchar
-          ldy SCRMAP_SZ
-          ;; fill screen with chars tile
-          ;; pattern
-loop:
-          lda #YELLOW
-          sta CLRRAM-1,y
-          lda SCRMAP-1,y
-          sta SCREEN-1,y
-          dey
-          bne loop
-          rts
-.endproc
-;;; clear ram allocated to custom
-;;; character set
-.proc     i_chrset
-          mov #CHBASE1, ptr_0
-          ldy #0
-          ldx #16                       ;# of pages
-          lda #0                        ;AA is nice
-loop:
-          sta (ptr_0),y
-          iny
-          beq inch
-          bne loop
-inch:
-          inc ptr_0 + 1
-          dex
-          beq done
-          bne loop
-done:
           rts
 .endproc
 ;;; wait vertical blank
@@ -145,7 +97,8 @@ loop:
 ;          jsr draw_detonations
 ;          bcolor_i BLACK
           update_crosshairs
-          jsr interceptor::queue_iterate_interceptor
+          ;jsr interceptor::queue_iterate_interceptor
+          jsr interceptor::update_interceptors
 
           jmp loop
           rts

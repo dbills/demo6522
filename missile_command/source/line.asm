@@ -244,14 +244,18 @@ s8:
 .endproc
 
 .proc _partial_render
+.ifdef debug
           ;; check if line is still in progress
           lda line_data_indices,x
-          bne draw
-          rts
+;          bne draw
+          ;; abort with code and print register X
+          brk
 draw:
+.endif
           _general_render_template render_partial_line
 .endproc
 
 .proc render_single_pixel
+          ;abort 'A',X
           _general_render_template render_partial_line
 .endproc

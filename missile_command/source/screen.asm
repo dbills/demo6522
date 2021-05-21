@@ -2,11 +2,12 @@
 .include "m16.mac"
 .include "screen.mac"
 .include "system.mac"
+.include "colors.equ"
 .zeropage
 _pl_x:      .res 1
 _pl_y:      .res 1
 .CODE
-.export _plot,i_pltbl,BMASKS,abort,i_pltbl
+.export _plot,i_pltbl,BMASKS,abort,i_pltbl,i_hires,i_chrset
 .exportzp _pl_x,_pl_y
 .proc abort
 .endproc
@@ -26,6 +27,48 @@ loop:
 
 .proc     _plot
           plotm lda _pl_x
+          rts
+.endproc
+
+;;; fill screen with a tiled
+;;; set of chars to allow bitmapped
+;;; graphics
+.proc     i_hires
+          chbase CHBASE1
+          setrows SCRROWS
+          setcolumns SCRCOLS
+          setleft 3
+          tallchar
+          ldy SCRMAP_SZ
+          ;; fill screen with chars tile
+          ;; pattern
+loop:
+          lda #YELLOW
+          sta CLRRAM-1,y
+          lda SCRMAP-1,y
+          sta SCREEN-1,y
+          dey
+          bne loop
+          rts
+.endproc
+;;; clear ram allocated to custom
+;;; character set
+.proc     i_chrset
+          mov #CHBASE1, ptr_0
+          ldy #0
+          ldx #16                       ;# of pages
+          lda #0                        ;AA is nice
+loop:
+          sta (ptr_0),y
+          iny
+          beq inch
+          bne loop
+inch:
+          inc ptr_0 + 1
+          dex
+          beq done
+          bne loop
+done:
           rts
 .endproc
 

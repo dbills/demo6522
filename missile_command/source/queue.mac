@@ -7,7 +7,6 @@
 ;;; H=end, t=begin => a full queue
 
 .include "m16.mac"
-debug = 1
 ;;; increment the head or tail pointer
 ;;; IN:
 ;;;   pointer_label: label of queue pointer (e.g. p_head|p_tail)
@@ -91,10 +90,22 @@ loop:
           ;; execute callback
           jsr routine
           ;; next item
-          add #LINEMAX,p_iterator
+          add #array_element_size,p_iterator
           inx
           bne loop                      ; branch always
 done:
           rts
 .endproc
+.data
+.export .ident (.sprintf ("queue_offsetsL_%s", queue_name))
+.ident (.sprintf ("queue_offsetsL_%s", queue_name)):
+.repeat qsize,I
+.byte <(p_head_begin + (array_element_size * I))
+.endrep
+.export .ident (.sprintf ("queue_offsetsH_%s", queue_name))
+.ident (.sprintf ("queue_offsetsH_%s", queue_name)):
+.repeat qsize,I
+.byte >(p_head_begin + (array_element_size * I))
+.endrep
+.code
 .endmacro

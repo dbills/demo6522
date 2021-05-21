@@ -4,8 +4,10 @@
 .include "screen.inc"
 .include "zerop.inc"
 .include "m16.mac"
+.include "jstick.inc"
+
 ;.include "system.mac"
-.export i_debug_screen,show_debug_screen, _debug_screen_write_char, _debug_screen_write_byte, _debug_screen_write_digit
+.export i_debug_screen,show_debug_screen, _debug_screen_write_char, _debug_screen_write_byte, _debug_screen_write_digit,abort_
 .bss
 z_save:   .res 1
 .code
@@ -92,4 +94,13 @@ done:
           and #$0f
           jsr _debug_screen_write_digit
           rts
+.endproc
+
+.proc abort_
+loop:
+          jsr j_wfire
+          jsr show_debug_screen
+          jsr j_wfire
+          jsr i_hires
+          jmp loop
 .endproc

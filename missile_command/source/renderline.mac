@@ -1,5 +1,7 @@
           .include "screen.mac"
 ;;; render a single pixel of a line
+;;; OUT:
+;;;   Z if line is finished
 .macro render_partial_line xdirection, ydirection, slope
 .local loop, short_axis, long_axis, iterator
 .if (.xmatch ({slope}, steep))

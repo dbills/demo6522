@@ -57,6 +57,14 @@ loop:
           rts
 .endproc
 
+.macro    show_sorted
+          lda next
+          sec
+          sbc tail
+          print_array sorted_indices, tail, next
+          crlf
+.endmacro
+
 .proc     launch
           lda #crosshair_xoff
           clc
@@ -76,11 +84,9 @@ ok:
           lineto #base_x,#base_y,_x2,_y2
           ;; X has index of line just inserted
           insertion_sort sorted_indices,line_data_indices,tail,next,next
+          show_sorted
           jsr enqueue_interceptor
           jsr snd_missile_away
-
-          print_array sorted_indices, #0, #2
-          crlf
           rts
 empty:
           snd_missile_empty
@@ -130,7 +136,7 @@ loop:
           ;; increment iterator in sorted array
           iny
           sty sort_index
-
+          ;; set _lstore pointer to correct line
           lda queue_offsetsL_interceptor,x
           sta _lstore
           lda queue_offsetsH_interceptor,x
@@ -150,4 +156,10 @@ done:
           rts
 .endproc
 
+;;; called by the queue iterator function we declared
+;;; IN:
+;;;   X: line index
+.proc update_interceptor
+          rts
+.endproc
 .endscope

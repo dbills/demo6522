@@ -1,6 +1,8 @@
 .ifndef _line_h
 _line_h=1
 .include "screen.mac"
+.include  "system.mac"
+
 ;;; IN: X = line index to draw
 ;;;     _lstore = where to store line data
 .macro      lineto x1,y1,x2,y2

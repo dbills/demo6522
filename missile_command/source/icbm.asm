@@ -12,5 +12,16 @@
 
 ;;; mirvs are preselected and in a table with the index of one
 ;;; of the existing lines
-.proc gen_attack_wave
+.include "line.inc"
+.include "m16.mac"
+
+.export icbm_update
+
+.bss
+.code
+
+
+.proc icbm_update
+          
 .endproc
+

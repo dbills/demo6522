@@ -31,77 +31,66 @@ WOW: this is the last time I worked on this after all the
     copy current missile position to old
     update new missile position
   5/3 ( taking some leave after medical drama )
-  routine to keep missiles sorted, shorted first
+  routine to keep missiles sorted, shortest first
+  how do we control the rate of pixel plots on incoming icbm?
+  we have framecnt incrementing
+  we want to be able to handle anything from < 60fps to > 60fps
+  if(framecnt & 3) == 3) then do something for < 60fps
+  what about more? we use the fractional technique we used in pacman?
+  up to 2xspeed
+ 
+  how can we use framecnt?
+  it increments every frame
+  increasing series of numbers
+  1,2,3,4,5,6
+  I guess you could keep a 120ths counter instead of a 60s?
+  0,120,240,
 
-  what are the edges cases?
-  insertion with length = 0
-  insertion at end ( covered by length = 0? )
-  inserstion at beginning of collection
-
-  // an insert _always occurs
-
-  let lines = array of pointers to lines
-              (indexes)
-  x = new line
-  end = 1 past the end of the collection
-        i.e. a blank collection end = 0
-        a collection of 1 end = 1
-
-  i = end
-  while(i > start) {
-    // we are either going to insert here, or
-    // move everything to the right one and
-    // try again
-    if(line[i-1].length < line[x].length)
-      break
-    line[i] = line[i-1]
-    i--
-  }
-  line[i] = x
-
-  minimum length = 2
-  L[0] = n/a
-  [[1] = n/a
-  start = 0
-  end = 0
-
-  we'll use single character identifier for lines to simplify
-  the example and make it easier to distinguish lines from sorted line indices
-  A length 50
-  B length 10
-  C length 100
-  D length 5
-
-  insert A
-  fails to execute body of while loop
-  line[0] = A
-  e = e + 1
-
-  insert B
-  s=0,e=1
-  1 > 0
-  execute loop
-  line[0].length = 50
-  line.length = 10
-  50 < 10 = false
-  line[1]=A
-  --
-  0 > 0 = false
-  line[0]=B
-  done correct
-
-  (redo, but insert C)
-  50 < 100 = true
-  break
-  line[1] = C
-
-
-  insert D
+  pps = pixels per second
+  animating once per frame = 60pps
+  animating twice per frame = 120pps
   
-buy: electric bicycle
-     drill press
-     insulate house
-     install solar panels
-     trailer hitch for golf
-     trailer
-     insurnace
+  there are 60fps
+  Let X = desired PPS
+  Then X/60 = number of pixels to move per frame
+  example:
+    X = 90
+    90/60 = 1.5
+    we must move 1.5 pixels per frame
+    but what does that mean when we only support integer?
+    we must 'quantize' that number
+    bresenham's was an example of his, where we allow an error term to be summed until it reaches
+    a certain.  Quantization = mapping a continous set to a countable ( enumerable? ) set
+    
+    there must be a frame where we draw 2 pixels and some where we draw 1
+    which frames?
+
+
+    how do you map a set of 90 onto 60 ( that's a surjection ) where
+    there is an equivalence class
+    what is the surjective function for this?
+
+    first of all we have to make both sets 'countable' so how are we going to represent the set of 90
+    {1,2,3 ... 90 }
+    {1,2,3 ... 60 }
+    that doesn't seem useful as representation because many of the numbers are the same, and then there are some that
+    aren't, could we rewrite the numbers?
+    
+    what will you look for to make the pairings? Division could be useful?
+    1.5 - plot R = .5
+    .5 + 1.5 = 2 plot,plot R = 0
+    1,2,1,2
+
+    each frame must do 1.5 pixels
+    so each frame we are adding .5 of a remainder, this is the accumulating error term
+    R = .5
+    if(r>=1) plot
+    R = .5 + .5
+    so that takes care of the doubling what about the slowing effect?
+    you have to have at least 1 to plot, 2, to plot 2
+    we earn some amount of pixels each frame - we can use at most 2
+    P=P+.5
+    
+
+
+

@@ -13,10 +13,7 @@ loop:
           rts
 .endproc
 
-; returns pseudo random 8 bit number in A. Affects A. (r_seed) is the
-; byte from which the number is generated and MUST be initialised to a
-; non zero value or this function will always return zero. Also r_seed
-; must be in RAM, you can see why......
+;;; inititialize random number generator
 .proc     i_rand
 loop:
           lda VICRASTER

@@ -18,6 +18,7 @@
 .include "queue.inc"
 .include "sound.inc"
 .include "detonation.inc"
+.include "icbm.inc"
 .ifdef TESTS
 .include "unit_tests.inc"          
 .endif
@@ -57,7 +58,7 @@
           jsr interceptor::in_initialize
           jsr init_lines
           jsr i_detonation
-
+          jsr interceptor::icbm_genwave
 .ifdef TESTS
           jsr unit_tests
 .endif
@@ -99,7 +100,7 @@ loop:
           update_crosshairs
           ;jsr interceptor::queue_iterate_interceptor
           jsr interceptor::update_interceptors
-
+          ;jsr icbm_update
           jmp loop
           rts
 .endproc

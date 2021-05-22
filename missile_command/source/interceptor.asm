@@ -12,7 +12,8 @@
 .include "debugscreen.inc"
 
 .scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor,update_interceptors
+.export in_initialize,launch,queue_iterate_interceptor,update_interceptors, icbm_genwave
+
 
 base_x = XMAX/2
 base_y = YMAX-16
@@ -118,17 +119,19 @@ empty:
           rts
 .endproc
 
-.proc     update_interceptors
+
 .bss
 sort_index:         .res 1
 .code
-          lda tail
+
+.macro    update_interceptors_ _tail,_head
+          lda _tail
           sta sort_index
           ;; walk through the sorted array of interceptor
           ;; index values
 loop:     
           ldy sort_index
-          cpy next
+          cpy _head
           beq done
           ;; load index of interceptor we are going to update
           ;; into x
@@ -142,8 +145,12 @@ loop:
           lda queue_offsetsH_interceptor,x
           sta _lstore+1
           jsr render_single_pixel
+          beq erase
+          ;; jsr render_single_pixel
+          ;; beq erase
           ;; if Z on return the line is done
           bne active
+erase:    
           ;; erase the line
           jsr _general_render
           jsr dequeue_interceptor
@@ -153,6 +160,10 @@ loop:
 active:   
           jmp loop
 done:     
+.endmacro
+
+.proc     update_interceptors
+          update_interceptors_ tail,next
           rts
 .endproc
 
@@ -162,4 +173,17 @@ done:
 .proc update_interceptor
           rts
 .endproc
+
+
+.proc icbm_genwave
+          ;; mov #line_data01,_lstore
+          ;; ldx next
+          ;; lineto #10,#10,#159,#155
+          ;; ;lineto #base_x,#base_y,#80,#20
+          ;; insertion_sort sorted_indices,line_data_indices,tail,next,next
+          ;; show_sorted
+          ;; jsr enqueue_interceptor
+          rts
+.endproc
+
 .endscope

@@ -1,7 +1,7 @@
 # generate explosion graphics
-echo ".data"
 width=1
 echo '.include "zerop.inc"'
+echo '.code'
 while [ $width -lt 9 ];do
     shift=0
     while [ $shift -lt 8 ];do
@@ -15,6 +15,7 @@ while [ $width -lt 9 ];do
     done
     width=$((width + 1))
 done
+echo ".data"
 shift=0
 while [ $shift -lt 8 ]; do
     cat <<EOF

@@ -15,13 +15,3 @@
 .include "line.inc"
 .include "m16.mac"
 
-.export icbm_update
-
-.bss
-.code
-
-
-.proc icbm_update
-          
-.endproc
-

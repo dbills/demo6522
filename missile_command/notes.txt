@@ -90,6 +90,27 @@ WOW: this is the last time I worked on this after all the
     you have to have at least 1 to plot, 2, to plot 2
     we earn some amount of pixels each frame - we can use at most 2
     P=P+.5
+
+    the icbm can be destroyed at any time so there is no sense in sorting them
+    let's talk about collision detection , perhaps that will inform the design of the 
+    data structures employed for icbms
+    had the thought of dividing the screen into tiles
+    are the lengths always the same?  well, yes, except for the ones launch from planes, sats
+    
+    what is the best way to check for colissions?
+    can we do better than brute force?
+    at any point in time there is a set of detonations occurring
+    detonations can be presorted into some sort of tile
+    should we check when we move an icbm?
+    
+    use the natural 8 wide column
+    any given explosion is using 3 columns
+    this suggest we might want to sort by char column?
+    when an ICBM enters a column, we could look up
+    how do we do that quickly?
+    just keep a list of detonation indices
+
+    
     
 
 

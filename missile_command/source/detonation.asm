@@ -178,8 +178,8 @@ skip:
             jmp loop
             rts
 .endproc
-;;; load the screen and sprite
-;;; pointer for a draw
+;;; load the screen column pointers
+;;; sp_col[012] for screen column starting at Y
 .macro      setup_draw
             lda pltbl+0,y
             sta sp_col0

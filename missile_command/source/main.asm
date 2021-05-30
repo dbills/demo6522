@@ -100,7 +100,7 @@ loop:
           update_crosshairs
           ;jsr interceptor::queue_iterate_interceptor
           jsr interceptor::update_interceptors
-          ;jsr icbm_update
+          jsr interceptor::icbm_update
           jmp loop
           rts
 .endproc

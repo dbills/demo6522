@@ -12,21 +12,20 @@
 .include "debugscreen.inc"
 
 .scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor,update_interceptors, icbm_genwave
+.export in_initialize,launch,queue_iterate_interceptor,update_interceptors, icbm_genwave,icbm_update
 
 
 base_x = XMAX/2
 base_y = YMAX-16
 
 .bss
-i_line:   .res 1                        ;tmpvar save current line index
 p_next:   .word 0
 ;;; location of next free line/interceptor slot
 next:     .byte 0 
 p_tail: .word 0
 tail:   .byte 0
 ;;; last inserted
-;inserted .byte 0
+
 ;;; indices of interceptors sorted by line length
 ;;; the missile nearest completion is always at tail
 ;;; all missile lengths decreases on each frame
@@ -78,7 +77,7 @@ loop:
 
           mov p_next,_lstore
           ldx next
-          cpx #MAX_LINES
+          cpx #MAX_MISSILES
           bne ok
           jmp empty
 ok:
@@ -123,7 +122,6 @@ empty:
 .bss
 sort_index:         .res 1
 .code
-
 .macro    update_interceptors_ _tail,_head
           lda _tail
           sta sort_index
@@ -166,7 +164,28 @@ done:
           update_interceptors_ tail,next
           rts
 .endproc
-
+.bss
+i_line:   .res 1
+.code
+.proc     icbm_update
+          ldx #MAX_MISSILES
+loop:     
+          cpx #MAX_LINES
+          beq done
+          lda line_data_indices,x
+          beq next
+          ;; set _lstore pointer to correct line
+          lda queue_offsetsL_interceptor,x
+          sta _lstore
+          lda queue_offsetsH_interceptor,x
+          sta _lstore+1
+          jsr render_single_pixel
+next:   
+          inx
+          bne loop                      ;bra
+done:     
+          rts
+.endproc
 ;;; called by the queue iterator function we declared
 ;;; IN:
 ;;;   X: line index
@@ -176,13 +195,9 @@ done:
 
 
 .proc icbm_genwave
-          ;; mov #line_data01,_lstore
-          ;; ldx next
-          ;; lineto #10,#10,#159,#155
-          ;; ;lineto #base_x,#base_y,#80,#20
-          ;; insertion_sort sorted_indices,line_data_indices,tail,next,next
-          ;; show_sorted
-          ;; jsr enqueue_interceptor
+          mov #line_data02,_lstore
+          ldx #1
+          lineto #10,#10,#159,#155
           rts
 .endproc
 

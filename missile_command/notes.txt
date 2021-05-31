@@ -110,8 +110,4 @@ WOW: this is the last time I worked on this after all the
     how do we do that quickly?
     just keep a list of detonation indices
 
-    
-    
-
-
-
+    TODO: remove in file header guards since they are auto generated now

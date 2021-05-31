@@ -47,18 +47,18 @@
 
           ;; border colors
           invmode 1
-          bcolor_i GREEN
-          scolor_i BLACK
+          bcolor_i BLUE
+          scolor_i CYAN
 
           jsr i_debug_screen
 
           jsr sound_init
 
-          ;jsr draw_cities
+          jsr draw_cities
           jsr interceptor::in_initialize
           jsr init_lines
           jsr i_detonation
-          jsr interceptor::icbm_genwave
+          ;jsr interceptor::icbm_genwave
 .ifdef TESTS
           jsr unit_tests
 .endif
@@ -70,6 +70,9 @@
           ;jsr bigstring
           ;;jsr mcommand
           jsr main_loop
+.import test_mushroom
+          ;jsr test_mushroom
+loop:     jmp loop
           ;jsr line_tests
           ;jsr test_detonation
 .import attract
@@ -87,14 +90,14 @@ iloop:
 .endproc
 
 .proc     main_loop
-          lda #SCRROWS*16/2
+          lda #YMAX/2
           sta target_y
-          lda #79
+          lda #XMAX/2
           sta target_x
-          sp_draw crosshair, 5
+          draw_target
 loop:
           jsr wait_v
-          bcolor_i CYAN
+;          bcolor_i CYAN
 ;          jsr draw_detonations
 ;          bcolor_i BLACK
           update_crosshairs

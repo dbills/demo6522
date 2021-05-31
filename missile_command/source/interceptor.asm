@@ -109,7 +109,7 @@ empty:
           sec
           sbc #crosshair_yoff
           sta target_y
-          sp_draw crosshair, 5
+;          sp_draw crosshair, 5
 
           pla
           sta target_y

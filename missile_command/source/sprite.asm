@@ -3,13 +3,14 @@
 .include "zerop.inc"
 .include "m16.mac"
 .include "sprite.mac"
-.export create_sprite_line,draw_sprite,draw_unshifted_sprite,left_byte,right_byte,shift,height,draw_sprite16,spacklator,spackle
+.export create_sprite_line,draw_unshifted_sprite,left_byte,right_byte,shift,height,spacklator,spackle
 .exportzp s_x,s_y,target_x,target_y
 .zeropage
 s_x:        .res 1
 s_y:        .res 1
 target_x:   .res 1
 target_y:   .res 1
+;;; could these be bss?
 .data
 left_byte:  .byte 0
 right_byte: .byte 0
@@ -95,42 +96,6 @@ done:
             lda pltbl,y
             sta p_column3+1
 .endmacro
-;;; draw sprite at s_x,x s_y,x
-;;; we need 4 pointers? screen column A,B ( left and right side of 16 bit sprite )
-;;; sprite source data ( left and right side ) ptr0,1,2,3
-;;; A = height of sprite
-.proc     draw_sprite
-          pha
-          calculate_hires_pointers target_x,target_y
-
-          modulo8 target_x                   ;find correct bit offset
-          mul16                         ;in preshifted images
-          clc
-          adc ptr_2
-          sta ptr_2
-          lda #0
-          adc ptr_2+1
-          sta ptr_2+1
-          add_wbw ptr_2,#8,ptr_3
-          ;; ptr_3 contains pointer to preshifted tiles
-
-          ldy target_y
-          pla
-          tax
-loop1:
-          lda (ptr_1),y
-          eor (ptr_3),y
-          sta (ptr_1),y
-
-          lda (ptr_0),y
-          eor (ptr_2),y
-          sta (ptr_0),y
-
-          iny
-          dex
-          bne loop1
-          rts
-.endproc
 ;;; draw a sprite that does not have
 ;;; preshifted images
 .proc       draw_unshifted_sprite
@@ -187,48 +152,3 @@ spacklator: .res 1
             pla
             sta ptr
 .endmacro
-;;; 16 pixel wide, variable height
-;;; sprites, preshifted
-;;; in: ptr_0 - pointer to preshifted sprite
-.proc       draw_sprite16
-sp_src0 = smc0 + 1
-sp_src1 = smc1 + 1
-sp_src2 = smc2 + 1
-            read_shift_table ptr_0
-            ;; calculate screen column pointer
-            ;; and adjusted sprite source data base pointer
-            ;; ptr_0 must point to pre shifted sprite image
-            ldy #0
-            lda (ptr_0),y
-            sta sprite_height
-            incw ptr_0
-            opto_calculate_hires_pointers s_x,s_y,sp_col2
-            ;; setup three strips of bytes to copy to screen
-            mov ptr_2,sp_src0
-            add_sprite_height sp_src0, sp_src1
-            add_sprite_height sp_src1, sp_src2
-
-            ldy s_y
-            ldx sprite_height           ;loop counter
-loop:
-            lda (sp_col0),y
-smc0:
-            eor 0,y
-            sta (sp_col0),y
-
-            lda (sp_col1),y
-smc1:
-            eor 0,y
-            sta (sp_col1),y
-
-            lda (sp_col2),y
-smc2:
-            eor 0,y
-            sta (sp_col2),y
-
-            iny
-            dex
-            bne loop
-
-            rts
-.endproc

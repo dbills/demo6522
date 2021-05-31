@@ -5,7 +5,8 @@ DNAME=`dirname $1`
 MNAME=$DNAME/$BNAME.mac
 INAME=obj/$DNAME/$BNAME.inc
 #echo $1 $BNAME
-sed -ne '/.scope/p;/[.]export/ s/.export/.import/p' $1 > $INAME
+echo -e ".ifndef _${BNAME}_H\n_${BNAME}_H = 1" > $INAME
+sed -ne '/.scope/p;/[.]export/ s/.export/.import/p' $1 >> $INAME
 if [ -f $MNAME ]
 then
     echo ".include \"$MNAME\"" >> $INAME
@@ -13,6 +14,7 @@ else
     :
     #echo "no macro $MNAME"
 fi
+echo ".endif ; header guard" >> $INAME
 
 if [ "${2}" == "asm" ]
 then

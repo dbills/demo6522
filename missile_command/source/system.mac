@@ -134,4 +134,15 @@ iloop:
             lda mem
             .endif
 .endmacro
+.macro    dynamic_jump tableL,tableH
+          .local jmp0,jmp_operand
+jmp_operand = jmp0 + 1
+            lda tableL,x
+            sta jmp_operand
+            lda tableH,x
+            sta jmp_operand+1
+jmp0:
+            jmp 0                       ;dynamic operand
+.endmacro
+;;;
 .endif

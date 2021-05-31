@@ -178,22 +178,6 @@ skip:
             jmp loop
             rts
 .endproc
-;;; load the screen column pointers
-;;; sp_col[012] for screen column starting at Y
-.macro      setup_draw
-            lda pltbl+0,y
-            sta sp_col0
-            lda pltbl+1,y
-            sta sp_col0+1
-            lda pltbl+2,y
-            sta sp_col1
-            lda pltbl+3,y
-            sta sp_col1+1
-            lda pltbl+4,y
-            sta sp_col2
-            lda pltbl+5,y
-            sta sp_col2+1
-.endmacro
 ;;; x = explosion to update
 ;;; note: there is a sequence of animation 'frames' to
 ;;; show, that sequence is stored at explosion_frame_table

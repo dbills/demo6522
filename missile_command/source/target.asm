@@ -10,6 +10,8 @@
 .include "shapes.inc"
 .import _ldata1
 .export   move_crosshairs
+
+ch_speed = 2
 .data
 trigger_count:      .byte 0
 .code
@@ -17,14 +19,14 @@ trigger_count:      .byte 0
           .macro ch_inc b
           lda b
           clc
-          adc #2
+          adc #ch_speed
           sta b
           .endmacro
 
           .macro ch_dec b
           lda b
           sec
-          sbc #2
+          sbc #ch_speed
           sta b
           .endmacro
 
@@ -32,8 +34,7 @@ trigger_count:      .byte 0
           .local done
           lda #detonation_xoff
           cmp target_x
-          beq done
-          ;dec target_x
+          bcs done
           ch_dec target_x
 done:
           .endmacro
@@ -62,8 +63,7 @@ done:
           .local done
           lda #8
           cmp target_y
-          beq done
-          ;dec target_y
+          bcs done
           ch_dec target_y
 done:
           .endmacro
@@ -83,7 +83,7 @@ notrigger:
           sta trigger_count
           ;; leave a 'x' marks the spot
           ;; at launch site
-          sp_draw crosshair, crosshair_height
+;          sp_draw crosshair, crosshair_height
           jsr interceptor::launch
 directions:
           lda LASTJOY

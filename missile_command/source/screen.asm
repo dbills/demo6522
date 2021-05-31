@@ -43,7 +43,7 @@ loop:
           ;; fill screen with chars tile
           ;; pattern
 loop:
-          lda #YELLOW
+          lda #BLACK
           sta CLRRAM-1,y
           lda SCRMAP-1,y
           sta SCREEN-1,y

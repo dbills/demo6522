@@ -1,11 +1,11 @@
-.export crosshair,city_left,city_right,base_left,base_right
+.export crosshair,city_left,city_right,base_left,base_right,crosshair_left,crosshair_right
 .listbytes 100
 .DATA
 
 ;;; left and right right byte of a shift
 ;;; expands 'in place' as an expression where used
 ;;; thus .SHIFT refers to some local variable
-;;; where this is exa
+;;; where this is expanded
 .macro       sh_left b,shift
             .byte ($ff & (b  >> shift))
 .endmacro
@@ -14,10 +14,9 @@
 .endmacro
 
 ;;; used the generate the preshifted bytes
-;;; of a 16x8 bit sprite
+;;; of a 8x8 bit sprite
 .macro    sh_shift b1,b2,b3,b4,b5,b6,b7,b8
-SHIFT     .set 0
-          .repeat 8
+          .repeat 8,SHIFT
           sh_left  b1 ,SHIFT
           sh_left  b2 ,SHIFT
           sh_left  b3 ,SHIFT
@@ -26,7 +25,9 @@ SHIFT     .set 0
           sh_left  b6 ,SHIFT
           sh_left  b7 ,SHIFT
           sh_left  b8 ,SHIFT
+          .endrepeat
 
+          .repeat 8,SHIFT
           sh_right b1 ,SHIFT
           sh_right b2 ,SHIFT
           sh_right b3 ,SHIFT
@@ -35,13 +36,9 @@ SHIFT     .set 0
           sh_right b6 ,SHIFT
           sh_right b7 ,SHIFT
           sh_right b8 ,SHIFT
-SHIFT     .set SHIFT + 1
           .endrepeat
-          .endmacro
+.endmacro
 
-crosshair_height = 5
-crosshair_xoff = 2
-crosshair_yoff = 2
 crosshair:
 .linecont
           sh_shift  %10001000, \
@@ -52,6 +49,9 @@ crosshair:
                     %00000000, \
                     %00000000, \
                     %00000000
+
+crosshair_left = crosshair
+crosshair_right = crosshair  + (8*8)
 
 city_left:
 	.byte %00000010

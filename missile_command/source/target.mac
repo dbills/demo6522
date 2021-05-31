@@ -1,5 +1,46 @@
-.macro    update_crosshairs
-          sp_draw crosshair, 5          ;erase
-          jsr move_crosshairs
-          sp_draw crosshair,5           ;draw
+.include "shapes.inc"
+
+.macro draw_target
+          .local loop
+          lda target_x
+          calc_screen_column
+          tay
+          ;; load column pointers
+          ;; todo: this could be optimized
+          ;; for 8 bit sprite here by removing one of the 
+          ;; column pointer setups
+          setup_draw
+          ldy target_y
+          ldx #crosshair_height
+          ;; calc offset target_x & 0x3 * 8
+          lda target_x
+          and #$7                       ; & 0x3
+          asl                           ; * 8
+          asl
+          asl
+          tax
+          clc                           ; + 5
+          adc #5
+          sta scratch
+          ;; x = loop start
+loop:     
+          lda (sp_col0),y
+          eor crosshair_left,x
+          sta (sp_col0),y
+
+          lda (sp_col1),y
+          eor crosshair_right,x
+          sta (sp_col1),y
+          
+          iny
+          inx
+          cpx scratch
+          bne loop
 .endmacro
+
+.macro    update_crosshairs
+          draw_target
+          jsr move_crosshairs
+          draw_target
+.endmacro
+

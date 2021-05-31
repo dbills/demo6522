@@ -25,7 +25,7 @@ foo:
 	ca65 foo.S -o foo.o
 	ld65 -o b.p00 -C vic20-32k.cfg -m foo.map foo.o vic20.lib
 
-OBJS=jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o interceptor.o queue.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o insertion_sort.o unit_tests.o icbm.o mushroom.o
+OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o interceptor.o queue.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o insertion_sort.o unit_tests.o icbm.o mushroom.o mushroom_draw.o
 
 SOURCE=$(OBJS:.o=.asm)
 
@@ -35,7 +35,7 @@ graphics:
 
 extra_graphics:
 	g++-8 -fpermissive -g -D_GLIBCXX_DEBUG -std=c++17 ../build_support/piskel2ca65.c  -o /tmp/piskel2ca65
-	/tmp/piskel2ca65 ../piskel/mc_mushrom.c > mushroom.asm
+	/tmp/piskel2ca65 ../piskel/mc_mushrom.c > mushroom_draw.asm
 
 port: graphics extra_graphics
 	if [ ! -d obj ]; then mkdir obj;fi
@@ -48,7 +48,7 @@ port: graphics extra_graphics
 	for i in $(SOURCE);do ../build_support/assemble.sh $$i asm || exit 1;done
 # make sure main is first so the start addr is always the same
 #cl65 -o a.p00 -tvic20 -Ln vlabels.txt -m a.map -C linker.cfg --listing --add-source --debug main.o test.o $(OBJS)
-	cd obj;cl65 -o ../a.p00 -tvic20 -Ln ../vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug main.o $(OBJS)
+	cd obj;cl65 -o ../a.p00 -tvic20 -Ln ../vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug $(OBJS)
 	cd obj;perl ../../build_support/mapfile.pl a.map > a.lst
 
 foo1:

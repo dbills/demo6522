@@ -3,26 +3,42 @@
 .include "m16.mac"
 .include "zerop.inc"
 .include "screen.mac"
+.include "colors.equ"
 .export draw_cities, city_base, city_x_positions
 .bss
-city_base:  .res 1
 .data
+city_base:  .byte YMAX-9
+missile_base_width = 16
 ;;; note city shape has 4 empty pixels on left
-left_metropolis_start = 3
-right_metropolis_start = XMAX/2 + left_metropolis_start + 9
-.define ground_partition_size 26
+city_margin = 4
+city_width = 12
+content_width = XMAX - (city_width * 6) - missile_base_width
+;;; 6 cities + base + 1 = margins
+spacing = content_width / 8
 city_count: .byte 5
 city_x_positions:
-            .byte left_metropolis_start + ground_partition_size *0
-            .byte left_metropolis_start + ground_partition_size *1
-            .byte left_metropolis_start + ground_partition_size *2
-            .byte right_metropolis_start + ground_partition_size *0
-            .byte right_metropolis_start + ground_partition_size *1
-            .byte right_metropolis_start + ground_partition_size *2
+            .byte spacing + (city_width+spacing)*0 - city_margin
+            .byte spacing + (city_width+spacing)*1 - city_margin
+            .byte spacing + (city_width+spacing)*2 - city_margin
+            .byte spacing + (city_width+spacing)*3 + 16 + spacing - city_margin
+            .byte spacing + (city_width+spacing)*4 + 16 + spacing - city_margin
+            .byte spacing + (city_width+spacing)*5 + 16 + spacing - city_margin
 .code
-;;; stack based args
 ;;; arg1 = pixels from bottom of screen to draw cities
 .proc       draw_cities
+          ;; draw ground
+          lda #255
+          .repeat 23, COL
+          sta CHBASE1 + (COL * SCRROWS * CHARHT) + YMAX - 3
+          sta CHBASE1 + (COL * SCRROWS * CHARHT) + YMAX - 2
+          sta CHBASE1 + (COL * SCRROWS * CHARHT) + YMAX - 1
+          .endrepeat
+          ;; lda #PURPLE
+          ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2-1
+          ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2
+          ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2+1
+          
+          ;jmp blarg
             lda #8
             sta height
             mov #base_left,ptr_0
@@ -31,7 +47,7 @@ city_x_positions:
             ;lda #YMAX-9
             lda city_base
             sec
-            sbc #4
+            sbc #2
             sta s_y
             jsr draw_unshifted_sprite
             lda #XMAX/2
@@ -39,9 +55,9 @@ city_x_positions:
             mov #base_right,ptr_0
             jsr draw_unshifted_sprite
 
+blarg:    
             lda #5
             sta height
-
             lda city_base
             sta s_y
 loop:

@@ -12,7 +12,7 @@
 .include "debugscreen.inc"
 
 .scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor,update_interceptors, icbm_genwave,icbm_update
+.export in_initialize,launch,queue_iterate_interceptor,update_interceptors
 
 
 base_x = XMAX/2
@@ -81,10 +81,11 @@ loop:
           bne ok
           jmp empty
 ok:
-          lineto #base_x,#base_y,_x2,_y2
+          ;lineto #base_x,#base_y,_x2,_y2
+          lineto #base_x,#10,_x2,_y2
           ;; X has index of line just inserted
           insertion_sort sorted_indices,line_data_indices,tail,next,next
-          show_sorted
+;          show_sorted
           jsr enqueue_interceptor
           jsr snd_missile_away
           rts
@@ -167,25 +168,6 @@ done:
 .bss
 i_line:   .res 1
 .code
-.proc     icbm_update
-          ldx #MAX_MISSILES
-loop:     
-          cpx #MAX_LINES
-          beq done
-          lda line_data_indices,x
-          beq next
-          ;; set _lstore pointer to correct line
-          lda queue_offsetsL_interceptor,x
-          sta _lstore
-          lda queue_offsetsH_interceptor,x
-          sta _lstore+1
-          jsr render_single_pixel
-next:   
-          inx
-          bne loop                      ;bra
-done:     
-          rts
-.endproc
 ;;; called by the queue iterator function we declared
 ;;; IN:
 ;;;   X: line index
@@ -193,12 +175,5 @@ done:
           rts
 .endproc
 
-
-.proc icbm_genwave
-          mov #line_data02,_lstore
-          ldx #1
-          lineto #10,#10,#159,#155
-          rts
-.endproc
 
 .endscope

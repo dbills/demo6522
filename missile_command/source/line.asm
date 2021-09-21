@@ -16,7 +16,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_general_render,_partial_render,render_single_pixel
+.export _genline,_general_render,_partial_render,render_single_pixel,init_lines
 .export line_types, long_axis_start_values, long_axis_lengths, line_data_indices, long_axis_current_values,_iline
 .export line_data01
 .export line_data02
@@ -64,7 +64,7 @@ long_axis_current_values: .res MAX_LINES
           ;; Y=value if _2 < _1
           ;; return abs(_2 - _1) in distance
 .macro    delta _1,_2,value
-.local normal
+.local normal,done
           lda _2
           sec
           sbc _1
@@ -76,13 +76,16 @@ long_axis_current_values: .res MAX_LINES
           ;; need to add +1 to dx, so:
           ;; clc implied (or we wouldn't be here)
           adc #2
-          ldy value
+          ldy value                     ;output return value
+          bne done                      ;bra done
 normal:
           ;; C is already set if we directly branch here
           ;; and this performs the +1
           ;; otherwise it's not and this does nothing
           ;; which is fine
           adc #0
+          ldy #0                        ;no return value
+done:     
 .endmacro
 .proc     generate_forward_forward_steep
           generate_line_data forward,forward,steep
@@ -103,10 +106,21 @@ normal:
 ;;; 5  q4_shallow
 ;;; 6  q2_shallow
 ;;; 7  q3_shallow
+;;; debug printouts are as follows:
+;;; first letter - X axis
+;;; second letter - Y axis
+;;; third letter steep or acute
+;;; e.g FFA
+;;; line goes from left to right and
+;;; top to bottom of screen
+;;; forms an  acute angle between the X axis
+;;; the the line
 .proc     _genline
           lda #0                        ;err=0
           sta err
-
+          ;; the delta calls, set 3 bits. for each 
+          ;; compare if it was inverted, thus a number
+          ;; from 0-7 is generated
           delta _y1,_y2,#1
           sta _dy
           tya
@@ -123,55 +137,62 @@ normal:
           ;; A now has 0-7 to indicate one of the 8 line types
           ;; to be drawn
           ;; line_type;:q1_steep
-          ;; cmp line_type::q1_steep
+          pos 0,40
+          debug_number A
+          crlf
 s0:
+          ;; optmization note:
+          ;; this line could be removed
+          cmp #line_type::q1_steep
           bne s1
+          myprintf "ffs"
           generate_line_data forward,forward,steep
-          dbgmsg 'A',#0
           rts
 s1:
           cmp #line_type::q4_steep
           bne s2
-          dbgmsg 'B',#0
+          myprintf "frs"
           generate_line_data forward,reverse,steep
           rts
 s2:
           cmp #line_type::q2_steep
           bne s3
+          myprintf "rfs"
           generate_line_data reverse,forward,steep
-          dbgmsg 'C',#0
           rts
 s3:
           cmp #line_type::q3_steep
           bne s4
+          myprintf "rrs"
           generate_line_data reverse,reverse,steep
-          dbgmsg 'D',#0
           rts
 s4:
           cmp #line_type::q1_shallow
           bne s5
+          myprintf "ffa"
           generate_line_data forward,forward,shallow
-          dbgmsg 'E',#0
           rts
 s5:
           cmp #line_type::q4_shallow
           bne s6
+          myprintf "fra"
           generate_line_data forward,reverse,shallow
-          dbgmsg 'F',#0
           rts
 s6:
           cmp #line_type::q2_shallow
           bne s7
+          myprintf "rfa"
           generate_line_data reverse,forward,shallow
-          dbgmsg 'G',#0
           rts
 s7:
           cmp #line_type::q3_shallow
           bne s8
+          myprintf "rra"
           generate_line_data reverse,reverse,shallow
-          dbgmsg 'H',#0
           rts
 s8:
+          debug_number A
+          brk
           rts
 .endproc
 
@@ -259,4 +280,14 @@ draw:
 .proc render_single_pixel
           ;abort 'A',X
           _general_render_template render_partial_line
+.endproc
+
+.proc     init_lines
+          ldx #MAX_LINES-1
+loop:
+          lda #0
+          sta line_data_indices,x
+          dex
+          bpl loop
+          rts
 .endproc

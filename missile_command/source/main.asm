@@ -58,7 +58,6 @@
           jsr interceptor::in_initialize
           jsr init_lines
           jsr i_detonation
-          ;jsr interceptor::icbm_genwave
 .ifdef TESTS
           jsr unit_tests
 .endif
@@ -69,7 +68,12 @@
           ;jsr bigletter
           ;jsr bigstring
           ;;jsr mcommand
-          jsr main_loop
+
+          jsr icbm_genwave
+
+          jsr main_loop                 
+
+          ;jsr line_tests
 .import test_mushroom
           ;jsr test_mushroom
 loop:     jmp loop
@@ -97,17 +101,18 @@ iloop:
           draw_target
 loop:
           jsr wait_v
+          update_frame
 ;          bcolor_i CYAN
 ;          jsr draw_detonations
 ;          bcolor_i BLACK
           update_crosshairs
           ;jsr interceptor::queue_iterate_interceptor
           jsr interceptor::update_interceptors
-          jsr interceptor::icbm_update
+          jsr icbm_update
           jmp loop
           rts
 .endproc
-
+;;; initialize interrupt vector
 .proc     i_intr
           sei
           lda $bf                       ;eabf
@@ -118,20 +123,12 @@ loop:
           rts
 .endproc
 
-.proc     init_lines
-          ldx #MAX_LINES-1
-loop:
-          lda #0
-          sta line_data_indices,x
-          dex
-          bpl loop
-          rts
-.endproc
 
 .proc     line_tests
-          mov #line_data01,_lstore
-          lineto #176/2,#176-26,#70,#50
           ldx #0
+          mov #line_data01,_lstore
+          ;lineto #176/2,#176-26, #160,#0
+          lineto #160,#0,#176/2,#176-26
           jsr _general_render
           rts
 .endproc

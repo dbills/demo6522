@@ -3,7 +3,8 @@
 
 #include <stdio.h>
  // consider piskel/*
-#include "/tmp/mc_mushrom.c"
+//#include "/tmp/mc_mushrom.c"
+#include "../piskel/mc_mushrom.c"
 
 int mode = 0;
 bool code = false;

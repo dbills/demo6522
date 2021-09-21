@@ -7,6 +7,10 @@
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
+
+.include "debugscreen.inc"
+.include "text.inc"
+
 .export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations,erase_detonations, rand_detonation
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
@@ -303,10 +307,71 @@ done:
             rts
 .endproc
 
-.zeropage
-drawit_savex:           .res 1
-.code
-
 .proc       drawit2
             rts
+.endproc
+
+.data
+old_target:         .byte 0
+fubar1:   .byte 0
+once:     .byte 0
+.code
+.include "colors.equ"
+;;; X = detonation to check
+.macro debug_display mem
+          pha
+          .local none
+          lda once
+          beq none
+          pos 0,40
+          myprintf "x:%d",old_target
+          waitv
+none:     
+          lda #1
+          sta once
+          lda mem
+          sta old_target
+          pos 0,40
+          myprintf "x:%d",old_target
+          pla
+.endmacro
+
+.proc check_collision
+
+          lda i_detonation_frame,x
+          cmp #$fe                     ;-2
+          bne active
+          rts
+active:   
+;          abort 'A',scratch
+          lda target_x
+          calc_screen_column
+          sta fubar1
+          debug_display fubar1
+          cmp screen_column,x
+          beq inrange
+          sec
+          sbc #1
+          cmp screen_column,x
+          beq inrange
+          sec
+          sbc #1
+          cmp screen_column,x
+          beq inrange
+          bcolor_i BLACK
+          rts
+inrange:  
+          ;; lda screen_column,x
+          ;; sta scratch
+          bcolor_i GREEN
+;; hang:     
+;;           jmp hang
+done:     
+          rts
+.endproc
+;;; detect collision between detonation and icbm
+.export collisions
+.proc collisions
+          iterate_detonations jsr check_collision
+          rts
 .endproc

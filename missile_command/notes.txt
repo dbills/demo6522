@@ -1,24 +1,4 @@
 TODO:
-  1/16
-  working on a queue data structure
-  new missiles start at the head
-  meanwhile when a missile is terminated
-  the dead pointer moves
-  to update active missiles we only need to
-  walk from dead to head and draw them
-
-  missiles erase now - need to work on missile detonation
-  animations
-  A general framed sprite animation framework could be
-  built, I believe we need 16x16
-
-  sound, make missile away sound long enough for a long missile
-  if we start the detonation sound on a missile end, then that
-  solves the problem to what to do on short missiles
-  next thing to work on is creating a quad_sprite_draw
-  which, I think is as simpe as widening the loop of bytes
-  to copy from 8 to 16
-
 WOW: this is the last time I worked on this after all the
      medical drama
   4/10
@@ -91,6 +71,12 @@ WOW: this is the last time I worked on this after all the
     we earn some amount of pixels each frame - we can use at most 2
     P=P+.5
 
+    I think I had written a routine to sort interceptor by y length
+    i'm not sure if the arcade only draws one pixel at a time or one line height at a time
+    i.e. is rate of altitude ascent constant? ( well, up to a point, we only draw 8 pixels at most in one 'frame' )
+    there's some not-physics going on here
+    the thought with the sorting was anytime a line was done, it would always be the one at the end of the interceptor collection that we would remove , that doesn't take into account a collision can occur.
+
     the icbm can be destroyed at any time so there is no sense in sorting them
     let's talk about collision detection , perhaps that will inform the design of the 
     data structures employed for icbms
@@ -99,15 +85,37 @@ WOW: this is the last time I worked on this after all the
     
     what is the best way to check for colissions?
     can we do better than brute force?
-    at any point in time there is a set of detonations occurring
-    detonations can be presorted into some sort of tile
-    should we check when we move an icbm?
-    
-    use the natural 8 wide column
-    any given explosion is using 3 columns
-    this suggest we might want to sort by char column?
-    when an ICBM enters a column, we could look up
-    how do we do that quickly?
-    just keep a list of detonation indices
+    we expect a missile to be near a detonation ( by player intelligence )
+    so we will check all active detonations
+    check for icbm in all 3 detonation columns
+    column, frame#, Y coordinate
+    a table of x,y can tell us if there is a hit
+    basically an expansion of the explosion bitmap into full byte
+    row/col
+      01
+     +----------------
+    0|00
+    1|01
 
+    scanning each interceptor for each detonation seems like it would be expensive
+    * A detonation at most occupies three screen columns
+   
+    assume that we've previously iterated through the interceptors and placed the index of the
+    interceptor into the apprpriate screen column bucket
+
+    Now as we process each detonation - we only need look in the array of interceptor currently in that
+    screen column and check to see if height is "in range"
+    we can then go to the master 'lookup table' to see if a collision is in effect
+
+    how expensive is slotting the interceptors into buckets?  well if we do direct indexing, nothing is too expensive right?
+    23 columns x 20 interceptors = 460 bytes
+    how do you iterate over the 'inceptors' for a screen column efficiently?
+    prefix_array = size + elements
+    indirect Y
+    movw ic_by_column, x, ptr0
+    or
+    
     TODO: remove in file header guards since they are auto generated now
+
+9/18/21
+    can we draw a line starting at the top of the screen and moving downwards?

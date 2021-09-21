@@ -19,6 +19,7 @@ text_y:     .byte 30
 blarg:      .word $abcd
 string1:
 .asciiz     "abcdefghijklmnopqrstuvwxyz012"
+;;; multiples of 7 table for selecting letter glyphs
 letter_table:
 OFFSET      .set 0
 .repeat     26
@@ -89,7 +90,7 @@ notempty:
             cmp #'%'
             beq param
             cmp #' '
-            beq advance
+            beq space
             cmp #'$'
             bne l1
             lda #1
@@ -116,6 +117,10 @@ draw:
 advance:
             add8 #TEXT_WIDTH, s_x
             jmp loop
+space:      
+            mov #_BLANK, ptr_0
+            jsr draw_unshifted_sprite
+            jmp advance
 number:
             sec
             sbc #'0'                     ;todo move to macro below
@@ -159,8 +164,16 @@ show_word:
             jmp loop
 .endproc
 ;;; IN: A = number to display
+            ;; lda #TEXT_HEIGHT
+            ;; sta height
 .proc       _debug_number
             pha
+            pha
+            ;; height of text to draw
+            lda #TEXT_HEIGHT
+            sta height
+            pla
+
             ;; display high nibble
             lsr
             lsr
@@ -271,3 +284,11 @@ _SYMBOLS:
             .byte  %00000000
 	.byte  %00100000
             .byte  %01000000
+_BLANK:     
+            .byte  %00000000
+	.byte  %00000000
+            .byte  %00000000
+	.byte  %00000000
+            .byte  %00000000
+	.byte  %00000000
+            .byte  %00000000

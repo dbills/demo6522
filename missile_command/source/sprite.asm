@@ -10,6 +10,7 @@ s_x:        .res 1
 s_y:        .res 1
 target_x:   .res 1
 target_y:   .res 1
+.bss
 ;;; could these be bss?
 .data
 left_byte:  .byte 0
@@ -112,12 +113,12 @@ loop:
             modulo8 s_x
             sta shift
             lda (ptr_2),y
-        	jsr create_sprite_line
-            lda left_byte
-            eor (ptr_0),y
+            jsr create_sprite_line
+            lda (ptr_0),y
+            eor left_byte
             sta (ptr_0),y
-            lda right_byte
-            eor (ptr_1),y
+            lda (ptr_1),y
+            eor right_byte
             sta (ptr_1),y
             iny
             cpy scratch

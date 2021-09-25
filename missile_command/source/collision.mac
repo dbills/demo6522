@@ -1,0 +1,9 @@
+;;; column: register of interceptor 
+.macro co_add_interceptor column,interceptor_index, zp_ptr
+          lda co_interceptor_table_ptrL,column
+          sta zp_ptr
+          lda co_interceptor_table_ptrH,column
+          sta zp_ptr+1
+
+          ldy (zp_ptr)
+.endmacro

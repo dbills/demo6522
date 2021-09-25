@@ -137,57 +137,57 @@ done:
           ;; A now has 0-7 to indicate one of the 8 line types
           ;; to be drawn
           ;; line_type;:q1_steep
-          pos 0,40
-          debug_number A
-          crlf
+          ;; pos 0,40
+          ;; debug_number A
+          ;; crlf
 s0:
           ;; optmization note:
           ;; this line could be removed
           cmp #line_type::q1_steep
           bne s1
-          myprintf "ffs"
+;          myprintf "ffs"
           generate_line_data forward,forward,steep
           rts
 s1:
           cmp #line_type::q4_steep
           bne s2
-          myprintf "frs"
+;          myprintf "frs"
           generate_line_data forward,reverse,steep
           rts
 s2:
           cmp #line_type::q2_steep
           bne s3
-          myprintf "rfs"
+;          myprintf "rfs"
           generate_line_data reverse,forward,steep
           rts
 s3:
           cmp #line_type::q3_steep
           bne s4
-          myprintf "rrs"
+;          myprintf "rrs"
           generate_line_data reverse,reverse,steep
           rts
 s4:
           cmp #line_type::q1_shallow
           bne s5
-          myprintf "ffa"
+;          myprintf "ffa"
           generate_line_data forward,forward,shallow
           rts
 s5:
           cmp #line_type::q4_shallow
           bne s6
-          myprintf "fra"
+;          myprintf "fra"
           generate_line_data forward,reverse,shallow
           rts
 s6:
           cmp #line_type::q2_shallow
           bne s7
-          myprintf "rfa"
+;          myprintf "rfa"
           generate_line_data reverse,forward,shallow
           rts
 s7:
           cmp #line_type::q3_shallow
           bne s8
-          myprintf "rra"
+;          myprintf "rra"
           generate_line_data reverse,reverse,shallow
           rts
 s8:

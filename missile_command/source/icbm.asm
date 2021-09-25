@@ -16,12 +16,23 @@
 .include "m16.mac"
 .export icbm_genwave,icbm_update
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
-
+.data
+counter:  .byte 255
+.code
 .proc     icbm_update
           ldx #MAX_MISSILES
 loop:     
           cpx #MAX_LINES
           beq done
+
+          lda counter
+          sec
+          sbc #10
+          sta counter
+          bcs next
+          adc #60
+          sta counter
+
           ;; if the index = 0, then this line doens't
           ;; need drawn
           lda line_data_indices,x

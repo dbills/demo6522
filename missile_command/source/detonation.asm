@@ -11,7 +11,7 @@
 .include "debugscreen.inc"
 .include "text.inc"
 
-.export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations,erase_detonations, rand_detonation
+.export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations,erase_detonations, rand_detonation, process_detonations
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
 ;;;                    = -2 => don't draw or erase
@@ -76,6 +76,9 @@ detonation_cy:      .res slots
 detonation_cy2:      .res slots
 .export screen_column
 screen_column:      .res slots
+i_detonation_count: .res 1
+.code
+
 .code
 
 .proc       i_detonation
@@ -182,6 +185,18 @@ skip:
             jmp loop
             rts
 .endproc
+
+.proc     process_detonations
+          ldx #(slots-1)
+          jsr erase_detonations
+
+          ldx #(slots-1)
+          jsr draw_detonations
+
+          ldx #(slots-1)
+          jsr update_detonations
+          rts
+.endproc
 ;;; x = explosion to update
 ;;; note: there is a sequence of animation 'frames' to
 ;;; show, that sequence is stored at explosion_frame_table
@@ -192,6 +207,7 @@ skip:
             lda i_detonation_frame,x
             cmp #$fe                     ;-2
             beq inactive
+            inc i_detonation_count
             ;; copy for double buffering
             sta i_detonation_frame2,x
             lda detonation_cy,x
@@ -280,11 +296,11 @@ done:
             .local loop,next,done
             ldx #slots-1
 loop:
-            txa
+            txa                         ;if index
             and #7                      ;modulo 8
-            cmp frame_cnt
-            bne next
-            routine
+            cmp frame_cnt               ;==0
+            bne next                    ;then
+            routine                     ;execute
 next:
             dex
             bpl loop
@@ -293,6 +309,8 @@ done:
 .endmacro
 
 .proc       update_detonations
+            lda #0
+            sta i_detonation_count
             iterate_detonations jsr update_detonation
             rts
 .endproc

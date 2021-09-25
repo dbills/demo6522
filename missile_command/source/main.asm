@@ -69,16 +69,16 @@
           ;jsr bigstring
           ;;jsr mcommand
 
-          jsr icbm_genwave
+          ;jsr icbm_genwave              
 
           jsr main_loop                 
 
           ;jsr line_tests
+          ;jsr test_detonation
 .import test_mushroom
           ;jsr test_mushroom
 loop:     jmp loop
           ;jsr line_tests
-          ;jsr test_detonation
 .import attract
             ;jsr attract
           ;; debug_string "rmissilecommandtheend"
@@ -103,12 +103,12 @@ loop:
           jsr wait_v
           update_frame
 ;          bcolor_i CYAN
-;          jsr draw_detonations
+          jsr process_detonations
 ;          bcolor_i BLACK
           update_crosshairs
           ;jsr interceptor::queue_iterate_interceptor
           jsr interceptor::update_interceptors
-          jsr icbm_update
+          ;jsr icbm_update
           jmp loop
           rts
 .endproc

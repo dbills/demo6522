@@ -20,7 +20,10 @@ base_y = YMAX-16
 
 .bss
 p_next:   .word 0
-;;; location of next free line/interceptor slot
+;;; next, tail and p_tail are a queue of interceptors a player
+;;; can launch - tail -> head in {0,29}
+;;; p_tail,p_next pointer to  interceptor[tail] and interceptor[head]
+;;; respectively
 next:     .byte 0 
 p_tail: .word 0
 tail:   .byte 0
@@ -28,16 +31,23 @@ tail:   .byte 0
 
 ;;; indices of interceptors sorted by line length
 ;;; the missile nearest completion is always at tail
-;;; all missile lengths decreases on each frame
+;;; this is true because
+;;; all lengths decrease by the same amount on each frame
+;;; and nothing end a interceptor except it reaching the end
+;;; of its preset flight path
 sorted_indices:     .res MAX_LINES
 .code
 .linecont
 ;;; lstore = iterator variable
+;;; LINEMAX = size of a line struct ( the queue pointer math uses this )
+;;; 0 = start index ( head )
+;;; 1 = end index , therefore head E {0,1}
+MAX_INTERCEPTOR=1
 declare_queue_operations "interceptor", \
                          next, tail,\
                          p_next, p_tail,\
                          line_data01,0,\
-                         MAX_LINES, LINEMAX,\
+                         MAX_INTERCEPTOR, LINEMAX,\
                          _lstore, update_interceptor
 
 .proc     in_initialize
@@ -50,10 +60,20 @@ loop:
           dex
           bpl loop
 
-          lda #0
-          sta s_x
-          lda #40
-          sta s_y
+          ;; lda #0
+          ;; sta s_x
+          ;; lda #40
+          ;; sta s_y
+          rts
+.endproc
+;;; debug routine to allow the same
+;;; interceptor to be fired over and over again
+;;; while we work on collision detection which should be fun
+.proc     reinitialize
+          jsr queue_init_interceptor
+          ldx #0
+          lda #$ff
+          sta sorted_indices,x
           rts
 .endproc
 
@@ -81,8 +101,8 @@ loop:
           bne ok
           jmp empty
 ok:
-          ;lineto #base_x,#base_y,_x2,_y2
-          lineto #base_x,#10,_x2,_y2
+          lineto #base_x,#base_y,_x2,_y2
+          ;lineto #base_x,#10,_x2,_y2
           ;; X has index of line just inserted
           insertion_sort sorted_indices,line_data_indices,tail,next,next
 ;          show_sorted
@@ -156,6 +176,10 @@ erase:
           ;; explosion
           jsr erase_crosshair_mark
           jsr queue_detonation
+          ;; during debugging only
+          jsr reinitialize
+          jmp done
+          ;; end debugging only
 active:   
           jmp loop
 done:     

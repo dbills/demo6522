@@ -68,6 +68,11 @@ mystring:
           pla
 .endmacro
 
+.macro    clearpos px,py
+          pos px,py
+          jsr clear_line
+.endmacro
+
 .macro      cr
             lda #0
             sta s_x

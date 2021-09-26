@@ -63,16 +63,16 @@ detonation_tableH:   .res slots
 ;;; the current rendering routine based on preshift and animation frame
 detonation_procL:    .res slots
 detonation_procH:    .res slots
-detonation_proc2L:    .res slots
-detonation_proc2H:    .res slots
+detonation_proc2L:   .res slots
+detonation_proc2H:   .res slots
 ;;; when frame is < 0, then this detonation is not active
-i_detonation_frame: .res slots
+i_detonation_frame:  .res slots
 i_detonation_frame2: .res slots
 ;;; Y coordinate of center of explosion
-detonation_y:       .res slots
+detonation_y:        .res slots
 ;;; Y coordinate to render the current frame at, taking
 ;;; into account the individual frame's offset
-detonation_cy:      .res slots
+detonation_cy:       .res slots
 detonation_cy2:      .res slots
 .export screen_column
 screen_column:      .res slots
@@ -197,7 +197,8 @@ skip:
           ;; ( when we get around to optimizing the main loop )
 
           ldx #(slots-1)
-          jsr update_detonations
+          ;; skip for now while we test collisions
+          ;jsr update_detonations
           rts
 .endproc
 ;;; x = explosion to update
@@ -344,33 +345,35 @@ once:     .byte 0
 ;;; I also think printing spaces didn't work because we just += width
 ;;; or maybe it doesn't work even if you try to xor because 0 xor 1 is still 1
 .macro debug_display screenx,screeny,mem
-          pha
-          .local none
-          lda once
-          beq none
           pos screenx,screeny
-;          myprintf "x:%d",old_target
           jsr clear_line
-          waitv
-none:     
-          lda #1
-          sta once
           lda mem
-          sta old_target
-          pos screenx,screeny
-          myprintf "x:%d",old_target
-          pla
+          sta fubar1
+          myprintf "x:%d",fubar1
 .endmacro
 
 TEST_COLUMN = 10
-
+;;; screen columns for detonations is the first column
+;;; as a 16 pixel sprite, it occupies at most 3 columns
+;;; we check if we are at x,x+1,x+2
+;;; to know if we are potentially in a column of an explosion
+;;; once that is know, we check Y coordinates
+;;; the original coordinate of the interceptor detonation is known
+;;; the bounding rectangle for the explosion lives at
+;;; x-detonation_xoff,y-detonation_yoff
+;;; once we've established the bounding of the detonation
+;;; and we think we are in it, then we need to calculate
+;;; our relative position within that box
+;;; we can then look at the current 'sprite' that's being in
+;;; that box and check for a 1 bit at the corresponding location
+;;; for this test function we are using the target crosshair
+;;; as a proxy for an icbm so I can test.  If that works then
+;;; we will substitute an actual ICBM coord
 .proc check_collision
-          lda target_x
-          lsr
-          lsr
+          lda target_x                  ;/8
+          calc_screen_column
           sta fubar1
           debug_display 0,40,fubar1
-
          lda i_detonation_frame,x
          cmp #$fe                     ;-2
          bne active
@@ -378,28 +381,32 @@ TEST_COLUMN = 10
           rts
 active:   
 ;          stx fubar1
-          debug_display 0,48,{screen_column,x}
-          ;debug_display 0,48,fubar1
-;          abort 'A',scratch
-          ;; cmp screen_column,x
-          ;; beq inrange
-          ;; sec
-          ;; sbc #1
-          ;; cmp screen_column,x
-          ;; beq inrange
-          ;; sec
-          ;; sbc #1
-          ;; cmp screen_column,x
-          ;; beq inrange
-          ;; bcolor_i BLACK
+          lda detonation_y,x
+          sec
+          sbc #detonation_yoff
+          cmp target_y
+          bcc below_top
+          ;; icbm is before detonation box
+          clearpos 0,48
+          myprintf "ab"
           rts
-inrange:  
-          ;; lda screen_column,x
-          ;; sta scratch
-          bcolor_i GREEN
-;; hang:     
-;;           jmp hang
-done:     
+below_top:          
+          ;; calc bottom of bounding rect
+          clc
+          adc #detonation_yoff*2
+          cmp target_y
+          bcc below_bottom
+          ;; 
+          ;; in detonation bounding box
+          ;; 
+          clearpos 0,48
+          myprintf "in"
+
+          rts
+below_bottom:       
+          clearpos 0,48
+          myprintf "be"
+          ;; we are below the bounding box
           rts
 .endproc
 ;;; detect collision between detonation and icbm

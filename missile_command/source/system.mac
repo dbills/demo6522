@@ -114,12 +114,22 @@ iloop:
           jsr _sleep
           resall
 .endmacro
-;;; branch less than or equal to
-.macro    blte _1
-          beq _1
+;;; these macro may simplify branch statement
+;;; construction -- they should be used with the 
+;;; thought of the last CMP instruction used
+;;; e.g. CPY $42 --
+;;; blte says branch if 42 is less than or equal to Y
+.macro    bgt _1
           bcc _1
 .endmacro
 .macro    bgte _1
+          beq _1
+          bcc _1
+.endmacro
+.macro    blt _1
+          bcs _1
+.endmacro
+.macro    blte _1
           beq _1
           bcs _1
 .endmacro

@@ -10,8 +10,8 @@
 .include "shapes.inc"
 .import _ldata1
 .export   move_crosshairs
-
-ch_speed = 2
+;;; speed of crosshair 
+ch_speed = 1
 .data
 trigger_count:      .byte 0
 .code

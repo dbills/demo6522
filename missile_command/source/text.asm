@@ -75,6 +75,8 @@ done:
 .endproc
 
 ;;; clear 6 text columns at s_x,s_y
+;;; create an 'inverse' background so you can 
+;;; clearly see the text area being updated
 .proc       clear_line
             saveall
 
@@ -84,19 +86,28 @@ loop1:
             calc_screen_column
             tay
             setup_draw
-            ;; calc bottom of letters and clear to 0 upwards
+            ;; calc bottom of letter + 1
+            ;; and fill to top - 1
             lda s_y
             clc
-            adc #TEXT_HEIGHT-1
+            adc #TEXT_HEIGHT
             tay
-            lda #0
+            lda #255
             ;; clear three text column
 loop2:       
             sta (sp_col0),y
             sta (sp_col1),y
             sta (sp_col2),y
             dey
-            bpl loop2
+            cpy s_y
+            ;; s_y <= Y
+            blt loop2
+            ;; one last line above the text
+            ;; for a nice highlist
+            sta (sp_col0),y
+            sta (sp_col1),y
+            sta (sp_col2),y
+
             ;; move to the right 3 columns
             lda s_x
             clc

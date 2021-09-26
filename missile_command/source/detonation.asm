@@ -339,18 +339,6 @@ fubar1:   .byte 0
 once:     .byte 0
 .code
 .include "colors.equ"
-;;; the once,none silliness is so
-;;; we can erase the old text before drawing the new
-;;; the text drawing routines use xor
-;;; I also think printing spaces didn't work because we just += width
-;;; or maybe it doesn't work even if you try to xor because 0 xor 1 is still 1
-.macro debug_display screenx,screeny,mem
-          pos screenx,screeny
-          jsr clear_line
-          lda mem
-          sta fubar1
-          myprintf "x:%d",fubar1
-.endmacro
 
 TEST_COLUMN = 10
 ;;; screen columns for detonations is the first column
@@ -370,17 +358,34 @@ TEST_COLUMN = 10
 ;;; as a proxy for an icbm so I can test.  If that works then
 ;;; we will substitute an actual ICBM coord
 .proc check_collision
-          lda target_x                  ;/8
-          calc_screen_column
-          sta fubar1
-          debug_display 0,40,fubar1
-         lda i_detonation_frame,x
-         cmp #$fe                     ;-2
-         bne active
+          lda i_detonation_frame,x
+          cmp #$fe                     ;-2
+          bne active
 
           rts
 active:   
-;          stx fubar1
+          lda target_x                  ;/8
+          calc_screen_column
+          ;; load screen column of detonation
+          cmp screen_column,x
+          beq to_right
+          bcc to_right
+          ;; to left of bounding box
+          clearpos 0,48
+          myprintf "tl"
+          rts
+          clc
+          adc #3
+          cmp screen_column,x
+          bcc to_right
+          jmp in_left_right
+to_right: 
+          ;; to right of bounding box
+          clearpos 0,48
+          myprintf "tr"
+          rts
+
+in_left_right:      
           lda detonation_y,x
           sec
           sbc #detonation_yoff

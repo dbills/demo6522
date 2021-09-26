@@ -109,6 +109,7 @@ loop:
           ;jsr interceptor::queue_iterate_interceptor
           jsr interceptor::update_interceptors
           ;jsr icbm_update
+          jsr collisions
           jmp loop
           rts
 .endproc

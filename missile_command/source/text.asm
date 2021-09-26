@@ -6,7 +6,7 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf,scratch
+.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf,scratch,clear_line
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
@@ -71,6 +71,40 @@ next:
             sta s_x
             jmp loop
 done:
+            rts
+.endproc
+
+;;; clear 6 text columns at s_x,s_y
+.proc       clear_line
+            saveall
+
+            lda s_x
+            ldx #1
+loop1:      
+            calc_screen_column
+            tay
+            setup_draw
+            ;; calc bottom of letters and clear to 0 upwards
+            lda s_y
+            clc
+            adc #TEXT_HEIGHT-1
+            tay
+            lda #0
+            ;; clear three text column
+loop2:       
+            sta (sp_col0),y
+            sta (sp_col1),y
+            sta (sp_col2),y
+            dey
+            bpl loop2
+            ;; move to the right 3 columns
+            lda s_x
+            clc
+            adc #TEXT_WIDTH*3
+            dex
+            bpl loop1
+
+            resall
             rts
 .endproc
 

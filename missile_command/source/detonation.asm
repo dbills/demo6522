@@ -193,6 +193,9 @@ skip:
           ldx #(slots-1)
           jsr draw_detonations
 
+          ;; this section would not be time critical
+          ;; ( when we get around to optimizing the main loop )
+
           ldx #(slots-1)
           jsr update_detonations
           rts
@@ -335,48 +338,60 @@ fubar1:   .byte 0
 once:     .byte 0
 .code
 .include "colors.equ"
-;;; X = detonation to check
-.macro debug_display mem
+;;; the once,none silliness is so
+;;; we can erase the old text before drawing the new
+;;; the text drawing routines use xor
+;;; I also think printing spaces didn't work because we just += width
+;;; or maybe it doesn't work even if you try to xor because 0 xor 1 is still 1
+.macro debug_display screenx,screeny,mem
           pha
           .local none
           lda once
           beq none
-          pos 0,40
-          myprintf "x:%d",old_target
+          pos screenx,screeny
+;          myprintf "x:%d",old_target
+          jsr clear_line
           waitv
 none:     
           lda #1
           sta once
           lda mem
           sta old_target
-          pos 0,40
+          pos screenx,screeny
           myprintf "x:%d",old_target
           pla
 .endmacro
 
-.proc check_collision
+TEST_COLUMN = 10
 
-          lda i_detonation_frame,x
-          cmp #$fe                     ;-2
-          bne active
+.proc check_collision
+          lda target_x
+          lsr
+          lsr
+          sta fubar1
+          debug_display 0,40,fubar1
+
+         lda i_detonation_frame,x
+         cmp #$fe                     ;-2
+         bne active
+
           rts
 active:   
+;          stx fubar1
+          debug_display 0,48,{screen_column,x}
+          ;debug_display 0,48,fubar1
 ;          abort 'A',scratch
-          lda target_x
-          calc_screen_column
-          sta fubar1
-          debug_display fubar1
-          cmp screen_column,x
-          beq inrange
-          sec
-          sbc #1
-          cmp screen_column,x
-          beq inrange
-          sec
-          sbc #1
-          cmp screen_column,x
-          beq inrange
-          bcolor_i BLACK
+          ;; cmp screen_column,x
+          ;; beq inrange
+          ;; sec
+          ;; sbc #1
+          ;; cmp screen_column,x
+          ;; beq inrange
+          ;; sec
+          ;; sbc #1
+          ;; cmp screen_column,x
+          ;; beq inrange
+          ;; bcolor_i BLACK
           rts
 inrange:  
           ;; lda screen_column,x

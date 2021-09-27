@@ -115,7 +115,9 @@ empty:
 .endproc
 .importzp _pl_x,_pl_y
 .include "detonation.inc"
-
+;;; erase crosshair centered at pl_x,pl_y
+;;; sprites are drawn  from the upper left
+;;; so we need to derive upper left coord
 .proc     erase_crosshair_mark
           lda target_x
           pha
@@ -138,7 +140,6 @@ empty:
           sta target_x
           rts
 .endproc
-
 
 .bss
 sort_index:         .res 1

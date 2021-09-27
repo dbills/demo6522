@@ -70,6 +70,7 @@ i_detonation_frame:  .res slots
 i_detonation_frame2: .res slots
 ;;; Y coordinate of center of explosion
 detonation_y:        .res slots
+detonation_x:        .res slots
 ;;; Y coordinate to render the current frame at, taking
 ;;; into account the individual frame's offset
 detonation_cy:       .res slots
@@ -94,7 +95,11 @@ loop:
             bpl loop
             rts
 .endproc
-;;;
+;;; queue a detonation animation centered at _pl_x, _pl_y
+;;; pl_x,pl_y are typically used by the plot routines
+;;; and threfore the line drawing routines, it's convenient
+;;; to call this after drawing a line, as pl_x,pl_y would contain
+;;; the last pixel drawn
 .proc       queue_detonation
             ldx #slots-1
 loop:
@@ -106,8 +111,10 @@ loop:
             rts
 available:
             lda _pl_x
+            ;; save detonation center 
             sec
             sbc #detonation_xoff
+            sta detonation_x,x          ;TODO optimize ( delete tay,tya)
             tay                         ;save x coord
             calc_screen_column          ;x/8
             sta screen_column,x
@@ -357,6 +364,10 @@ TEST_COLUMN = 10
 ;;; for this test function we are using the target crosshair
 ;;; as a proxy for an icbm so I can test.  If that works then
 ;;; we will substitute an actual ICBM coord
+.bss
+x_intersect:        .res 1
+y_intersect:        .res 1
+.code
 .proc check_collision
           lda i_detonation_frame,x
           cmp #$fe                     ;-2
@@ -364,54 +375,52 @@ TEST_COLUMN = 10
 
           rts
 active:   
-          lda target_x                  ;/8
-          calc_screen_column
-          ;; load screen column of detonation
-          cmp screen_column,x
-          beq to_right
-          bcc to_right
-          ;; to left of bounding box
+          lda target_x                  
+          clc
+          adc #crosshair_xoff
+          sec
+          sbc detonation_x,x
+          ;; if difference is 0 <= different <= 16
+          ;; then  we are in X range
+          ;; TODO: optimize, invert logic
+          bpl xgreater0
+          beq xgreater0
           clearpos 0,48
           myprintf "tl"
           rts
-          clc
-          adc #3
-          cmp screen_column,x
-          bcc to_right
-          jmp in_left_right
-to_right: 
-          ;; to right of bounding box
+xgreater0: 
+          cmp #16
+          bcc inside_x
           clearpos 0,48
           myprintf "tr"
           rts
-
-in_left_right:      
-          lda detonation_y,x
+inside_x:           
+          ;; save x offset within the bounding column
+          sta x_intersect
+          lda target_y
+          adc #crosshair_yoff
           sec
-          sbc #detonation_yoff
-          cmp target_y
-          bcc below_top
-          ;; icbm is before detonation box
+          sbc detonation_y,x
+          ;; 0 <= A <= 16 then in Y rage
+          bpl ygreater0
+          beq ygreater0
           clearpos 0,48
           myprintf "ab"
           rts
-below_top:          
-          ;; calc bottom of bounding rect
-          clc
-          adc #detonation_yoff*2
-          cmp target_y
-          bcc below_bottom
-          ;; 
-          ;; in detonation bounding box
-          ;; 
-          clearpos 0,48
-          myprintf "in"
-
-          rts
-below_bottom:       
+ygreater0:          
+          cmp #16
+          bcc inside_y
           clearpos 0,48
           myprintf "be"
-          ;; we are below the bounding box
+          rts
+inside_y: 
+          sta y_intersect
+          clearpos 0,48
+          myprintf "i%d:%d",x_intersect,y_intersect
+          ;; hmm, we should be able to look in the current sprite map
+          ;; using the intersect coords and check for a 1 bit now
+          ;; except all we have is a rendering routine, not a pointer to a sprite map
+          ;; maybe we can cheat for now and use the frame number?
           rts
 .endproc
 ;;; detect collision between detonation and icbm

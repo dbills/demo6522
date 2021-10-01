@@ -30,3 +30,10 @@ draw_explosion_R_${shift}_table:
 EOF
     shift=$((shift + 1))
 done
+
+# output interceptor / detonation collision tables
+width=1
+while [ $width -lt 9 ];do
+    ./a.out collision collision $width 0
+    width=$((width + 1))
+done

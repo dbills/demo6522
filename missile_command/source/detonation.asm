@@ -42,7 +42,7 @@ explosion_drawtable_by_offset_table:
             ,draw_explosion_R_5_table \
             ,draw_explosion_R_6_table \
             ,draw_explosion_R_7_table
-;;; which frame to show, and it what order
+;;; which frame to show, and in what order
 explosion_frame_table:
             .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
 ;            .byte 7,2
@@ -367,6 +367,11 @@ TEST_COLUMN = 10
 .bss
 x_intersect:        .res 1
 y_intersect:        .res 1
+;;; a temp buffer to render the current explosion frame into
+;;; and check for a hit
+intersect1:         .res 16
+intersect2:         .res 16
+intersect3:         .res 16
 .code
 .proc check_collision
           lda i_detonation_frame,x
@@ -417,10 +422,24 @@ inside_y:
           sta y_intersect
           clearpos 0,48
           myprintf "i%d:%d",x_intersect,y_intersect
-          ;; hmm, we should be able to look in the current sprite map
-          ;; using the intersect coords and check for a 1 bit now
-          ;; except all we have is a rendering routine, not a pointer to a sprite map
-          ;; maybe we can cheat for now and use the frame number?
+          mov #collision_8_shift0,ptr_0
+          lda y_intersect
+          ;; multiply by 16
+          asl
+          asl
+          asl
+          asl
+          ;; and add x offset
+          clc
+          adc x_intersect
+          tay
+          lda (ptr_0),y
+.bss
+hit:      .res 1
+.code
+          sta hit
+          clearpos 0,38
+          myprintf "h:%d",hit
           rts
 .endproc
 ;;; detect collision between detonation and icbm

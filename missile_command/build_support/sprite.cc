@@ -1,4 +1,4 @@
-// -*- compile-command: "g++ sprite.cc -lm && ./a.out explosion data 8 0" -*-
+// -*- compile-command: "g++-8 -std=c++17 sprite.cc -lm && ./a.out explosion data 8 0" -*-
 // generate sprites data
 // x^2+y^2=r^2
 // x^2=r^2-y^2
@@ -26,7 +26,7 @@ void output_blank(int bit) {
 }
 
 void usage(const char *const progname) {
-    fprintf(stderr,"usage: %s name <templ|data|print> <radius> shift\n", progname);
+    fprintf(stderr,"usage: %s name <templ|data|print|collision> <radius> shift\n", progname);
     fprintf(stderr,"templ = inline code to draw sprite");
     exit(1);
 }
@@ -40,10 +40,13 @@ int main(int argc, char **argv) {
         mode = 0;
     else if(arg1 == "data")
         mode = 1;
-    else if(arg1 == "templ") {
+    else if(arg1 == "templ") 
         mode = 2;
-    } else
+    else if(arg1 == "collision") 
+        mode = 3;
+    else 
         usage(argv[0]);
+
     const double r=atoi(argv[3]);
     shift = atoi(argv[4]);
     const int radius = bit_count /2;
@@ -82,6 +85,41 @@ int main(int argc, char **argv) {
         if(!mode) {
             printf("$%2x: $%02x,$%02x,$%02x",(char)row,vbytes[0][row],vbytes[1][row],vbytes[2][row]);
             printf("\n");
+        }
+    }
+    // this mode is only useful for offset 0
+    // thus we assume 2 bytes only needed
+    if(mode == 3) {
+        const int height = (int)r * 2 - 1;
+        printf(".export %s_%1.0f_shift%d\n",argv[1],r,shift);
+        printf("%s_%1.0f_shift%d:\n",argv[1],r,shift);
+        int pr = 0;
+        for(int row=-7;row<8;row++) {
+            printf("     .byte ");
+            if(row>-r) {
+                for(int col = 0,first=1;col < 2; col++) {
+                    for(int i=0;i<8;i++) {
+                        unsigned char bitval = (unsigned char)(pow(2,7-i));
+                        if(!first) {
+                            printf(",");
+                        }
+                        first=0;
+                        if(vbytes[col][pr] & bitval) {
+                            printf("01");
+                        } else {
+                            printf("00");
+                        }
+                    }
+                }
+                pr++;
+            } else {
+                for(int i=0;i<16;i++) {
+                    if(i)
+                        printf(",");
+                    printf("00");
+                }
+            }
+            printf(" ;; %02d\n",row+7);
         }
     }
     if(mode == 1) {

@@ -45,17 +45,8 @@ _line_h=1
   ltype_steep_reverse
 .endenum
 .define MAX_LINES 2
+;;; the lines array is partitioned into two parts
+;;; one for interceptors(missiles) and one for icbms
 .define MAX_MISSILES 1
-
-.macro    next_line line_pointer, line_index
-          inc line_index
-          lda line_pointer
-          clc
-          adc #LINEMAX
-          sta line_pointer
-          bcc @done
-          inc line_pointer+1
-@done:
-.endmacro
 
 .endif

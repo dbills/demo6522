@@ -101,8 +101,8 @@ loop:
           bne ok
           jmp empty
 ok:
-          lineto #base_x,#base_y,_x2,_y2
-          ;lineto #base_x,#10,_x2,_y2
+          ;lineto #base_x,#base_y,_x2,_y2
+          lineto #10,#10,#89,#155
           ;; X has index of line just inserted
           insertion_sort sorted_indices,line_data_indices,tail,next,next
 ;          show_sorted

@@ -119,3 +119,9 @@ WOW: this is the last time I worked on this after all the
 
 9/18/21
     can we draw a line starting at the top of the screen and moving downwards?
+12/5
+    interceptors launch from base
+    we can draw lines from top of screen down ( I think I fixed that earlier 
+    let's reinstall the icm wave generator
+    the call to insertion sort probably needs update to take into account the partitioning of the line_data array
+    drawing the icbm doesn't work - I even tried the same line in the interceptro routine and it works, so it's no a sloping issue

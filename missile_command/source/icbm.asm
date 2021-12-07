@@ -17,6 +17,7 @@
 .export icbm_genwave,icbm_update
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
 .data
+;;; generate a delay to slow icbm advance
 counter:  .byte 255
 .code
 .proc     icbm_update
@@ -32,7 +33,8 @@ loop:
           bcs next
           adc #60
           sta counter
-
+          
+          ldx #1
           ;; if the index = 0, then this line doens't
           ;; need drawn
           lda line_data_indices,x
@@ -44,18 +46,28 @@ loop:
           lda queue_offsetsH_interceptor,x
           sta _lstore+1
           ;; draw one pixel
+          ;mov #line_data01,_lstore
           jsr render_single_pixel
 next:   
           inx
-          bne loop                      ;bra
+          jmp loop
 done:     
           rts
 .endproc
 
+.import _general_render
 .proc icbm_genwave
+          mov #line_data01,_lstore
           ldx #1
-          mov #line_data02,_lstore
           lineto #10,#10,#89,#155
           rts
+          ldx #1
+loop:     
+          jsr render_single_pixel
+          bne loop
+loop2:    
+          jmp loop2
+          rts
+
 .endproc
 

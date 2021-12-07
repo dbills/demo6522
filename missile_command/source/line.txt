@@ -63,3 +63,5 @@ they are normalized for the correct ordering at generation time
 
 when a line is finished drawing line_data_indices,x where x = line #
 will = 0
+
+LINE SORTING AND LINE REMOVAL

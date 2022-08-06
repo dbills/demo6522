@@ -96,16 +96,5 @@ loop:
 done:
           rts
 .endproc
-.data
-.export .ident (.sprintf ("queue_offsetsL_%s", queue_name))
-.ident (.sprintf ("queue_offsetsL_%s", queue_name)):
-.repeat qsize,I
-.byte <(p_head_begin + (array_element_size * I))
-.endrep
-.export .ident (.sprintf ("queue_offsetsH_%s", queue_name))
-.ident (.sprintf ("queue_offsetsH_%s", queue_name)):
-.repeat qsize,I
-.byte >(p_head_begin + (array_element_size * I))
-.endrep
-.code
 .endmacro
+.data

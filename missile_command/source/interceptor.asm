@@ -46,7 +46,7 @@ MAX_INTERCEPTOR=1
 declare_queue_operations "interceptor", \
                          next, tail,\
                          p_next, p_tail,\
-                         line_data01,0,\
+                         line_data00,0,\
                          MAX_INTERCEPTOR, LINEMAX,\
                          _lstore, update_interceptor
 
@@ -160,9 +160,9 @@ loop:
           iny
           sty sort_index
           ;; set _lstore pointer to correct line
-          lda queue_offsetsL_interceptor,x
+          lda line_offsetsL,x
           sta _lstore
-          lda queue_offsetsH_interceptor,x
+          lda line_offsetsH,x
           sta _lstore+1
           jsr render_single_pixel
           beq erase

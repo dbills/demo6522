@@ -1,5 +1,5 @@
 .include "system.inc"
-.export sound_interrupt,test_sound,sound_init,snd_missile_away, i_empty_sound
+.export sound_interrupt,test_sound,i_sound,snd_missile_away, i_empty_sound
 MISSILE_DELAY = 6
 .zeropage
 .data
@@ -42,7 +42,7 @@ _3:
           rts
 .endproc
 
-.proc     sound_init
+.proc     i_sound
           lda #table_end - missile_away_table
           sta i_missile_sound
           rts

@@ -38,12 +38,12 @@
           lda #8
           sta 36878
 
-          jsr i_pltbl
-          jsr i_chrset
-          jsr i_hires
-          jsr i_joy
-          jsr i_rand
-          screenmem SCREEN
+          jsr i_pltbl                   ;init plotting table
+          jsr i_chrset                  ;init character set
+          jsr i_hires                   ;init hi-res screen
+          jsr i_joy                     ;init joystick
+          jsr i_rand                    ;inti random numbers
+          screenmem SCREEN              ;set VIC screen address
 
           ;; border colors
           invmode 1
@@ -52,7 +52,7 @@
 
           jsr i_debug_screen
 
-          jsr sound_init
+          jsr i_sound
 
           jsr draw_cities
           jsr interceptor::in_initialize
@@ -101,7 +101,7 @@ iloop:
           draw_target
 loop:
           jsr wait_v
-          update_frame
+          update_frame                  ;update frame counter
 ;          bcolor_i CYAN
 ;          jsr process_detonations
 ;          bcolor_i BLACK

@@ -18,8 +18,8 @@
 .exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
 .export _genline,_general_render,_partial_render,render_single_pixel,init_lines
 .export line_types, long_axis_start_values, long_axis_lengths, line_data_indices, long_axis_current_values,_iline
+.export line_data00
 .export line_data01
-.export line_data02
 ;,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
 .ZEROPAGE
 line_type:
@@ -46,10 +46,12 @@ _iline:     .res 1
           q3_shallow
 .endenum
 
-LINE_NUMBER .set 0
-.repeat MAX_LINES
-  LINE_NUMBER .set LINE_NUMBER + 1
-  .ident (.sprintf ("line_data%02d", LINE_NUMBER)): .res LINEMAX
+;;; generate storage for MAX_LINES
+;;; with a label starting at line_data00
+;;; byte line_data[LINEMAX][MAX_LINES]
+;;; recall C is row-major order
+.repeat MAX_LINES,I
+  .ident (.sprintf ("line_data%02d", I)): .res LINEMAX
 .endrepeat
 line_types:               .res MAX_LINES
 long_axis_start_values:   .res MAX_LINES
@@ -59,6 +61,22 @@ long_axis_lengths:        .res MAX_LINES
 line_data_indices:        .res MAX_LINES
 ;;; short axis point?
 long_axis_current_values: .res MAX_LINES
+
+.data
+;;; low, high bytes for line data
+;;; E.g. line00 == line_offsetsL[0]<<8+line_ffsetsH[0]
+;;; and so on...
+line_offsetsL:
+.export line_offsetsL
+.repeat MAX_LINES,I
+.byte <(line_data00 + (LINEMAX * I))
+.endrep
+line_offsetsH:
+.export line_offsetsH
+.repeat MAX_LINES,I
+.byte >(line_data00 + (LINEMAX * I))
+.endrep
+
 .code
           ;; distance beteen _1 and _2
           ;; Y=value if _2 < _1

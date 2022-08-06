@@ -20,12 +20,22 @@
 ;;; generate a delay to slow icbm advance
 counter:  .byte 255
 .code
+;;; Draw one pixel for all enemy icbms active
+;;; There is one array line line data for both icbm and player interceptors
+;;; The first N are interceptors, the last N are icbms
+;;; we start at beginning of second half to MAX_LINES
+;;; 
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .proc     icbm_update
           ldx #MAX_MISSILES
 loop:     
           cpx #MAX_LINES
           beq done
-
+          ;; introduce delay {
           lda counter
           sec
           sbc #10
@@ -33,20 +43,19 @@ loop:
           bcs next
           adc #60
           sta counter
-          
-          ldx #1
-          ;; if the index = 0, then this line doens't
+          ;; }
+          ;; if the index = 0, then this line doesn't
           ;; need drawn
           lda line_data_indices,x
           beq next
 
           ;; set _lstore pointer to correct line
-          lda queue_offsetsL_interceptor,x
+          ;; _lstore = &line_offsets[x]
+          lda line_offsetsL,x
           sta _lstore
-          lda queue_offsetsH_interceptor,x
+          lda line_offsetsH,x           
           sta _lstore+1
           ;; draw one pixel
-          ;mov #line_data01,_lstore
           jsr render_single_pixel
 next:   
           inx
@@ -55,6 +64,15 @@ done:
           rts
 .endproc
 
+;;; Creates the line definitions for 
+;;; a attack wave
+;;; todo: there are multiple waves per level
+;;; so we need a function that captures that
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .import _general_render
 .proc icbm_genwave
           mov #line_data01,_lstore

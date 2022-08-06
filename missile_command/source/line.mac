@@ -3,8 +3,16 @@ _line_h=1
 .include "screen.mac"
 .include  "system.mac"
 
-;;; IN: X = line index to draw
-;;;     _lstore = where to store line data
+;;; Puts line drawing data into memory
+;;; does not draw the line
+;;; see lines.txt
+;;; macro argments may be direct constants #5
+;;; or variables for byte
+;;; IN:
+;;;   X: line index to draw
+;;;   _lstore: word pointer where to store line data
+;;; OUT:
+;;;     
 .macro      lineto x1,y1,x2,y2
           savex
 .if (.match (.left (1, {x1}), #))
@@ -47,6 +55,8 @@ _line_h=1
 .define MAX_LINES 2
 ;;; the lines array is partitioned into two parts
 ;;; one for interceptors(missiles) and one for icbms
+;;; MAX_MISSILES is delimiter, to the left is missiles
+;;; to the right are icbm
 .define MAX_MISSILES 1
 
 .endif

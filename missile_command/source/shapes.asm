@@ -94,10 +94,3 @@ base_right:
           .byte %11111110
           .byte %11111111
 
-.define MAX_LINES 60
-LINE_NUMBER .set 0
-.repeat MAX_LINES
-  LINE_NUMBER .set LINE_NUMBER + 1
-  .ident (.sprintf ("BLARGO%04X", LINE_NUMBER)):
-.byte 4
-.endrepeat

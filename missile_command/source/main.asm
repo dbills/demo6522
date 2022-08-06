@@ -55,7 +55,7 @@
           jsr i_sound
 
           jsr draw_cities
-          jsr interceptor::in_initialize
+          jsr i_interceptor
           jsr init_lines
           jsr i_detonation
 .ifdef TESTS
@@ -106,9 +106,8 @@ loop:
 ;          jsr process_detonations
 ;          bcolor_i BLACK
           update_crosshairs
-          ;jsr interceptor::queue_iterate_interceptor
           ;jsr interceptor::update_interceptors
-;;; try this, see if it works
+          ;; animate enemy missiles
           jsr icbm_update
 ;          jsr collisions
           jmp loop

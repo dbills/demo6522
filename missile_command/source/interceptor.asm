@@ -2,7 +2,6 @@
 .include "line.inc"
 .include "m16.mac"
 .include "zerop.inc"
-.include "queue.mac"
 .include "sound.inc"
 .include "sprite.inc"
 .include "shapes.inc"
@@ -11,8 +10,7 @@
 .include "text.inc"
 .include "debugscreen.inc"
 
-.scope interceptor
-.export in_initialize,launch,queue_iterate_interceptor,update_interceptors
+.export i_interceptor,in_launch,update_interceptors
 
 
 base_x = XMAX/2
@@ -38,54 +36,29 @@ tail:   .byte 0
 sorted_indices:     .res MAX_LINES
 .code
 .linecont
-;;; lstore = iterator variable
-;;; LINEMAX = size of a line struct ( the queue pointer math uses this )
-;;; 0 = start index ( head )
-;;; 1 = end index , therefore head E {0,1}
-MAX_INTERCEPTOR=1
-declare_queue_operations "interceptor", \
-                         next, tail,\
-                         p_next, p_tail,\
-                         line_data00,0,\
-                         MAX_INTERCEPTOR, LINEMAX,\
-                         _lstore, update_interceptor
 
-.proc     in_initialize
-          jsr queue_init_interceptor
+.proc     i_interceptor
           ldx #MAX_LINES-1
-          lda #$ff
-          ;; clear sorted_indices
+          lda #0
 loop:
-          sta sorted_indices,x
+          sta line_data_indices,x
           dex
           bpl loop
-
-          ;; lda #0
-          ;; sta s_x
-          ;; lda #40
-          ;; sta s_y
-          rts
-.endproc
-;;; debug routine to allow the same
-;;; interceptor to be fired over and over again
-;;; while we work on collision detection which should be fun
-.proc     reinitialize
-          jsr queue_init_interceptor
-          ldx #0
-          lda #$ff
-          sta sorted_indices,x
           rts
 .endproc
 
-.macro    show_sorted
-          lda next
-          sec
-          sbc tail
-          print_array sorted_indices, tail, next
-          crlf
-.endmacro
 
-.proc     launch
+;;; launch an interceptor from the missile base
+;;; to the players current crosshair location
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.data
+;;; put a counter in
+.code
+.proc     in_launch
           lda #crosshair_xoff
           clc
           adc target_x
@@ -94,21 +67,25 @@ loop:
           clc
           adc target_y
           sta _y2
-
-          mov p_next,_lstore
-          ldx next
-          cpx #MAX_MISSILES
-          bne ok
-          jmp empty
+          ;; do we have interceptors left to launch?
+          ;; TODO
+          ;; bne ok
+          ;; jmp empty
 ok:
           ;lineto #base_x,#base_y,_x2,_y2
-          lineto #10,#10,#89,#155
-          ;; X has index of line just inserted
-          insertion_sort sorted_indices,line_data_indices,tail,next,next
-;          show_sorted
-          jsr enqueue_interceptor
+          ;; find an open missile slot
+          ldx #MAX_MISSILES
+loop:     
+          lda line_data_indices
+          bne next                      ;slot if full
+          ;; slot is open
+          set_lstore
+          lineto #10,#10,_x2,_y2
           jsr snd_missile_away
           rts
+next:     
+          dex
+          bpl loop
 empty:
           snd_missile_empty
           rts
@@ -141,29 +118,27 @@ empty:
           rts
 .endproc
 
+;;; draw player inteceptors on the screen
+;;; when an interceptor has reached its destination
+;;; an explosion drawing is started and the missile line
+;;; is removed
+;;; 
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .bss
 sort_index:         .res 1
 .code
-.macro    update_interceptors_ _tail,_head
-          lda _tail
-          sta sort_index
-          ;; walk through the sorted array of interceptor
-          ;; index values
+.proc     update_interceptors
+          ldx #MAX_MISSILES+1
 loop:     
-          ldy sort_index
-          cpy _head
-          beq done
-          ;; load index of interceptor we are going to update
-          ;; into x
-          ldx sorted_indices,y
-          ;; increment iterator in sorted array
-          iny
-          sty sort_index
-          ;; set _lstore pointer to correct line
-          lda line_offsetsL,x
-          sta _lstore
-          lda line_offsetsH,x
-          sta _lstore+1
+          dex
+          bmi done
+          lda line_data_indices
+          beq  loop                     ;inactive
+          set_lstore
           jsr render_single_pixel
           beq erase
           ;; jsr render_single_pixel
@@ -171,34 +146,16 @@ loop:
           ;; if Z on return the line is done
           bne active
 erase:    
-          ;; erase the line
+          ;; erase the line because we've reached our target
           jsr _general_render
-          jsr dequeue_interceptor
-          ;; explosion
+          lda #0
+          sta line_data_indices,x
+          ;; queue an explosion
           jsr erase_crosshair_mark
           jsr queue_detonation
-          ;; during debugging only
-          jsr reinitialize
           jmp done
           ;; end debugging only
 active:   
           jmp loop
 done:     
-.endmacro
-
-.proc     update_interceptors
-          update_interceptors_ tail,next
-          rts
 .endproc
-.bss
-i_line:   .res 1
-.code
-;;; called by the queue iterator function we declared
-;;; IN:
-;;;   X: line index
-.proc update_interceptor
-          rts
-.endproc
-
-
-.endscope

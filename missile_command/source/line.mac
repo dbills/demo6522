@@ -59,4 +59,17 @@ _line_h=1
 ;;; to the right are icbm
 .define MAX_MISSILES 1
 
+;;; set _lstore pointer to label linedataX
+;;; where X is contents of X register
+;;; IN:
+;;;   X: which line to set _lstore to point to
+;;; OUT:
+;;;   _lstore
+.macro    set_lstore
+          lda line_offsetsL,x
+          sta _lstore
+          lda line_offsetsH,x           
+          sta _lstore+1
+.endmacro
+
 .endif

@@ -84,7 +84,7 @@ notrigger:
           ;; leave a 'x' marks the spot
           ;; at launch site
 ;          sp_draw crosshair, crosshair_height
-          jsr interceptor::launch
+          jsr in_launch
 directions:
           lda LASTJOY
           ora #bJOYT

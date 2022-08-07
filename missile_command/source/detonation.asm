@@ -29,9 +29,10 @@
 .data
 ;;; this is a table of tables
 ;;; each entry in here is a pointer to a table of pointers
-;;; e.g. draw_explosion_2_table - is the list of function
+;;; e.g. draw_explosion_2_table: the list of function
 ;;; pointers for drawing all preshifted images for explosion
-;;; of radius = 2
+;;; of radius = 2.  Each function in that table would correspond
+;;; to a particular bitshift to the right: 0 <= bitshift < 16
 explosion_drawtable_by_offset_table:
 .word \
              draw_explosion_R_0_table \
@@ -43,9 +44,13 @@ explosion_drawtable_by_offset_table:
             ,draw_explosion_R_6_table \
             ,draw_explosion_R_7_table
 ;;; which frame to show, and in what order
+;;; there are 8 explosion frames, for 8 different widths of the fireball
+;;; this describes the animnation sequence then:
+;;; start small fireball grow large, then shrink again
+;;; the sequence is run from the end to the beginning for performance
 explosion_frame_table:
-            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
-;            .byte 7,2
+;            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
+            .byte 7,2
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -347,19 +352,18 @@ once:     .byte 0
 .code
 .include "colors.equ"
 
-TEST_COLUMN = 10
 ;;; screen columns for detonations is the first column
 ;;; as a 16 pixel sprite, it occupies at most 3 columns
 ;;; we check if we are at x,x+1,x+2
 ;;; to know if we are potentially in a column of an explosion
-;;; once that is know, we check Y coordinates
+;;; once that is known, we check Y coordinates
 ;;; the original coordinate of the interceptor detonation is known
 ;;; the bounding rectangle for the explosion lives at
 ;;; x-detonation_xoff,y-detonation_yoff
 ;;; once we've established the bounding of the detonation
 ;;; and we think we are in it, then we need to calculate
 ;;; our relative position within that box
-;;; we can then look at the current 'sprite' that's being in
+;;; we can then look at the current 'sprite' that's drawn in
 ;;; that box and check for a 1 bit at the corresponding location
 ;;; for this test function we are using the target crosshair
 ;;; as a proxy for an icbm so I can test.  If that works then
@@ -373,11 +377,14 @@ intersect1:         .res 16
 intersect2:         .res 16
 intersect3:         .res 16
 .code
+.export check_collision
 .proc check_collision
+          ldx #slots - 1
+loop:     
           lda i_detonation_frame,x
-          cmp #$fe                     ;-2
-          bne active
-
+          ;; negative numbers are finished, 
+          ;; or not yet drawn
+          bpl active
           rts
 active:   
           lda target_x                  
@@ -422,17 +429,31 @@ inside_y:
           sta y_intersect
           clearpos 0,48
           myprintf "i%d:%d",x_intersect,y_intersect
-          mov #collision_8_shift0,ptr_0
+          ;; load the correct collision map for the 
+          ;; explosion animation frame being displayed
+          ldy i_detonation_frame,x      ;index into frame table
+          lda explosion_frame_table,y   ;which image (0-7) is displayed
+          ;sta hit
+          tay
+          ;; now load the collision map for that image
+          lda collision_tableL,y
+          sta ptr_0
+          lda collision_tableR,y
+          sta ptr_0 + 1
+          ;; find the byte in explosion collison map
+          ;; byte = y*16+x
           lda y_intersect
           ;; multiply by 16
           asl
           asl
           asl
           asl
-          ;; and add x offset
+          ;; add x offset
           clc
           adc x_intersect
           tay
+          ;; this byte(not bit), 0 or 1 tells us if there is a hit
+          ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
 .bss
 hit:      .res 1
@@ -440,11 +461,9 @@ hit:      .res 1
           sta hit
           clearpos 0,38
           myprintf "h:%d",hit
-          rts
-.endproc
-;;; detect collision between detonation and icbm
-.export collisions
-.proc collisions
-          iterate_detonations jsr check_collision
+          dex
+          bmi exit
+          jmp loop
+exit:     
           rts
 .endproc

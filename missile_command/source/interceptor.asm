@@ -16,24 +16,6 @@
 base_x = XMAX/2
 base_y = YMAX-16
 
-.bss
-p_next:   .word 0
-;;; next, tail and p_tail are a queue of interceptors a player
-;;; can launch - tail -> head in {0,29}
-;;; p_tail,p_next pointer to  interceptor[tail] and interceptor[head]
-;;; respectively
-next:     .byte 0 
-p_tail: .word 0
-tail:   .byte 0
-;;; last inserted
-
-;;; indices of interceptors sorted by line length
-;;; the missile nearest completion is always at tail
-;;; this is true because
-;;; all lengths decrease by the same amount on each frame
-;;; and nothing end a interceptor except it reaching the end
-;;; of its preset flight path
-sorted_indices:     .res MAX_LINES
 .code
 .linecont
 
@@ -72,15 +54,14 @@ loop:
           ;; bne ok
           ;; jmp empty
 ok:
-          ;lineto #base_x,#base_y,_x2,_y2
           ;; find an open missile slot
-          ldx #MAX_MISSILES
+          ldx #MAX_MISSILES - 1
 loop:     
           lda line_data_indices
           bne next                      ;slot if full
           ;; slot is open
           set_lstore
-          lineto #10,#10,_x2,_y2
+          lineto #base_x,#base_y,_x2,_y2
           jsr snd_missile_away
           rts
 next:     
@@ -132,19 +113,20 @@ empty:
 sort_index:         .res 1
 .code
 .proc     update_interceptors
-          ldx #MAX_MISSILES+1
+          ldx #MAX_MISSILES - 1
 loop:     
-          dex
-          bmi done
           lda line_data_indices
-          beq  loop                     ;inactive
+          beq  next                     ;inactive
           set_lstore
           jsr render_single_pixel
           beq erase
           ;; jsr render_single_pixel
           ;; beq erase
           ;; if Z on return the line is done
-          bne active
+next:     
+          dex
+          bpl loop
+          rts
 erase:    
           ;; erase the line because we've reached our target
           jsr _general_render
@@ -153,9 +135,6 @@ erase:
           ;; queue an explosion
           jsr erase_crosshair_mark
           jsr queue_detonation
-          jmp done
-          ;; end debugging only
-active:   
-          jmp loop
-done:     
+          rts
+
 .endproc

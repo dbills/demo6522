@@ -37,3 +37,24 @@ while [ $width -lt 9 ];do
     ./a.out collision collision $width 0
     width=$((width + 1))
 done
+# output pointer index table to above table
+cat <<EOF
+;;; a pointer index table for the previous tables
+;;; e.g. void *pointer = collision_table[x]
+;;; where X would be one of the 8 possible explosion frame
+;;; widths.  
+EOF
+echo "collision_tableL:"
+echo ".export collision_tableL"
+width=1
+while [ $width -lt 9 ];do
+    echo "     .byte <collision_${width}_shift0"
+    width=$((width + 1))
+done
+echo "collision_tableR:"
+echo ".export collision_tableR"
+width=1
+while [ $width -lt 9 ];do
+    echo "     .byte >collision_${width}_shift0"
+    width=$((width + 1))
+done

@@ -127,4 +127,5 @@ WOW: this is the last time I worked on this after all the
     drawing the icbm doesn't work - I even tried the same line in the interceptro routine and it works, so it's no a sloping issue
 
 7/6/22 ( yes 7 months later ... because DAYJOB )
-    debugging icbm_genwave.  It draws the line itself right now, but can the main loop dr aw it, I felt like I debugeged this and discovered it was the stupid queue macros not initializing everything
+    debugging icbm_genwave.  It draws the line itself right now, but can the main loop dr aw it, I felt like I debugged this and discovered it was the stupid queue macros not initializing everything
+    todo: need to make a table of the collision maps, so that I can load the correct collisioon map based on the current explosion frame to use for 'hit' tests

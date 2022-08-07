@@ -13,6 +13,7 @@
 ;;; speed of crosshair 
 ch_speed = 1
 .data
+slow:      .byte 0
 trigger_count:      .byte 0
 .code
           ;; crosshair inc
@@ -69,6 +70,12 @@ done:
           .endmacro
 
 .proc     move_crosshairs
+          lda slow
+          adc #10
+          sta slow
+          bcs go
+          rts
+go:       
           jsr j_read
           and #bJOYT
           bne notrigger
@@ -77,14 +84,18 @@ done:
           sta trigger_count
           jmp directions
 notrigger:
+          ;; trigger not pressed
           lda trigger_count
+          ;; not transition from depressed, just move
           beq directions
+          ;; it was just released released
           lda #0
           sta trigger_count
           ;; leave a 'x' marks the spot
           ;; at launch site
 ;          sp_draw crosshair, crosshair_height
           jsr in_launch
+          ;; we'll also move
 directions:
           lda LASTJOY
           ora #bJOYT

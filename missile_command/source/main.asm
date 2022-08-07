@@ -103,13 +103,14 @@ loop:
           jsr wait_v
           update_frame                  ;update frame counter
 ;          bcolor_i CYAN
-;          jsr process_detonations
+          jsr process_detonations
 ;          bcolor_i BLACK
           update_crosshairs
-          ;jsr interceptor::update_interceptors
+          ;; animate player missiles
+          jsr update_interceptors
           ;; animate enemy missiles
           jsr icbm_update
-;          jsr collisions
+          jsr check_collision
           jmp loop
           rts
 .endproc

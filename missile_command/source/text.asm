@@ -6,7 +6,7 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf,scratch, te_clear_line
+.export tesp_draw_unshifted, _debug_string, text_x, text_y, _debug_number, _myprintf, scratch, te_clear_line
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
@@ -32,9 +32,10 @@ OFFSET      .set OFFSET + 7
 ;;; calculate pointer to given letter
 ;;; IN: A = letter
 ;;;     font: base addr of glyphs
-;;;     ptr: zp pointer to set
+;;; OUT:
+;;;     ptr:  zp pointer to set
 ;;; CLOBBERS: X
-.macro      letter_pointer font,ptr
+.macro      letter_pointer font, ptr
             tax
             lda letter_table,x
 
@@ -45,13 +46,17 @@ OFFSET      .set OFFSET + 7
             adc #0
             sta ptr+1
 .endmacro
-
-
-.proc       _draw_string
+;;; Draw a text string 
+;;; IN:
+;;;   s_x, s_y: upper left origin of text to draw
+;;; OUT:
+;;;   s_x: advanced to end of text
+;;;   X is clobbered
+.proc       tesp_draw_unshifted
             lda #0
             sta string_offset
             lda #TEXT_HEIGHT
-            sta height
+            sta sp_height
 loop:
             ldy string_offset
             lda (ptr_string),y
@@ -62,7 +67,7 @@ loop:
             sbc #'a'
             letter_pointer _LETTERS, ptr_0
 
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
 next:
             inc string_offset
             lda #TEXT_WIDTH
@@ -125,8 +130,8 @@ loop2:
 .proc       _myprintf
             init_varg
             lda #TEXT_HEIGHT
-            sta height
-            lda #$ff
+            sta sp_height
+            lda #$ff                    ;string_offset = -1
             sta string_offset
 loop:
             inc string_offset
@@ -161,23 +166,23 @@ letters:
             sbc #'a'
 draw:
             letter_pointer _LETTERS, ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
 advance:
             add8 #TEXT_WIDTH, s_x
             jmp loop
 space:      
             mov #_BLANK, ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             jmp advance
 number:
             sec
             sbc #'0'                     ;todo move to macro below
             letter_pointer _NUMBERS, ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             jmp advance
 symbol:
             letter_pointer _SYMBOLS, ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             jmp advance
 param:
             inc string_offset
@@ -190,7 +195,7 @@ param:
             ;; show 'E' for error
              lda #'e' - 'a'
             letter_pointer _LETTERS, ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             popw_varg ptr_0
             jmp advance
 show_byte:
@@ -219,7 +224,7 @@ show_word:
             pha
             ;; height of text to draw
             lda #TEXT_HEIGHT
-            sta height
+            sta sp_height
             pla
 
             ;; display high nibble
@@ -228,13 +233,13 @@ show_word:
             lsr
             lsr
             letter_pointer _NUMBERS, ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             add8 #TEXT_WIDTH, s_x
             pla
             ;; display low nibble
             and #$0f
             letter_pointer _NUMBERS, ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             add8 #TEXT_WIDTH, s_x
             rts
 .endproc
@@ -246,7 +251,7 @@ show_word:
             lda #0
             sta s_x
             pushw ptr_0
-            jsr _draw_string
+            jsr tesp_draw_unshifted
             popw ptr_0
             resall
             rts

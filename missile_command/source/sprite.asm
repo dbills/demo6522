@@ -3,7 +3,7 @@
 .include "zerop.inc"
 .include "m16.mac"
 .include "sprite.mac"
-.export create_sprite_line,draw_unshifted_sprite,left_byte,right_byte,shift,height,spacklator,spackle
+.export sp_draw_unshifted, shift, sp_height,spacklator,spackle
 .exportzp s_x,s_y,target_x,target_y
 .zeropage
 s_x:        .res 1
@@ -16,7 +16,7 @@ target_y:   .res 1
 left_byte:  .byte 0
 right_byte: .byte 0
 shift:      .byte 0
-height:     .byte 0
+sp_height:  .byte 0
 scratch:    .byte 0
 .code
             ;; IN: shift - amount to shift to right
@@ -99,7 +99,7 @@ done:
 .endmacro
 ;;; draw a sprite that does not have
 ;;; preshifted images
-.proc       draw_unshifted_sprite
+.proc       sp_draw_unshifted
             calculate_hires_pointers s_x,s_y
             ;; ptr_0, ptr_1 hires column  pointers
             ;; ptr_2 adjusted source bytes
@@ -107,7 +107,7 @@ done:
             ;; calculate loop end in scratch
             tya
             clc
-            adc height
+            adc sp_height
             sta scratch
 loop:
             modulo8 s_x

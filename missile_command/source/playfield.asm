@@ -40,7 +40,7 @@ city_x_positions:
           
           ;jmp blarg
             lda #8
-            sta height
+            sta sp_height
             mov #base_left,ptr_0
             lda #XMAX/2-8
             sta s_x
@@ -49,15 +49,15 @@ city_x_positions:
             sec
             sbc #2
             sta s_y
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             lda #XMAX/2
             sta s_x
             mov #base_right,ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
 
 blarg:    
             lda #5
-            sta height
+            sta sp_height
             lda city_base
             sta s_y
 loop:
@@ -65,13 +65,13 @@ loop:
             lda city_x_positions,x
             sta s_x
             mov #city_left,ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             clc
             lda #8
             adc s_x
             sta s_x
             mov #city_right,ptr_0
-            jsr draw_unshifted_sprite
+            jsr sp_draw_unshifted
             dec city_count
             bpl loop
             rts

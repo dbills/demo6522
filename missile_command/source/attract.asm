@@ -31,7 +31,7 @@ skip:
             update_frame
 
             jsr erase_detonations
-            jsr draw_detonations
+            jsr de_draw
             lda #1
             and frame_cnt
             bne noscroll

@@ -11,7 +11,7 @@
 .include "debugscreen.inc"
 .include "text.inc"
 
-.export queue_detonation, i_detonation, test_detonation, draw_detonations
+.export de_queue, de_init, de_test, de_draw
 .export update_detonations, erase_detonations, rand_detonation, process_detonations
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
@@ -91,28 +91,28 @@ fm:      .res 1
 
 .code
 
-.proc       i_detonation
-            ldx #slots-1
+.proc     de_init
+          ldx #slots-1
 loop:
-            ;; load -2, implies no draw, no erase
-            lda #$fe                    ;-2
-            sta i_detonation_frame,x
-            ;; load -1, implies no erase
-            lda #$ff                    ;-1
-            sta i_detonation_frame2,x
-            dex
-            bpl loop
-            lda #0
-            sta hit
-            sta fm
-            rts
+          ;; load -2, implies no draw, no erase
+          lda #$fe                    ;-2
+          sta i_detonation_frame,x
+          ;; load -1, implies no erase
+          lda #$ff                    ;-1
+          sta i_detonation_frame2,x
+          dex
+          bpl loop
+          lda #0
+          sta hit
+          sta fm
+          rts
 .endproc
 ;;; queue a detonation animation centered at _pl_x, _pl_y
 ;;; pl_x,pl_y are typically used by the plot routines
 ;;; and threfore the line drawing routines, it's convenient
 ;;; to call this after drawing a line, as pl_x,pl_y would contain
 ;;; the last pixel drawn
-.proc       queue_detonation
+.proc       de_queue
             ldx #slots-1
 loop:
             lda i_detonation_frame,x
@@ -174,14 +174,14 @@ done:
             sta _pl_x
             jsr myrand
             sta _pl_y
-            jsr queue_detonation
+            jsr de_queue
             rts
 .endproc
 .data
 fubar:      .res 1
 .code
 .import wait_v
-.proc       test_detonation
+.proc       de_test
 loop:
             jsr rand_8
             and #7
@@ -197,7 +197,7 @@ skip:
 
             ;jsr j_wfire
             ldx #(slots-1)
-            jsr draw_detonations
+            jsr de_draw
 
             ldx #(slots-1)
             jsr update_detonations
@@ -210,7 +210,7 @@ skip:
           jsr erase_detonations
 
           ldx #(slots-1)
-          jsr draw_detonations
+          jsr de_draw
 
           ;; this section would not be time critical
           ;; ( when we get around to optimizing the main loop )
@@ -343,7 +343,7 @@ done:
             rts
 .endproc
 
-.proc       draw_detonations
+.proc       de_draw
             iterate_detonations jsr draw_detonation
             rts
 .endproc

@@ -60,7 +60,7 @@
 
           jsr i_interceptor
           jsr init_lines
-          jsr i_detonation
+          jsr de_init
 .ifdef TESTS
           jsr unit_tests
 forever:  jmp forever
@@ -79,7 +79,7 @@ forever:  jmp forever
           jsr main_loop                 
 
           ;jsr line_tests
-          ;jsr test_detonation
+          ;jsr de_test
 .import test_mushroom
           ;jsr test_mushroom
 loop:     jmp loop

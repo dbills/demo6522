@@ -133,7 +133,7 @@ erase:
           sta line_data_indices,x
           ;; queue an explosion
           jsr erase_crosshair_mark
-          jsr queue_detonation
+          jsr de_queue
           rts
 
 .endproc

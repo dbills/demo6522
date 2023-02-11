@@ -40,6 +40,15 @@ port: graphics extra_graphics
 # link
 	cd obj;cl65 -o ../a.p00 -tvic20 -Ln ../vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug $(OBJS)
 	cd obj;perl ../../build_support/mapfile.pl a.map > a.lst
+	@if [ -f /tmp/golden.txt ];then \
+          echo "golden checksum"; \
+          sum a.p00 > /tmp/new_golden.txt && diff /tmp/golden.txt /tmp/new_golden.txt;\
+        fi
+
+# make a golden checksum, useful before clerical refactorings like
+# renaming stuff
+golden: port
+	sum a.p00 > /tmp/golden.txt
 
 foo1:
 	ca65 --cpu 6502 shapes.asm -l foo.lst

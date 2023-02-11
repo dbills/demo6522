@@ -8,8 +8,9 @@
 .include "zerop.inc"
 .include "sprite.inc"
 .include "shapes.inc"
+
 .import _ldata1
-.export   move_crosshairs
+.export   ta_move
 ;;; speed of crosshair 
 ch_speed = 1
 .data
@@ -69,7 +70,7 @@ done:
 done:
           .endmacro
 
-.proc     move_crosshairs
+.proc     ta_move
           ;; code to artificially slow the cross hair during development
           ;; for debugging
           lda slow

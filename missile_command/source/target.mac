@@ -48,10 +48,13 @@ loop:
           cpx scratch1
           bne loop
 .endmacro
-
+;;; Move player crosshair according to joystick inputs
+;;; IN:
+;;; OUT:
+;;;   target_x, target_y: is updated
 .macro    ta_update
           ta_draw
-          jsr move_crosshairs
+          jsr ta_move
           ta_draw
 .endmacro
 

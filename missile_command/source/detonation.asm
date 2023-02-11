@@ -75,11 +75,15 @@ detonation_proc2H:   .res slots
 ;;; when frame is < 0, then this detonation is not active
 i_detonation_frame:  .res slots
 i_detonation_frame2: .res slots
-;;; Y coordinate of center of explosion
+;;; Y,X coordinates of upper left ( not center ) of explosion
+;;; see detonation_xoff, detonation_yoff for distance to center
 detonation_y:        .res slots
 detonation_x:        .res slots
 ;;; Y coordinate to render the current frame at, taking
-;;; into account the individual frame's offset
+;;; into account the individual frame's offset.  Sprites data
+;;; is stored economically - we don't store empty bytes
+;;; so the Y start row changes as the height of the detonation 
+;;;  ( perhaps I should waste some memory to simplify the code?? )
 detonation_cy:       .res slots
 detonation_cy2:      .res slots
 .export screen_column
@@ -122,8 +126,9 @@ loop:
             bpl loop
             rts
 available:
-            lda _pl_x
-            ;; save detonation center 
+          lda _pl_x
+          ;; store the upper left coordinates, not the 
+          ;; center which we were given
             sec
             sbc #detonation_xoff
             sta detonation_x,x          ;TODO optimize ( delete tay,tya)
@@ -383,9 +388,9 @@ y_intersect:        .res 1
 de_checkx:          .res 1
 de_checky:          .res 1
 .code
-.export check_collision
+.export de_check
 .export de_checkx, de_checky
-.proc check_collision
+.proc de_check
           ;; iterate through detonations
           ldx #slots - 1
 loop:     
@@ -397,8 +402,6 @@ loop:
 active:   
           ;;lda target_x                  
           lda de_checkx
-          clc
-          adc #crosshair_xoff
           sec
           sbc detonation_x,x
           ;; 0 <= difference <= 16
@@ -420,7 +423,6 @@ inside_x:
           sta x_intersect
           ;;lda target_y
           lda de_checky
-          adc #crosshair_yoff
           sec
           sbc detonation_y,x
           ;; 0 <= A <= 16 then in Y rage
@@ -437,7 +439,9 @@ ygreater0:
           jmp next
 inside_y: 
           sta y_intersect
-          myprintf2 0,120,"i%d:%d",x_intersect,y_intersect
+          te_pos #50,#50
+          myprintf "hello"
+          ;myprintf2 0,120,"i%d:%d", x_intersect,y_intersect
           
           ;; load the correct collision map for the 
           ;; explosion animation frame being displayed
@@ -475,3 +479,21 @@ next:
 exit:     
           rts
 .endproc
+
+.ifdef TESTS
+.export de_unit_tests
+.proc     de_unit_tests
+          ;; detonation at 50,50
+          lda #50
+          sta _pl_x
+          sta _pl_y
+          ;; collision check at 50,50
+          sta de_checkx
+          sta de_checky
+
+          jsr de_queue                  ; queue up detonation
+          jsr de_check                  ; for collision at 50,50
+          ;myprintf "50 x 50 hit:%d", hit
+          rts
+.endproc
+.endif

@@ -115,7 +115,7 @@ loop:
           jsr update_interceptors
           ;; animate enemy missiles
           jsr icbm_update
-          ;jsr check_collision
+          ;jsr de_check
           ;myprintf2 #0,#130,"f:%d",VICRASTER
 foo:      
           jmp loop

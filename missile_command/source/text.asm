@@ -6,7 +6,7 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf,scratch,clear_line
+.export _draw_string,_debug_string,text_x,text_y,_debug_number,_myprintf,scratch, te_clear_line
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
@@ -73,11 +73,12 @@ next:
 done:
             rts
 .endproc
-
-;;; clear 6 text columns at s_x,s_y
-;;; create an 'inverse' background so you can 
-;;; clearly see the text area being updated
-.proc       clear_line
+;;; Clear 6 text columns at s_x,s_y. Create an 'inverse' background so you can
+;;; see the text area being updated 
+;;; IN:
+;;;   s_x, s_y: upper left of line
+;;; OUT:
+.proc       te_clear_line
             saveall
 
             lda s_x
@@ -93,7 +94,9 @@ loop1:
             adc #TEXT_HEIGHT
             tay
             lda #255
-            ;; clear three text column
+            ;; clear three text columns, Y is loop counter
+            ;; for text letter height - we need to write that many bytes 
+            ;; times 3
 loop2:       
             sta (sp_col0),y
             sta (sp_col1),y
@@ -111,7 +114,7 @@ loop2:
             ;; move to the right 3 columns
             lda s_x
             clc
-            adc #TEXT_WIDTH*3
+            adc #TEXT_WIDTH * 3
             dex
             bpl loop1
 

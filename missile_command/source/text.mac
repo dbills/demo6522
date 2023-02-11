@@ -63,18 +63,19 @@ mystring:
 done:     
 .endmacro
 
-.macro    myprintf2 p1,p2,s,a1,a2,a3
+.macro    myprintf2 p1, p2, s, a1, a2, a3
           .local done
           saveall
           lda frame_cnt
           bne done
           te_clearpos p1,p2
-          _myprintf s,a1,a2,a3
+          ;te_pos p1,p2
+          _myprintf s, a1, a2, a3
 done:     
           resall
 .endmacro
 
-.macro    myprintf s,a1,a2,a3
+.macro    myprintf s, a1, a2, a3
           saveall
           _myprintf s,a1,a2,a3
           resall
@@ -112,7 +113,7 @@ done:
 ;;;   s_y: y position of cursor
 .macro    te_clearpos px, py
           te_pos px,py
-          jsr clear_line
+          jsr te_clear_line
 .endmacro
 
 .macro      cr

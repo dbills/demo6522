@@ -1,5 +1,7 @@
 crosshair_height = 5
 crosshair_xoff = 2
 crosshair_yoff = 2
+;;; offset from upper left of sprite to center of detonation
+;;; for the largest frame size of detonation ( a 14x14 )
 detonation_xoff = 7
 detonation_yoff = 7

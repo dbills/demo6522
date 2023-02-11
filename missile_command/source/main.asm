@@ -1,3 +1,9 @@
+;;; defines used for various program modes during development
+
+;;; 
+;;; end defines
+;;; 
+
 .include "screen.inc"
 .include "zerop.inc"         ;must be near top
 .include "timer.inc"
@@ -15,7 +21,7 @@
 .include "shapes.inc"
 .include "playfield.inc"
 .include "interceptor.inc"
-.include "queue.inc"
+;.include "queue.inc"
 .include "sound.inc"
 .include "detonation.inc"
 .include "icbm.inc"
@@ -26,8 +32,6 @@
 ;          jmp demo
           .CODE
 .proc     demo
-          ;; enabling interrupts really pisses the system off with
-          ;; the screen and character configs I have
           sei
           ;; load countdown value into via 2, timer1 latch
           ;; mov #HZ400, $9124
@@ -42,7 +46,7 @@
           jsr i_chrset                  ;init character set
           jsr i_hires                   ;init hi-res screen
           jsr i_joy                     ;init joystick
-          jsr i_rand                    ;inti random numbers
+          jsr i_rand                    ;init random numbers
           screenmem SCREEN              ;set VIC screen address
 
           ;; border colors
@@ -54,13 +58,14 @@
 
           jsr i_sound
 
-          jsr draw_cities
           jsr i_interceptor
           jsr init_lines
           jsr i_detonation
 .ifdef TESTS
           jsr unit_tests
+forever:  jmp forever
 .endif
+          jsr draw_cities
           ;; jsr bigplot
           ;; lda #1
           ;; sta bigx
@@ -111,7 +116,7 @@ loop:
           ;; animate enemy missiles
           jsr icbm_update
           ;jsr check_collision
-          myprintf2 #0,#130,"f:%d",VICRASTER
+          ;myprintf2 #0,#130,"f:%d",VICRASTER
 foo:      
           jmp loop
           rts

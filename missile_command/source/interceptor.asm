@@ -6,7 +6,6 @@
 .include "sprite.inc"
 .include "shapes.inc"
 .include "system.mac"
-.include "insertion_sort.inc"
 .include "text.inc"
 .include "debugscreen.inc"
 

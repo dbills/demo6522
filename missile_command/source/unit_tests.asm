@@ -1,9 +1,15 @@
 .ifdef TESTS
-.include "insertion_sort.inc"
-.export unit_tests
+.include "text.inc"
 
+.code
+.export unit_tests
 .proc unit_tests
-          jsr insertion_sort_tests
+          ;; initialize test data
+          lda #0
+          sta s_x
+          sta s_y
+          myprintf "running tests"
+          
           rts
 .endproc
 .endif

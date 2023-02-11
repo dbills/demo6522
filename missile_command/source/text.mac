@@ -1,35 +1,38 @@
 .include "system.mac"
+.include "m16.mac"
+.include "zerop.inc"
+
 .importzp s_x,s_y
 
-.macro      debug_string s              ;
+.macro      debug_string s
             .local mystring
 .data
 mystring:
             .asciiz s
 .code
-            mov #mystring, ptr_string
-            jsr _debug_string
+          mov #mystring, ptr_string
+          jsr _debug_string
 .endmacro
 
 .macro       debug_number mem
-            saveall
-            .if (.match (.left (1, {mem}), X))
-            txa
-            .elseif (.match (.left (1, {mem}), Y))
-            tya
-            .elseif (.match (.left (1, {mem}), A))
+          saveall
+          .if (.match (.left (1, {mem}), X))
+          txa
+          .elseif (.match (.left (1, {mem}), Y))
+          tya
+          .elseif (.match (.left (1, {mem}), A))
           ;; load the saved accumulator
-            tsx
-            lda $100+3,x
-            .else
-            lda mem
-            .endif
-            jsr _debug_number
-            resall
+          tsx
+          lda $100+3,x
+          .else
+          lda mem
+          .endif
+          jsr _debug_number
+          resall
 .endmacro
 
 .macro    _myprintf s,a1,a2,a3
-.local mystring,done
+.local mystring, done
 .data
 mystring:
             .asciiz s
@@ -116,12 +119,12 @@ done:
 .macro    direct_access array
           lda array,y
 .endmacro
-;;; print indirect array contents
-.macro    indirect_access array,pointer
-          ldx pointer,y
-          lda array,x
-.endmacro
-
+;;; Prints an array to hires screen
+;;; IN:
+;;;   start: integer index of array begin
+;;;   end:   integer index of array end
+;;;   accessor: a piece of assembly code that can fetch the array value
+;;;             into A
 .macro    print_array_ start,end,accessor
           .local loop,done
           ldy start
@@ -136,10 +139,33 @@ loop:
 done:     
 .endmacro
 
+;;; Prints an array to hires screen
+;;; e.g. 
+;;;   foo: dc.b 12 13 14
+;;;   print_array foo, 0, 3
+;;; 
+;;; would print:
+;;;   12, 13, 14 on the screen
+;;; 
+;;; IN:
+;;;   start: integer index of array begin
+;;;   end:   integer index of array end
 .macro    print_array array,start,end
           print_array_ start,end,{direct_access array}
 .endmacro
 
-.macro    print_indirect_array array,pointer,size
-          print_array_ start,end,{indirect_access array, pointer}
-.endmacro
+;;; Prints an indirect array to hires screen
+;;; e.g. 
+;;;   foo:    dc.b 12 13 14
+;;;   array1: dc.w foo, foo + 1, foo + 2
+;;;   print_indirect_array array1, 0, 3
+;;; 
+;;; would print:
+;;;   12, 13, 14 on the screen
+;;; 
+;;; IN:
+;;;   start: integer index of array begin
+;;;   end:   integer index of array end
+;;; 
+;;; TDB
+

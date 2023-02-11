@@ -11,7 +11,8 @@
 .include "debugscreen.inc"
 .include "text.inc"
 
-.export queue_detonation, i_detonation, test_detonation, draw_detonations, update_detonations,erase_detonations, rand_detonation, process_detonations
+.export queue_detonation, i_detonation, test_detonation, draw_detonations
+.export update_detonations, erase_detonations, rand_detonation, process_detonations
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
 ;;;                    = -2 => don't draw or erase
@@ -56,6 +57,7 @@ sz_explosion_frame_table = (* - explosion_frame_table)
             7 - frame
 .endmacro
 .bss
+;;; size of array of on screen detonations
 slots = 20
 ;;; pointer to the list of rendering routines for this detonation
 ;;; there is a set of routines for each possible preshifted bit
@@ -351,9 +353,7 @@ done:
 .endproc
 
 .data
-old_target:         .byte 0
-fubar1:   .byte 0
-once:     .byte 0
+old_target: .byte 0
 .code
 .include "colors.equ"
 
@@ -362,38 +362,47 @@ once:     .byte 0
 ;;; we check if we are at x,x+1,x+2
 ;;; to know if we are potentially in a column of an explosion
 ;;; once that is known, we check Y coordinates
-;;; the original coordinate of the interceptor detonation is known
-;;; the bounding rectangle for the explosion lives at
-;;; x-detonation_xoff,y-detonation_yoff
-;;; once we've established the bounding of the detonation
-;;; and we think we are in it, then we need to calculate
-;;; our relative position within that box
-;;; we can then look at the current 'sprite' that's drawn in
-;;; that box and check for a 1 bit at the corresponding location
-;;; for this test function we are using the target crosshair
+;;; The original coordinate of the interceptor detonation is known.
+;;; The bounding rectangle for the explosion lives at
+;;;   x-detonation_xoff, y-detonation_yoff
+;;; 
+;;; Once we've established the bounding of the detonation
+;;; and we are in it, we need to calculate
+;;; our relative position within that box.
+;;; 
+;;; We can then look at the current 'sprite' that's drawn in
+;;; that box and check for a 1 bit at the corresponding location.
+;;; 
+;;; For this test function we are using the target crosshair
 ;;; as a proxy for an icbm so I can test.  If that works then
 ;;; we will substitute an actual ICBM coord
 .bss
+;;; todo: these, of course, should be moved to ZP for speed
 x_intersect:        .res 1
 y_intersect:        .res 1
+de_checkx:          .res 1
+de_checky:          .res 1
 .code
 .export check_collision
+.export de_checkx, de_checky
 .proc check_collision
+          ;; iterate through detonations
           ldx #slots - 1
 loop:     
           lda i_detonation_frame,x
-          ;; negative numbers are finished, 
+          ;; negative numbers are finished detonations 
           ;; or not yet drawn
           bpl active
           jmp next
 active:   
-          lda target_x                  
+          ;;lda target_x                  
+          lda de_checkx
           clc
           adc #crosshair_xoff
           sec
           sbc detonation_x,x
-          ;; if difference is 0 <= different <= 16
-          ;; then  we are in X range
+          ;; 0 <= difference <= 16
+          ;; then we are in X range
           ;; TODO: optimize, invert logic
           bpl xgreater0
           beq xgreater0
@@ -409,7 +418,8 @@ xgreater0:
 inside_x:           
           ;; save x offset within the bounding column
           sta x_intersect
-          lda target_y
+          ;;lda target_y
+          lda de_checky
           adc #crosshair_yoff
           sec
           sbc detonation_y,x
@@ -441,7 +451,7 @@ inside_y:
           lda collision_tableR,y
           sta ptr_0 + 1
           ;; find the byte in explosion collison map
-          ;; byte = y*16+x
+          ;; byte = y * 16 + x
           lda y_intersect
           ;; multiply by 16
           asl

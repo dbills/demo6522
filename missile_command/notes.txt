@@ -115,8 +115,6 @@ WOW: this is the last time I worked on this after all the
     movw ic_by_column, x, ptr0
     or
     
-    TODO: remove in file header guards since they are auto generated now
-
 9/18/21
     can we draw a line starting at the top of the screen and moving downwards?
 12/5
@@ -128,4 +126,16 @@ WOW: this is the last time I worked on this after all the
 
 7/6/22 ( yes 7 months later ... because DAYJOB )
     debugging icbm_genwave.  It draws the line itself right now, but can the main loop dr aw it, I felt like I debugged this and discovered it was the stupid queue macros not initializing everything
-    todo: need to make a table of the collision maps, so that I can load the correct collisioon map based on the current explosion frame to use for 'hit' tests
+    todo: need to make a table of the collision maps, so that I can load the correct collision map based on the current explosion frame to use for 'hit' tests
+
+2/xx/23
+    returning after another time vortex ...
+    have no idea where I left off - I think I was about to test if an ICMB and a player interceptor did something
+    I need to remember what I was print out dbgmsg 'F' for in line.asm, it was the vicraster, I must have been doing timing for something
+    for each detonation
+      for each icbm
+      
+    it makes sense to place the entity that requires the greatest 'precalculation' cost as the outer loop
+    e.g. if detonations require a lot of clerical work and icbm data is well cooked, thent he previous loop structure is fastest
+    optimization would be to leave data that we need for collision detection hanging around from routines that manipulated that entity
+    e.g. the screen column byte could be 'saved' from when we are draing ICBMs since those routines must also calculate that

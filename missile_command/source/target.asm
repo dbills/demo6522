@@ -70,11 +70,14 @@ done:
           .endmacro
 
 .proc     move_crosshairs
+          ;; code to artificially slow the cross hair during development
+          ;; for debugging
           lda slow
-          adc #10
+          adc #30
           sta slow
           bcs go
           rts
+          ;; end debug code
 go:       
           jsr j_read
           and #bJOYT

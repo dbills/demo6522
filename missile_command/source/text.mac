@@ -68,7 +68,7 @@ done:
           saveall
           lda frame_cnt
           bne done
-          clearpos p1,p2
+          te_clearpos p1,p2
           _myprintf s,a1,a2,a3
 done:     
           resall
@@ -79,8 +79,14 @@ done:
           _myprintf s,a1,a2,a3
           resall
 .endmacro
-
-.macro    pos px, py
+;;; Positions the text cursor
+;;; IN:
+;;;   px: x position
+;;;   py: y position
+;;; OUT:
+;;;   s_x: x position of cursor
+;;;   s_y: y position of cursor
+.macro    te_pos px, py
           pha
 .if (.match (.left (1, {px}), #))
             lda #(.right (.tcount ({px})-1, {px}))
@@ -97,8 +103,15 @@ done:
           pla
 .endmacro
 
-.macro    clearpos px,py
-          pos px,py
+;;; Clear the text line at screen coodinates
+;;; IN:
+;;;   px: x position
+;;;   py: y position
+;;; OUT:
+;;;   s_x: x position of cursor
+;;;   s_y: y position of cursor
+.macro    te_clearpos px, py
+          te_pos px,py
           jsr clear_line
 .endmacro
 

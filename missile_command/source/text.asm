@@ -103,7 +103,7 @@ loop2:
             ;; s_y <= Y
             blt loop2
             ;; one last line above the text
-            ;; for a nice highlist
+            ;; for a nice highlight
             sta (sp_col0),y
             sta (sp_col1),y
             sta (sp_col2),y

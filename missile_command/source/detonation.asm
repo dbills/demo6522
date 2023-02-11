@@ -83,6 +83,8 @@ detonation_cy2:      .res slots
 .export screen_column
 screen_column:      .res slots
 i_detonation_count: .res 1
+hit:      .res 1
+fm:      .res 1
 .code
 
 .code
@@ -98,6 +100,9 @@ loop:
             sta i_detonation_frame2,x
             dex
             bpl loop
+            lda #0
+            sta hit
+            sta fm
             rts
 .endproc
 ;;; queue a detonation animation centered at _pl_x, _pl_y
@@ -371,11 +376,6 @@ once:     .byte 0
 .bss
 x_intersect:        .res 1
 y_intersect:        .res 1
-;;; a temp buffer to render the current explosion frame into
-;;; and check for a hit
-intersect1:         .res 16
-intersect2:         .res 16
-intersect3:         .res 16
 .code
 .export check_collision
 .proc check_collision
@@ -385,7 +385,7 @@ loop:
           ;; negative numbers are finished, 
           ;; or not yet drawn
           bpl active
-          rts
+          jmp next
 active:   
           lda target_x                  
           clc
@@ -397,15 +397,15 @@ active:
           ;; TODO: optimize, invert logic
           bpl xgreater0
           beq xgreater0
-          clearpos 0,48
-          myprintf "tl"
-          rts
+          myprintf2 0,120,"tl"
+          
+          jmp next
 xgreater0: 
           cmp #16
           bcc inside_x
-          clearpos 0,48
-          myprintf "tr"
-          rts
+          myprintf2 0,120,"tr"
+          
+          jmp next
 inside_x:           
           ;; save x offset within the bounding column
           sta x_intersect
@@ -416,24 +416,24 @@ inside_x:
           ;; 0 <= A <= 16 then in Y rage
           bpl ygreater0
           beq ygreater0
-          clearpos 0,48
-          myprintf "ab"
-          rts
+          myprintf2 0,120,"ab"
+          
+          jmp next
 ygreater0:          
           cmp #16
           bcc inside_y
-          clearpos 0,48
-          myprintf "be"
-          rts
+          myprintf2 0,120,"be"
+          
+          jmp next
 inside_y: 
           sta y_intersect
-          clearpos 0,48
-          myprintf "i%d:%d",x_intersect,y_intersect
+          myprintf2 0,120,"i%d:%d",x_intersect,y_intersect
+          
           ;; load the correct collision map for the 
           ;; explosion animation frame being displayed
           ldy i_detonation_frame,x      ;index into frame table
           lda explosion_frame_table,y   ;which image (0-7) is displayed
-          ;sta hit
+          sta fm
           tay
           ;; now load the collision map for that image
           lda collision_tableL,y
@@ -455,12 +455,10 @@ inside_y:
           ;; this byte(not bit), 0 or 1 tells us if there is a hit
           ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
-.bss
-hit:      .res 1
-.code
           sta hit
-          clearpos 0,38
-          myprintf "h:%d",hit
+          myprintf2 0,130,"h:%d",hit
+          
+next:     
           dex
           bmi exit
           jmp loop

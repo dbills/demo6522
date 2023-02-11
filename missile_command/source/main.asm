@@ -110,7 +110,9 @@ loop:
           jsr update_interceptors
           ;; animate enemy missiles
           jsr icbm_update
-          jsr check_collision
+          ;jsr check_collision
+          myprintf2 #0,#130,"f:%d",VICRASTER
+foo:      
           jmp loop
           rts
 .endproc

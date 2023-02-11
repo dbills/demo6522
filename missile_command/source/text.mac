@@ -1,6 +1,7 @@
 .include "system.mac"
 .importzp s_x,s_y
-.macro      debug_string s
+
+.macro      debug_string s              ;
             .local mystring
 .data
 mystring:
@@ -26,9 +27,9 @@ mystring:
             jsr _debug_number
             resall
 .endmacro
-.macro      myprintf s,a1,a2,a3
-            saveall
-            .local mystring
+
+.macro    _myprintf s,a1,a2,a3
+.local mystring,done
 .data
 mystring:
             .asciiz s
@@ -56,14 +57,39 @@ mystring:
             pla
             pla
             .endif
-            resall
+done:     
+.endmacro
+
+.macro    myprintf2 p1,p2,s,a1,a2,a3
+          .local done
+          saveall
+          lda frame_cnt
+          bne done
+          clearpos p1,p2
+          _myprintf s,a1,a2,a3
+done:     
+          resall
+.endmacro
+
+.macro    myprintf s,a1,a2,a3
+          saveall
+          _myprintf s,a1,a2,a3
+          resall
 .endmacro
 
 .macro    pos px, py
           pha
-          lda #px
+.if (.match (.left (1, {px}), #))
+            lda #(.right (.tcount ({px})-1, {px}))
+.else
+            lda px
+.endif
           sta s_x
-          lda #py
+.if (.match (.left (1, {py}), #))
+            lda #(.right (.tcount ({py})-1, {py}))
+.else
+            lda py
+.endif
           sta s_y
           pla
 .endmacro

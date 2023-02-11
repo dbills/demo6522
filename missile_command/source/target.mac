@@ -1,46 +1,57 @@
 .include "shapes.inc"
-
-.macro draw_target
+.importzp scratch1
+;;; Draw player targeting crosshairs
+;;; IN:
+;;;   target_x, target_y: center ( or upper left? ) of crosshair
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.macro ta_draw
           .local loop
           lda target_x
-          calc_screen_column
+          sp_calc_screen_column
           tay
           ;; load column pointers
           ;; todo: this could be optimized
           ;; for 8 bit sprite here by removing one of the 
           ;; column pointer setups
-          setup_draw
-          ldy target_y
-          ldx #crosshair_height
-          ;; calc offset target_x & 0x3 * 8
+          sp_setup_draw
+          ;; place offset to preshift crosshair data in X
+          ;; X = target_x % 0x3 * 8
           lda target_x
-          and #$7                       ; & 0x3
+          and #$7                       ; % 0x3
           asl                           ; * 8
           asl
           asl
           tax
-          clc                           ; + 5
-          adc #5
-          sta scratch
-          ;; x = loop start
+          ;; calc loop end: scratch1 = X + 5
+          clc
+          adc #crosshair_height
+          sta scratch1                  ; loop end value for X
+          ldy target_y                  ; is naturally screen column offset 
+          ;; for X = X to X + #crosshair_height
 loop:     
-          lda (sp_col0),y
-          eor crosshair_left,x
-          sta (sp_col0),y
+          ;; draw left half of crosshair xor'd with screen
 
-          lda (sp_col1),y
-          eor crosshair_right,x
-          sta (sp_col1),y
+          lda (sp_col0),y               ; load screen
+          eor crosshair_left,x          ; xor with crosshair
+          sta (sp_col0),y               ; save screen
+
+          ;; draw right half of crosshair xor'd with screen
+
+          lda (sp_col1),y               ; load screen
+          eor crosshair_right,x         ; xor with crosshair
+          sta (sp_col1),y               ; save screen
           
           iny
           inx
-          cpx scratch
+          cpx scratch1
           bne loop
 .endmacro
 
-.macro    update_crosshairs
-          draw_target
+.macro    ta_update
+          ta_draw
           jsr move_crosshairs
-          draw_target
+          ta_draw
 .endmacro
 

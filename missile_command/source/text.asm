@@ -6,7 +6,7 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export te_draw, text_x, text_y, _debug_number, te_printf_, scratch, te_clear_line
+.export te_draw, text_x, text_y, _debug_number, te_printf_, te_clear_line
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
@@ -89,9 +89,9 @@ done:
             lda s_x
             ldx #1
 loop1:      
-            calc_screen_column
+            sp_calc_screen_column
             tay
-            setup_draw
+            sp_setup_draw
             ;; calc bottom of letter + 1
             ;; and fill to top - 1
             lda s_y

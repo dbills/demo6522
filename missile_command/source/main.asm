@@ -103,14 +103,14 @@ iloop:
           sta target_y
           lda #XMAX/2
           sta target_x
-          draw_target
+          ta_draw
 loop:
           jsr wait_v
           update_frame                  ;update frame counter
 ;          bcolor_i CYAN
           jsr process_detonations
 ;          bcolor_i BLACK
-          update_crosshairs
+          ta_update
           ;; animate player missiles
           jsr update_interceptors
           ;; animate enemy missiles

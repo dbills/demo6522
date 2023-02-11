@@ -50,10 +50,10 @@ done:
             ;;   ptr_1 pointer to CHRAM column right tile
             ;;   ptr_2 adjusted pointer to sprite source
             ;;         s.t. ptr_2 + s_y = sprite_source data
-.macro      calculate_hires_pointers _x,_y
+.macro      calculate_hires_pointers _x, _y
             sub_wbw ptr_0,_y,ptr_2
             lda _x
-            calc_screen_column
+            sp_calc_screen_column
             tay
             ;; copy correct ptr to ptr_0
             lda pltbl,y                   ;
@@ -100,7 +100,7 @@ done:
 ;;; draw a sprite that does not have
 ;;; preshifted images
 .proc       sp_draw_unshifted
-            calculate_hires_pointers s_x,s_y
+            calculate_hires_pointers s_x, s_y
             ;; ptr_0, ptr_1 hires column  pointers
             ;; ptr_2 adjusted source bytes
             ldy s_y

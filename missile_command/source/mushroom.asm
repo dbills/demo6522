@@ -31,7 +31,7 @@ loop:
 .endproc
 .proc test_mushroom
           ldy #0
-          setup_draw
+          sp_setup_draw
 start:    
           ldx #0
 loop:     

@@ -4,17 +4,7 @@
 
 .importzp s_x,s_y
 
-.macro      debug_string s
-            .local mystring
-.data
-mystring:
-            .asciiz s
-.code
-          mov #mystring, ptr_string
-          jsr _debug_string
-.endmacro
-
-.macro       debug_number mem
+.macro    debug_number mem
           saveall
           .if (.match (.left (1, {mem}), X))
           txa
@@ -81,6 +71,7 @@ done:
           resall
 .endmacro
 ;;; Positions the text cursor
+;;; adapts to arguments that are a symbol vs # immediate
 ;;; IN:
 ;;;   px: x position
 ;;;   py: y position
@@ -89,7 +80,7 @@ done:
 ;;;   s_y: y position of cursor
 .macro    te_pos px, py
           pha
-.if (.match (.left (1, {px}), #))
+.if (.match (.left (1, {px}), #))       ;any number 
             lda #(.right (.tcount ({px})-1, {px}))
 .else
             lda px

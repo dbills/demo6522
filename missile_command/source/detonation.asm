@@ -133,7 +133,7 @@ available:
             sbc #detonation_xoff
             sta detonation_x,x          ;TODO optimize ( delete tay,tya)
             tay                         ;save x coord
-            calc_screen_column          ;x/8
+            sp_calc_screen_column          ;x/8
             sta screen_column,x
             tya                         ;restore x coord
             and #7                      ;modulo8
@@ -295,7 +295,7 @@ jmp_operand = jmp0 + 1
             lda detonation_proc2H,x
             sta jmp_operand+1
             ldy screen_column,x
-            setup_draw
+            sp_setup_draw
             ldy detonation_cy2,x
 jmp0:
             jmp 0                       ;dynamic operand
@@ -312,7 +312,7 @@ jmp_operand = jmp0 + 1
             lda detonation_procH,x
             sta jmp_operand+1
             ldy screen_column,x
-            setup_draw
+            sp_setup_draw
             ldy detonation_cy,x
 jmp0:
             jmp 0                       ;dynamic operand
@@ -409,13 +409,13 @@ active:
           ;; TODO: optimize, invert logic
           bpl xgreater0
           beq xgreater0
-          myprintf2 0,120,"tl"
+          myprintf2 #0,#120,"tl"
           
           jmp next
 xgreater0: 
           cmp #16
           bcc inside_x
-          myprintf2 0,120,"tr"
+          myprintf2 #0,#120,"tr"
           
           jmp next
 inside_x:           
@@ -428,21 +428,19 @@ inside_x:
           ;; 0 <= A <= 16 then in Y rage
           bpl ygreater0
           beq ygreater0
-          myprintf2 0,120,"ab"
+          myprintf2 #0,#120,"ab"
           
           jmp next
 ygreater0:          
           cmp #16
           bcc inside_y
-          myprintf2 0,120,"be"
+          myprintf2 #0,#120,"be"
           
           jmp next
 inside_y: 
           sta y_intersect
-          te_pos #0,#50
 stop_here:          
-          myprintf "hello"
-          ;myprintf2 0,120,"i%d:%d", x_intersect,y_intersect
+          myprintf2 #0,#120,"i%d:%d", x_intersect,y_intersect
           
           ;; load the correct collision map for the 
           ;; explosion animation frame being displayed
@@ -471,7 +469,7 @@ stop_here:
           ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
           sta hit
-          myprintf2 0,130,"h:%d",hit
+          myprintf2 #0,#130,"h:%d",hit
           
 next:     
           dex

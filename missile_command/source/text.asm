@@ -6,7 +6,7 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export tesp_draw_unshifted, _debug_string, text_x, text_y, _debug_number, _myprintf, scratch, te_clear_line
+.export te_draw, text_x, text_y, _debug_number, te_printf_, scratch, te_clear_line
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
@@ -52,7 +52,7 @@ OFFSET      .set OFFSET + 7
 ;;; OUT:
 ;;;   s_x: advanced to end of text
 ;;;   X is clobbered
-.proc       tesp_draw_unshifted
+.proc       te_draw
             lda #0
             sta string_offset
             lda #TEXT_HEIGHT
@@ -126,8 +126,13 @@ loop2:
             resall
             rts
 .endproc
-
-.proc       _myprintf
+;;; Draw a text string with limited printf like capability
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.proc       te_printf_
             init_varg
             lda #TEXT_HEIGHT
             sta sp_height
@@ -241,19 +246,6 @@ show_word:
             letter_pointer _NUMBERS, ptr_0
             jsr sp_draw_unshifted
             add8 #TEXT_WIDTH, s_x
-            rts
-.endproc
-
-.proc       _debug_string
-            saveall
-            lda #175-7
-            sta s_y
-            lda #0
-            sta s_x
-            pushw ptr_0
-            jsr tesp_draw_unshifted
-            popw ptr_0
-            resall
             rts
 .endproc
 

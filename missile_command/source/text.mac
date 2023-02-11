@@ -31,7 +31,7 @@ mystring:
           resall
 .endmacro
 
-.macro    _myprintf s,a1,a2,a3
+.macro    te_printf_ s,a1,a2,a3
 .local mystring, done
 .data
 mystring:
@@ -47,7 +47,7 @@ mystring:
             pushw #a1
             .endif
             mov #mystring, ptr_string
-            jsr _myprintf
+            jsr te_printf_
             .ifnblank a1
             pla
             pla
@@ -70,14 +70,14 @@ done:
           bne done
           te_clearpos p1,p2
           ;te_pos p1,p2
-          _myprintf s, a1, a2, a3
+          te_printf_ s, a1, a2, a3
 done:     
           resall
 .endmacro
 
 .macro    myprintf s, a1, a2, a3
           saveall
-          _myprintf s,a1,a2,a3
+          te_printf_ s,a1,a2,a3
           resall
 .endmacro
 ;;; Positions the text cursor

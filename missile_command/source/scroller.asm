@@ -34,7 +34,7 @@ iloop:
             sta s_y
             lda #0
             sta s_x
-            jsr tesp_draw_unshifted
+            jsr te_draw
             lda #0
             sta store
             rts

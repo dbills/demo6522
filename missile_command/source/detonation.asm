@@ -439,7 +439,8 @@ ygreater0:
           jmp next
 inside_y: 
           sta y_intersect
-          te_pos #50,#50
+          te_pos #0,#50
+stop_here:          
           myprintf "hello"
           ;myprintf2 0,120,"i%d:%d", x_intersect,y_intersect
           

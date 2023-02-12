@@ -1,15 +1,15 @@
 .include "screen.mac"
-          ;; integer 'bresenham' like
-          ;; line drawing routine
-          ;; 1 = short axis line length
-          ;; 2 = long axis line length
-          ;; 3 inx or dex
-          ;; for 1 or 2, e.g. dx or dy
-          ;; shift is when the short axis
-          ;; must 'shift' due to the error
-          ;; rate getting too high
-          ;; inputs: Y = current long axis
-          ;; position
+;;; integer 'bresenham' like
+;;; line drawing routine
+;;; 1 = short axis line length
+;;; 2 = long axis line length
+;;; 3 inx or dex
+;;; for 1 or 2, e.g. dx or dy
+;;; shift is when the short axis
+;;; must 'shift' due to the error
+;;; rate getting too high
+;;; inputs: Y = current long axis
+;;; position
 .macro    step_short_axis saxis,laxis,step_operation
 .local shift, noshift
           lda err

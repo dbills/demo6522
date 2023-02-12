@@ -1,3 +1,15 @@
+Line drawing code lives in four files:
+
+line.mac       - line drawing interface
+line.asm
+
+internal to line.mac/line.asm
+
+genline.mac    - code for generating(pre-drawing) a line
+renderline.mac - code for rendering to the screen, a pre-drawn line
+
+==============================================================================
+
 Some notes about the Cartesian quadrant terminology used
 admittedly it is a little abused but bear with it:
 
@@ -64,4 +76,12 @@ they are normalized for the correct ordering at generation time
 when a line is finished drawing line_data_indices,x where x = line #
 will = 0
 
-LINE SORTING AND LINE REMOVAL
+UNCHECKED LINE DOCS
+2/12/23
+(I'm working on these, I want to put down my notes/thoughts before I finish
+verifying them against the code so I have them )
+
+the rate of descent, with respect to vertical pixel, of an ICBM ( line ) is constant?
+the long axis, is the one where the slope is such that it will move to value on each increment of the line. In other words: the smallest possible step we can make when drawing this line, given out screen resolution, will result in this axis's coordinate changing everytime
+
+line_data- store the coordinates of the short-axis.  This could(should) be optimized to store data that is more preprocessed, the types of data plot has to work with, such as the screen column, and an existing byte to merge into the screen.

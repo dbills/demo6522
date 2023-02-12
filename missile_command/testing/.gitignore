@@ -2,3 +2,4 @@ tester
 makeheaders
 bresenham
 compiled
+emulator/libfake6502.a

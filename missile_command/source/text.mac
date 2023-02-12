@@ -21,14 +21,14 @@
           resall
 .endmacro
 
-.macro    te_printf_ s,a1,a2,a3
+.macro    te_printf_ s, a1, a2, a3
 .local mystring, done
 .data
 mystring:
             .asciiz s
 .code
             .ifnblank a1
-            pushw #a1
+              pushw #a1
             .endif
             .ifnblank a2
             pushw #a2
@@ -65,9 +65,23 @@ done:
           resall
 .endmacro
 
+;;; C-style printf; very limited
+;;; note special token/variables te_scratch_[XYA]
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .macro    myprintf s, a1, a2, a3
+          .if     (.xmatch (.left (1, {a1}), {te_scratch_X}))
+            stx a1
+          .elseif (.xmatch (.left (1, {a1}), {te_scratch_Y}))
+            sty a1
+          .elseif (.xmatch (.left (1, {a1}), {te_scratch_A}))
+            sta te_scratch_A
+          .endif
           saveall
-          te_printf_ s,a1,a2,a3
+          te_printf_ s, a1, a2, a3
           resall
 .endmacro
 ;;; Positions the text cursor
@@ -116,7 +130,8 @@ done:
             pha
             lda #0
             sta s_x
-            add8 #8,s_y
+            ;; TEXT_HEIGHT + 1
+            add8 #8, s_y
             pla
 .endmacro
 

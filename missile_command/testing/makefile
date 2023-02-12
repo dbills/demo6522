@@ -2,6 +2,8 @@
 # of the line algorithm
 LDLIBS = -lm
 CC=gcc
+CFLAGS=-g
+
 all: bresenham emu
 	echo 11 17 1 11 | ./$<
 	echo 17 11 1 11 | ./$<
@@ -22,3 +24,7 @@ all2: bresenham
 
 emu:
 	cd emulator && make
+
+
+tester: emu
+	gcc -g tester.c -Iemulator emulator/libfake6502.a  -o tester

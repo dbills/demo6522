@@ -7,12 +7,16 @@
 .include "screen.mac"
 
 .export te_draw, text_x, text_y, _debug_number, te_printf_, te_clear_line
+.export te_scratch_A, te_scratch_X, te_scratch_Y
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
 .define TEXT_WIDTH 6
 .bss
-string_offset:   .byte 0
-scratch:  .byte 0
+string_offset:      .res 1
+scratch:            .res 1 
+te_scratch_X:       .res 1              ;holder for printf of X
+te_scratch_Y:       .res 1              ;holder for printf of Y
+te_scratch_A:       .res 1              ;holder for printf of A
 .data
 text_x:     .byte 140
 text_y:     .byte 30
@@ -145,10 +149,12 @@ loop:
             bne notempty
             rts
 notempty:
-            cmp #'%'
-            beq param
             cmp #' '
             beq space
+            cmp #'%'
+            bne l0
+            jmp param
+l0:       
             cmp #'$'
             bne l1
             lda #1
@@ -164,6 +170,13 @@ l2:
             lda #2
             bne symbol
 l3:
+            cmp #13                     ; cr is easy to make from editor
+            bne l4
+            ldx #0                      ; cr/lf if we see cr 
+            stx s_x
+            add8 #TEXT_HEIGHT + 1, s_y
+            jmp loop
+l4:       
             cmp #'a'
             bcc number
 letters:
@@ -198,7 +211,7 @@ param:
             cmp #'w'
             beq show_word
             ;; show 'E' for error
-             lda #'e' - 'a'
+            lda #'e' - 'a'
             letter_pointer _LETTERS, ptr_0
             jsr sp_draw_unshifted
             popw_varg ptr_0
@@ -220,6 +233,9 @@ show_word:
             pla
             jsr _debug_number
             jmp loop
+.endproc
+
+.proc printf_param
 .endproc
 ;;; IN: A = number to display
             ;; lda #TEXT_HEIGHT

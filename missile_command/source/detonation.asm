@@ -133,10 +133,10 @@ available:
             sbc #detonation_xoff
             sta detonation_x,x          ;TODO optimize ( delete tay,tya)
             tay                         ;save x coord
-            sp_calc_screen_column          ;x/8
+            sp_calc_screen_column       ;x/8
             sta screen_column,x
             tya                         ;restore x coord
-            and #7                      ;modulo8
+            and #7                      ;% 8; modulo8
             asl                         ;* 2
             tay
             ;; we have the bit offset, place the
@@ -409,38 +409,37 @@ active:
           ;; TODO: optimize, invert logic
           bpl xgreater0
           beq xgreater0
-          myprintf2 #0,#120,"tl"
+          myprintf "tl"
           
           jmp next
 xgreater0: 
           cmp #16
           bcc inside_x
-          myprintf2 #0,#120,"tr"
+          myprintf "tr"
           
           jmp next
 inside_x:           
           ;; save x offset within the bounding column
           sta x_intersect
           ;;lda target_y
-          lda de_checky
-          sec
-          sbc detonation_y,x
-          ;; 0 <= A <= 16 then in Y rage
-          bpl ygreater0
-          beq ygreater0
-          myprintf2 #0,#120,"ab"
+          lda detonation_y,x
+          sec 
+          sbc de_checky
+          ;; 0 <= abs(detonation_y - de_checky) <= 16 then in Y range
+          bmi ygreater0
+          myprintf "ab"
           
           jmp next
 ygreater0:          
-          cmp #16
-          bcc inside_y
-          myprintf2 #0,#120,"be"
+          cmp #256-14                   ;  < A < 256
+          bcs inside_y
+          myprintf "be:%d", te_scratch_A
           
           jmp next
 inside_y: 
           sta y_intersect
 stop_here:          
-          myprintf2 #0,#120,"i%d:%d", x_intersect,y_intersect
+          myprintf "i%d:%d", x_intersect,y_intersect
           
           ;; load the correct collision map for the 
           ;; explosion animation frame being displayed
@@ -469,7 +468,7 @@ stop_here:
           ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
           sta hit
-          myprintf2 #0,#130,"h:%d",hit
+          myprintf " h:%d", hit
           
 next:     
           dex
@@ -480,6 +479,9 @@ exit:
 .endproc
 
 .ifdef TESTS
+
+.include "unit_tests.inc"
+
 .export de_unit_tests
 .proc     de_unit_tests
           ;; detonation at 50,50
@@ -487,11 +489,19 @@ exit:
           sta _pl_x
           sta _pl_y
           ;; collision check at 50,50
-          sta de_checkx
-          sta de_checky
 
           jsr de_queue                  ; queue up detonation
+          lda #50
+          sta de_checkx
+          lda #50
+          sta de_checky
           jsr de_check                  ; for collision at 50,50
+
+.repeat 12
+          inc de_checky
+          jsr de_check                  
+.endrepeat
+          ;assert_eq "fubar ", #1, #1
           ;myprintf "50 x 50 hit:%d", hit
           rts
 .endproc

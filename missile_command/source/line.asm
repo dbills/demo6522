@@ -15,9 +15,10 @@
 ;;; x1,x2,y1,y2: the 2 respective endpoints of a line
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
-.exportzp _x1,_x2,_y1,_y2,_lstore,_dx,_dy
-.export _genline,_general_render,_partial_render,render_single_pixel,init_lines
-.export line_types, long_axis_start_values, long_axis_lengths, line_data_indices, long_axis_current_values,_iline
+.exportzp _x1, _x2, _y1, _y2, _lstore, _dx, _dy
+.export _genline, _general_render, _partial_render, render_single_pixel
+.export init_lines, line_types, long_axis_start_values, long_axis_lengths
+.export line_data_indices, long_axis_current_values, _iline
 .export line_data00
 .export line_data01
 ;,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
@@ -49,7 +50,7 @@ _iline:     .res 1
 ;;; generate storage for MAX_LINES
 ;;; with a label starting at line_data00
 ;;; byte line_data[LINEMAX][MAX_LINES]
-;;; recall C is row-major order
+;;; recall the C language is row-major order
 .repeat MAX_LINES,I
   .ident (.sprintf ("line_data%02d", I)): .res LINEMAX
 .endrepeat
@@ -64,7 +65,7 @@ long_axis_current_values: .res MAX_LINES
 
 .data
 ;;; low, high bytes for line data
-;;; E.g. line00 == line_offsetsL[0]<<8+line_ffsetsH[0]
+;;; E.g. line00 = (line_offsetsL[0] << 8) + line_offsetsH[0]
 ;;; and so on...
 line_offsetsL:
 .export line_offsetsL
@@ -109,8 +110,8 @@ done:
           generate_line_data forward,forward,steep
           rts
 .endproc
-;;; generate line data
-;;; IN: _x1,_x2,_y1,_y2,_lstore
+;;; Generate line data
+;;; IN: _x1, _x2, _y1, _y2,_lstore
 ;;;   coords are closed interval
 ;;;   _lstore is pointer to where to store data
 ;;;   X: index of line
@@ -131,14 +132,15 @@ done:
 ;;; e.g FFA
 ;;; line goes from left to right and
 ;;; top to bottom of screen
-;;; forms an  acute angle between the X axis
+;;; forms an acute angle between the X axis
 ;;; the the line
 .proc     _genline
           lda #0                        ;err=0
           sta err
-          ;; the delta calls, set 3 bits. for each 
-          ;; compare if it was inverted, thus a number
-          ;; from 0-7 is generated
+          ;; the delta macro calls effectively build 3 bit number
+          ;; we check which way the line runs left or right, up or down
+          ;; by subtracting endponts, and then determine slope by dy - dx
+          ;; we end up with a # from 0-7 for the type/class of line to draw
           delta _y1,_y2,#1
           sta _dy
           tya
@@ -215,11 +217,23 @@ s8:
 .endproc
 
 .include "renderline.mac"
-;;; dynamically determine which of the 8 line
+;;; Dynamically determine which of the 8 line
 ;;; rendering strategies are needed and apply
-;;; a routine with correct arguments
+;;; a routine(function) with correct arguments.
+;;; 
+;;; (perhaps?) more formally:
+;;; f(L,g) = g(a,b,c)
+;;; where L = some existing pre-rendered line ( given in register X )
+;;; and   G = some three argument function(macro in this case)
+;;; 
+;;; The class of functions(macros) G represents are rendering functions, and
+;;; G could be, for example, a function to draw a single pixel of a line to
+;;; the scree,or G could be a function to generate precalculated line data into
+;;; a buffer
+;;; 
 ;;; IN:
-;;;   render_type: the routine to apply
+;;;   render_type: the routine to apply.  This is a 3 argument 
+;;;                macro to run
 ;;;   X: index of line
 .macro    _general_render_template render_type
 .local s0,s1,s2,s3,s4,s5,s6,s7,s8

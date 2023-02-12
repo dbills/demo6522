@@ -14,7 +14,7 @@ static void line_test() {
   write8("y1", 0);
   write8("y2", height);
   write8("x2", 4);
-  call_label("line1");
+  jsr_label("line1");
 
 }
 
@@ -28,7 +28,7 @@ static void dump_line_data(const uint16_t line_data,const uint8_t height) {
 
 int main(int argc, char **argv) {
   load_kernel();
-  load_p00("../a.p00");
+  load_p00("../source/a.p00");
 
   printf("irq/brk = %hx\nnmi = %hx\nreset = %hx\nuser irq($314) = %hx\n",
          get_word(0xfffe),
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
   hookexternal(hook6502);
   break_address = 0x0;
 
-  load_labels("../labels.txt");
+  load_labels("../source/vlabels.txt");
   line_test();
   //write16("lstore", 0x2000);
   //call_label("main");

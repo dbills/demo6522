@@ -73,3 +73,18 @@ _line_h=1
 .endmacro
 
 .endif
+
+;;; Get the current x,y value of a line that is active, i.e. is in process
+;;; of being drawn 
+;;; IN:
+;;;   X: index of line
+;;;   xarg: label to store x location of line
+;;;   yarg: label to store y location of line
+;;; 
+;;; OUT:
+;;;   xarg: x location of line
+;;;   yarg: y location of line
+.macro li_get_coord
+          ;; TDB - perhaps it's easier to do the collision check 
+          ;; after the line is drawn?
+.endmacro

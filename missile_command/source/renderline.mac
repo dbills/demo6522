@@ -1,23 +1,25 @@
           .include "screen.mac"
 ;;; render a single pixel of a line
 ;;; OUT:
-;;;   Z if line is finished
+;;;   Z: true if line is finished
+;;;   _pl_x: x coord of pixel just plotted
+;;;   _pl_y: to coord of pixel just plotted
 .macro render_partial_line xdirection, ydirection, slope
 .local loop, short_axis, long_axis, iterator
-.if (.xmatch ({slope}, steep))
-  .define long_axis _pl_y
+.if (.xmatch ({slope}, steep))          ; steep slope
+  .define long_axis  _pl_y
   .define short_axis _pl_x
-  .if (.xmatch ({ydirection}, forward))
+  .if (.xmatch ({ydirection}, forward)) ; y2 > y1
     .define iterator inc long_axis_current_values,x
-  .else
+  .else                                 ; y2 < y1
     .define iterator dec long_axis_current_values,x
   .endif
-.else
-  .define long_axis _pl_x
+.else                                   ; shallow slope
+  .define long_axis  _pl_x
   .define short_axis _pl_y
-  .if (.xmatch ({xdirection}, forward))
+  .if (.xmatch ({xdirection}, forward)) ; x2 > x1
     .define iterator inc long_axis_current_values,x
-  .else
+  .else                                 ; x2 < x1
     .define iterator dec long_axis_current_values,x
   .endif
 .endif
@@ -30,6 +32,13 @@
           iterator
           dec line_data_indices,x
 .endmacro
+;;; Pre-draw a line into the global line buffer labeled line_data
+;;; IN:
+;;;   X: index of line to pre-render
+;;;      the line meta-data must have been pre-populated
+;;; OUT:
+;;;   line_data: filled with pre-rendered line data: the sequence of short
+;;;              axis coordinates for this line    
 .macro render_line_data xdirection, ydirection, slope
 .local loop
           ;; reset line starting data

@@ -9,8 +9,7 @@
 .include "text.inc"
 .include "debugscreen.inc"
 
-.export i_interceptor,in_launch,update_interceptors
-
+.export in_init, in_launch, in_update
 
 base_x = XMAX/2
 base_y = YMAX-16
@@ -18,7 +17,7 @@ base_y = YMAX-16
 .code
 .linecont
 
-.proc     i_interceptor
+.proc     in_init
           ldx #MAX_LINES-1
           lda #0
 loop:
@@ -59,8 +58,8 @@ loop:
           lda line_data_indices
           bne next                      ;slot if full
           ;; slot is open
-          set_lstore
-          lineto #base_x,#base_y,_x2,_y2
+          li_set_lstore
+          li_lineto #base_x, #base_y, _x2, _y2
           jsr snd_missile_away
           rts
 next:     
@@ -72,9 +71,14 @@ empty:
 .endproc
 .importzp _pl_x,_pl_y
 .include "detonation.inc"
-;;; erase crosshair centered at pl_x,pl_y
+;;; Erase crosshair centered at pl_x, pl_y
 ;;; sprites are drawn  from the upper left
 ;;; so we need to derive upper left coord
+;;; to the players current crosshair location
+;;; IN:
+;;;   plx_x,pl_y: 
+;;; OUT:
+;;; 
 .proc     erase_crosshair_mark
           lda target_x
           pha
@@ -108,15 +112,12 @@ empty:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.bss
-sort_index:         .res 1
-.code
-.proc     update_interceptors
+.proc     in_update
           ldx #MAX_MISSILES - 1
 loop:     
           lda line_data_indices
           beq  next                     ;inactive
-          set_lstore
+          li_set_lstore
           jsr render_single_pixel
           beq erase
           ;; jsr render_single_pixel

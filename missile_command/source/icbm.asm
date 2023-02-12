@@ -77,7 +77,7 @@ done:
 .proc icbm_genwave
           mov #line_data01,_lstore
           ldx #1
-          lineto #10,#10,#89,#155
+          li_lineto #10,#10,#89,#155
           rts
           ldx #1
 loop:     

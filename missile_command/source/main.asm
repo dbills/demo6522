@@ -58,7 +58,7 @@
 
           jsr i_sound
 
-          jsr i_interceptor
+          jsr in_init
           jsr init_lines
           jsr de_init
 .ifdef TESTS
@@ -108,11 +108,11 @@ loop:
           jsr wait_v
           update_frame                  ;update frame counter
 ;          bcolor_i CYAN
-          jsr process_detonations
+          jsr de_process
 ;          bcolor_i BLACK
           ta_update
           ;; animate player missiles
-          jsr update_interceptors
+          jsr in_update
           ;; animate enemy missiles
           jsr icbm_update
           ;jsr de_check
@@ -137,7 +137,7 @@ foo:
           ldx #0
           mov #line_data01,_lstore
           ;lineto #176/2,#176-26, #160,#0
-          lineto #160,#0,#176/2,#176-26
+          li_lineto #160,#0,#176/2,#176-26
           jsr _general_render
           rts
 .endproc

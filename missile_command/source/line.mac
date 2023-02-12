@@ -1,7 +1,7 @@
 .ifndef _line_h
 _line_h=1
 .include "screen.mac"
-.include  "system.mac"
+.include "system.mac"
 
 ;;; Puts line drawing data into memory
 ;;; does not draw the line
@@ -13,7 +13,7 @@ _line_h=1
 ;;;   _lstore: word pointer where to store line data
 ;;; OUT:
 ;;;     
-.macro      lineto x1,y1,x2,y2
+.macro    li_lineto x1,y1,x2,y2
           savex
 .if (.match (.left (1, {x1}), #))
             lda #(.right (.tcount ({x1})-1, {x1}))
@@ -65,7 +65,7 @@ _line_h=1
 ;;;   X: which line to set _lstore to point to
 ;;; OUT:
 ;;;   _lstore
-.macro    set_lstore
+.macro    li_set_lstore
           lda line_offsetsL,x
           sta _lstore
           lda line_offsetsH,x           

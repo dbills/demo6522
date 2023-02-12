@@ -12,7 +12,7 @@
 .include "text.inc"
 
 .export de_queue, de_init, de_test, de_draw
-.export update_detonations, erase_detonations, rand_detonation, process_detonations
+.export update_detonations, erase_detonations, rand_detonation, de_process
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
 ;;;                    = -2 => don't draw or erase
@@ -210,7 +210,7 @@ skip:
             rts
 .endproc
 
-.proc     process_detonations
+.proc     de_process
           ldx #(slots-1)
           jsr erase_detonations
 

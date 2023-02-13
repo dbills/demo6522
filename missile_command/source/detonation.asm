@@ -361,32 +361,36 @@ done:
 old_target: .byte 0
 .code
 .include "colors.equ"
-
-;;; screen columns for detonations is the first column
-;;; as a 16 pixel sprite, it occupies at most 3 columns
-;;; we check if we are at x,x+1,x+2
-;;; to know if we are potentially in a column of an explosion
-;;; once that is known, we check Y coordinates
-;;; The original coordinate of the interceptor detonation is known.
-;;; The bounding rectangle for the explosion lives at
-;;;   x-detonation_xoff, y-detonation_yoff
+;;; Check for collision of an ICBM with a detonation that may be on the screen
+;;;
+;;; The x,y coordinate of a detonation are stored as the upper left of a
+;;; 16x16 sprite [ the actual largest explosion is a 15x15 circle ]
 ;;; 
-;;; Once we've established the bounding of the detonation
-;;; and we are in it, we need to calculate
-;;; our relative position within that box.
+;;; The original coordinate of the interceptor detonation, the center of 
+;;; the circle can be obtained with:
+;;;   {x + detonation_xoff,  y + detonation_yoff}     or
+;;;   {x 7, y + 7}
+;;;  at the center, of the widest ball of flaming death, you would have
+;;;  7 pixel to the left and right, above and below
 ;;; 
-;;; We can then look at the current 'sprite' that's drawn in
-;;; that box and check for a 1 bit at the corresponding location.
+;;; Once we've established we're in the bounding of the detonation
+;;; we calculate our offset from top,left ; stored in 
+;;; {x_intersect, y_intersect}
+;;; That point is the distance from the origin of the bounding box to
+;;; the warhead point(pixel) of the enemy ICBM
 ;;; 
-;;; For this test function we are using the target crosshair
-;;; as a proxy for an icbm so I can test.  If that works then
-;;; we will substitute an actual ICBM coord
+;;; We look at the current 'sprite' that's drawn in that box and check for a
+;;; 1 bit at the corresponding location by using a precomputed collision table
+;;; 
 .bss
 ;;; todo: these, of course, should be moved to ZP for speed
 x_intersect:        .res 1
 y_intersect:        .res 1
 de_checkx:          .res 1
 de_checky:          .res 1
+;;; tallest explosion, therefore the bounding box height
+bounding_height = 15  
+bounding_width = 15
 .code
 .export de_check
 .export de_checkx, de_checky
@@ -407,7 +411,7 @@ active:
           te_printf "tl"                ; left of bounding box
           jmp next
 xgreater0: 
-          BRANCH_LT A, #14, inside_x
+          BRANCH_LT A, #bounding_width, inside_x
           te_printf "tr"                ; right of bounding box
           jmp next
 inside_x:           
@@ -420,7 +424,7 @@ inside_x:
           te_printf2 #0,#120,"ab"       ; above bounding box
           jmp next
 ygreater0:          
-          BRANCH_LT A, #14, inside_y
+          BRANCH_LT A, #bounding_height, inside_y
           ;; below bounding box
           te_printf "be:%d", te_scratch_A
           jmp next
@@ -470,6 +474,9 @@ exit:
 .include "unit_tests.inc"
 
 .export de_unit_tests
+;;; Test the bounding box and collision detection
+;;; this test runs the collision check across a range of Y coords 1 line
+;;; above and below the bounding box ( which is 15 )
 .proc     de_unit_tests
           te_printf "detonation"
           ;; detonation at 50,50
@@ -481,10 +488,10 @@ exit:
           lda #50
           sta de_checkx
           ;; check collisions at 14 different heights
-          lda #50-9
+          lda #50 - 8                   ; 1 line above the bounding box
           sta de_checky
 
-.repeat 18
+.repeat 17                              ; 1 line after the bounding box
           jsr de_check                  
           inc de_checky
 .endrepeat

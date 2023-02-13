@@ -27,3 +27,8 @@ there is a  form of 'double buffering' for shapes
 the versions of a variable if the number 2 suffixed
 are the old versions of the variable, i.e.
 the version to be erased for example
+
+==============================================================================
+FILES
+
+screen_draw.asm : graphic assets

@@ -7,9 +7,7 @@
 fubar1:    
           .asciiz "^J"
 .proc unit_tests
-          te_pos #0, #0
-          ;te_printf "running tests"
-          jsr de_unit_tests
+          jsr de_unit_test_CY
           rts
 .endproc
 .endif

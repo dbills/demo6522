@@ -40,7 +40,7 @@ loop:
           ;; introduce delay {
           lda counter
           sec
-          sbc #10
+          sbc #5
           sta counter
           bcs next
           adc #60
@@ -53,6 +53,9 @@ loop:
           li_set_lstore
           jsr li_render_pixel
           de_collision _pl_x, _pl_y
+          lda de_hit
+          beq next
+;forever:  jmp forever
 next:   
           inx
           jmp loop

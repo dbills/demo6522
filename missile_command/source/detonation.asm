@@ -11,7 +11,7 @@
 .include "debugscreen.inc"
 .include "text.inc"
 
-.export de_queue, de_init, de_test, de_draw
+.export de_queue, de_init, de_test, de_draw, de_hit
 .export de_update, de_erase, de_rand, de_process
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
@@ -89,7 +89,7 @@ detonation_cy2:      .res slots
 .export screen_column
 screen_column:      .res slots
 i_detonation_count: .res 1
-hit:      .res 1
+de_hit:  .res 1
 fm:      .res 1
 .code
 
@@ -107,7 +107,7 @@ loop:
           dex
           bpl loop
           lda #0
-          sta hit
+          sta de_hit
           sta fm
           rts
 .endproc
@@ -395,6 +395,8 @@ bounding_width = 15
 .export de_check
 .export de_checkx, de_checky
 .proc de_check
+          lda #0
+          sta de_hit
           ;; iterate through detonations
           ldx #slots - 1
 loop:     
@@ -408,11 +410,11 @@ active:
           sec
           sbc detonation_x, x
           bcs xgreater0
-          te_printf "tl"                ; left of bounding box
+          te_printf2 #0,#50, "tl"     ; left of bounding box
           jmp next
 xgreater0: 
           BRANCH_LT A, #bounding_width, inside_x
-          te_printf "tr"                ; right of bounding box
+          te_printf2 #0,#50, "tr"      ; right of bounding box
           jmp next
 inside_x:           
           ;; save x offset within the bounding column
@@ -421,18 +423,16 @@ inside_x:
           sec
           sbc detonation_y,x
           bcs ygreater0
-          te_printf2 #0,#120,"ab"       ; above bounding box
+          te_printf2 #0,#50, "ab"       ; above bounding box
           jmp next
 ygreater0:          
           BRANCH_LT A, #bounding_height, inside_y
           ;; below bounding box
-          te_printf "be:%d", te_scratch_A
+          te_printf2 #0,#50, "be"
           jmp next
 inside_y: 
           sta y_intersect
-          te_printf2 #0, #50, "i:%d:%d", de_checky, y_intersect
-          ;te_printf2 #0, #50, "i:%d:%d", x_intersect, y_intersect
-          
+          te_printf2 #0, #58, "i:%d:%d", x_intersect, y_intersect
           ;; load the correct collision map for the 
           ;; explosion animation frame being displayed
           ldy i_detonation_frame,x      ;index into frame table
@@ -459,8 +459,11 @@ inside_y:
           ;; this byte(not bit), 0 or 1 tells us if there is a hit
           ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
-          sta hit
-          te_printf " h:%d", hit
+          sta de_hit
+          te_printf2 #0,#41, " h:%d", de_hit
+          lda de_hit
+          beq next
+          rts                           ; no need more, this one hit
 next:     
           dex
           bmi exit
@@ -473,17 +476,20 @@ exit:
 
 .include "unit_tests.inc"
 
-.export de_unit_tests
+.export de_unit_test_CY
 ;;; Test the bounding box and collision detection
 ;;; this test runs the collision check across a range of Y coords 1 line
 ;;; above and below the bounding box ( which is 15 )
-.proc     de_unit_tests
-          te_printf "detonation"
-          ;; detonation at 50,50
+.proc     de_unit_test_CY
+test_bound = 17
           lda #50
           sta _pl_x
           sta _pl_y
           jsr de_queue                  ; queue up detonation
+l00:      
+          te_pos #0, #0
+          te_printf "detonation cy"
+          ;; detonation at 50,50
 
           lda #50
           sta de_checkx
@@ -491,12 +497,35 @@ exit:
           lda #50 - 8                   ; 1 line above the bounding box
           sta de_checky
 
-.repeat 17                              ; 1 line after the bounding box
+.repeat test_bound                      ; 1 line after the bounding box
           jsr de_check                  
           inc de_checky
 .endrepeat
-          ;assert_eq "fubar ", #1, #1
-          ;te_printf "50 x 50 hit:%d", hit
+
+          te_printf "press trigger"
+          jsr j_wfire
+          jsr i_chrset
+          te_pos #0, #0
+          te_printf "detonation cx"
+          ;; 
+          ;; == X coords ===
+          ;; 
+          lda #50
+          sta de_checky
+          ;; check collisions at 14 different heights
+          lda #50 - 8                   ; 1 line left the bounding box
+          sta de_checkx
+
+.repeat test_bound
+          jsr de_check                  
+          inc de_checkx
+.endrepeat
+
+          te_printf "press trigger"
+          jsr j_wfire
+          jsr i_chrset
+          jmp l00
+
           rts
 .endproc
 .endif

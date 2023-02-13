@@ -116,7 +116,7 @@ loop:
           ;; animate enemy missiles
           jsr icbm_update
           ;jsr de_check
-          ;myprintf2 #0,#130,"f:%d",VICRASTER
+          ;te_printf2 #0,#130,"f:%d",VICRASTER
 foo:      
           jmp loop
           rts

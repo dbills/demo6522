@@ -24,13 +24,13 @@ loop:
             jsr rand_8
             and #15
             bne skip
-            jsr rand_detonation
+            jsr de_rand
 skip:
             waitv
             bcolor_i CYAN
             update_frame
 
-            jsr erase_detonations
+            jsr de_erase
             jsr de_draw
             lda #1
             and frame_cnt
@@ -39,7 +39,7 @@ skip:
 noscroll:
             bcolor_i PURPLE
             ;; not time critical
-            jsr update_detonations
+            jsr de_update
 
             jmp loop
             rts

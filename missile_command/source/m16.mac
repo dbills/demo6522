@@ -107,4 +107,68 @@ done:
           pla
           tax
 .endmacro
+;;; Branch if reg is < arg
+;;; 
+;;; IN:
+;;;   reg: A,X,Y
+;;;   arg: immediate or memory
+;;;   label: label to branch to 
+;;; OUT:
+.macro BRANCH_LT reg, arg, label
+.if (.match (.left (1, {reg}), A))
+          cmp arg
+.elseif (.match (.left (1, {reg}), X))
+          cpx arg
+.elseif (.match (.left (1, {reg}), Y))
+          cpy arg
 .endif
+          bcc label
+.endmacro
+
+.macro BRANCH_EQ reg, arg, label
+.if (.match (.left (1, {reg}), A))
+          cmp arg
+.elseif (.match (.left (1, {reg}), X))
+          cpx arg
+.elseif (.match (.left (1, {reg}), Y))
+          cpy arg
+.endif
+          beq label
+.endmacro
+
+.macro BRANCH_GT reg, arg, label
+.if (.match (.left (1, {reg}), A))
+          cmp arg
+.elseif (.match (.left (1, {reg}), X))
+          cpx arg
+.elseif (.match (.left (1, {reg}), Y))
+          cpy arg
+.endif
+          beq label
+          bcs label
+.endmacro
+
+.macro BRANCH_LTE reg, arg, label
+.if (.match (.left (1, {reg}), A))
+          cmp arg
+.elseif (.match (.left (1, {reg}), X))
+          cpx arg
+.elseif (.match (.left (1, {reg}), Y))
+          cpy arg
+.endif
+          beq label
+          bcc label
+.endmacro
+
+.macro BRANCH_GTE reg, arg, label
+.if (.match (.left (1, {reg}), A))
+          cmp arg
+.elseif (.match (.left (1, {reg}), X))
+          cpx arg
+.elseif (.match (.left (1, {reg}), Y))
+          cpy arg
+.endif
+          bcs label
+.endmacro
+
+.endif                                  ;header guard

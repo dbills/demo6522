@@ -13,7 +13,9 @@
 ;;; mirvs are preselected and in a table with the index of one
 ;;; of the existing lines
 .include "line.inc"
+.include "detonation.inc"
 .include "m16.mac"
+.include "screen.inc"
 .export icbm_genwave,icbm_update
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
 .data
@@ -48,15 +50,9 @@ loop:
           ;; need drawn
           lda line_data_indices,x
           beq next
-
-          ;; set _lstore pointer to correct line
-          ;; _lstore = &line_offsets[x]
-          lda line_offsetsL,x
-          sta _lstore
-          lda line_offsetsH,x           
-          sta _lstore+1
-          ;; draw one pixel
-          jsr render_single_pixel
+          li_set_lstore
+          jsr li_render_pixel
+          de_collision _pl_x, _pl_y
 next:   
           inx
           jmp loop
@@ -81,7 +77,7 @@ done:
           rts
           ldx #1
 loop:     
-          jsr render_single_pixel
+          jsr li_render_pixel
           bne loop
 loop2:    
           jmp loop2

@@ -102,7 +102,7 @@ empty:
           rts
 .endproc
 
-;;; draw player inteceptors on the screen
+;;; Draw player inteceptors on the screen
 ;;; when an interceptor has reached its destination
 ;;; an explosion drawing is started and the missile line
 ;;; is removed
@@ -114,18 +114,16 @@ empty:
 ;;;   X is clobbered
 .proc     in_update
           ldx #MAX_MISSILES - 1
-loop:     
+loop:                                   ; do {
           lda line_data_indices
-          beq  next                     ;inactive
+          beq  next                     ; inactive
           li_set_lstore
-          jsr render_single_pixel
+          ;; todo: replace with macro instead of expensive JSR
+          jsr li_render_pixel
           beq erase
-          ;; jsr render_single_pixel
-          ;; beq erase
-          ;; if Z on return the line is done
 next:     
           dex
-          bpl loop
+          bpl loop                      ; } while x >= 0
           rts
 erase:    
           ;; erase the line because we've reached our target

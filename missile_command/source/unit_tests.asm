@@ -8,8 +8,7 @@ fubar1:
           .asciiz "^J"
 .proc unit_tests
           te_pos #0, #0
-          myprintf "running tests"
-          myprintf "detonation"
+          ;te_printf "running tests"
           jsr de_unit_tests
           rts
 .endproc

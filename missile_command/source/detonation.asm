@@ -12,7 +12,7 @@
 .include "text.inc"
 
 .export de_queue, de_init, de_test, de_draw
-.export update_detonations, erase_detonations, rand_detonation, de_process
+.export de_update, de_erase, de_rand, de_process
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
 ;;;                    = -2 => don't draw or erase
@@ -174,7 +174,7 @@ done:
             rts
 .endproc
 
-.proc       rand_detonation
+.proc       de_rand
             jsr myrand
             sta _pl_x
             jsr myrand
@@ -191,28 +191,28 @@ loop:
             jsr rand_8
             and #7
             bne skip
-            jsr rand_detonation
+            jsr de_rand
 skip:
             jsr wait_v
             update_frame
 
             ;jsr j_wfire
             ldx #(slots-1)
-            jsr erase_detonations
+            jsr de_erase
 
             ;jsr j_wfire
             ldx #(slots-1)
             jsr de_draw
 
             ldx #(slots-1)
-            jsr update_detonations
+            jsr de_update
             jmp loop
             rts
 .endproc
 
 .proc     de_process
           ldx #(slots-1)
-          jsr erase_detonations
+          jsr de_erase
 
           ldx #(slots-1)
           jsr de_draw
@@ -222,7 +222,7 @@ skip:
 
           ldx #(slots-1)
           ;; skip for now while we test collisions
-          ;jsr update_detonations
+          ;jsr de_update
           rts
 .endproc
 ;;; x = explosion to update
@@ -336,14 +336,14 @@ done:
             rts
 .endmacro
 
-.proc       update_detonations
+.proc       de_update
             lda #0
             sta i_detonation_count
             iterate_detonations jsr update_detonation
             rts
 .endproc
 
-.proc       erase_detonations
+.proc       de_erase
             iterate_detonations jsr erase_detonation
             rts
 .endproc
@@ -400,46 +400,34 @@ loop:
           bpl active
           jmp next
 active:   
-          ;;lda target_x                  
           lda de_checkx
           sec
-          sbc detonation_x,x
-          ;; 0 <= difference <= 16
-          ;; then we are in X range
-          ;; TODO: optimize, invert logic
-          bpl xgreater0
-          beq xgreater0
-          myprintf "tl"
-          
+          sbc detonation_x, x
+          bcs xgreater0
+          te_printf "tl"                ; left of bounding box
           jmp next
 xgreater0: 
-          cmp #16
-          bcc inside_x
-          myprintf "tr"
-          
+          BRANCH_LT A, #14, inside_x
+          te_printf "tr"                ; right of bounding box
           jmp next
 inside_x:           
           ;; save x offset within the bounding column
           sta x_intersect
-          ;;lda target_y
-          lda detonation_y,x
-          sec 
-          sbc de_checky
-          ;; 0 <= abs(detonation_y - de_checky) <= 16 then in Y range
-          bmi ygreater0
-          myprintf "ab"
-          
+          lda de_checky
+          sec
+          sbc detonation_y,x
+          bcs ygreater0
+          te_printf2 #0,#120,"ab"       ; above bounding box
           jmp next
 ygreater0:          
-          cmp #256-14                   ;  < A < 256
-          bcs inside_y
-          myprintf "be:%d", te_scratch_A
-          
+          BRANCH_LT A, #14, inside_y
+          ;; below bounding box
+          te_printf "be:%d", te_scratch_A
           jmp next
 inside_y: 
           sta y_intersect
-stop_here:          
-          myprintf "i%d:%d", x_intersect,y_intersect
+          te_printf2 #0, #50, "i:%d:%d", de_checky, y_intersect
+          ;te_printf2 #0, #50, "i:%d:%d", x_intersect, y_intersect
           
           ;; load the correct collision map for the 
           ;; explosion animation frame being displayed
@@ -468,8 +456,7 @@ stop_here:
           ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
           sta hit
-          myprintf " h:%d", hit
-          
+          te_printf " h:%d", hit
 next:     
           dex
           bmi exit
@@ -484,25 +471,25 @@ exit:
 
 .export de_unit_tests
 .proc     de_unit_tests
+          te_printf "detonation"
           ;; detonation at 50,50
           lda #50
           sta _pl_x
           sta _pl_y
-          ;; collision check at 50,50
-
           jsr de_queue                  ; queue up detonation
+
           lda #50
           sta de_checkx
-          lda #50
+          ;; check collisions at 14 different heights
+          lda #50-9
           sta de_checky
-          jsr de_check                  ; for collision at 50,50
 
-.repeat 12
-          inc de_checky
+.repeat 18
           jsr de_check                  
+          inc de_checky
 .endrepeat
           ;assert_eq "fubar ", #1, #1
-          ;myprintf "50 x 50 hit:%d", hit
+          ;te_printf "50 x 50 hit:%d", hit
           rts
 .endproc
 .endif

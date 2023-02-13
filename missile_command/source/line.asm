@@ -16,7 +16,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp _x1, _x2, _y1, _y2, _lstore, _dx, _dy
-.export _genline, _general_render, _partial_render, render_single_pixel
+.export _genline, _general_render, _partial_render, li_render_pixel
 .export init_lines, line_types, long_axis_start_values, long_axis_lengths
 .export line_data_indices, long_axis_current_values, _iline
 .export line_data00
@@ -165,49 +165,49 @@ s0:
           ;; this line could be removed
           cmp #line_type::q1_steep
           bne s1
-;          myprintf "ffs"
+;          te_printf "ffs"
           generate_line_data forward,forward,steep
           rts
 s1:
           cmp #line_type::q4_steep
           bne s2
-;          myprintf "frs"
+;          te_printf "frs"
           generate_line_data forward,reverse,steep
           rts
 s2:
           cmp #line_type::q2_steep
           bne s3
-;          myprintf "rfs"
+;          te_printf "rfs"
           generate_line_data reverse,forward,steep
           rts
 s3:
           cmp #line_type::q3_steep
           bne s4
-;          myprintf "rrs"
+;          te_printf "rrs"
           generate_line_data reverse,reverse,steep
           rts
 s4:
           cmp #line_type::q1_shallow
           bne s5
-;          myprintf "ffa"
+;          te_printf "ffa"
           generate_line_data forward,forward,shallow
           rts
 s5:
           cmp #line_type::q4_shallow
           bne s6
-;          myprintf "fra"
+;          te_printf "fra"
           generate_line_data forward,reverse,shallow
           rts
 s6:
           cmp #line_type::q2_shallow
           bne s7
-;          myprintf "rfa"
+;          te_printf "rfa"
           generate_line_data reverse,forward,shallow
           rts
 s7:
           cmp #line_type::q3_shallow
           bne s8
-;          myprintf "rra"
+;          te_printf "rra"
           generate_line_data reverse,reverse,shallow
           rts
 s8:
@@ -308,12 +308,20 @@ draw:
 .endif
           _general_render_template render_partial_line
 .endproc
-
-.proc render_single_pixel
-          ;abort 'A',X
+;;; Plot the next pixel of an active line
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.proc li_render_pixel
           _general_render_template render_partial_line
 .endproc
-
+;;; Initialize line metadata to inactive
+;;; IN:
+;;; OUT:
+;;;   line_data_indices: set to 0 for all lines
+;;;   Y: unchanged
 .proc     init_lines
           ldx #MAX_LINES-1
 loop:

@@ -2,7 +2,7 @@
 
 .macro assert_eq condition_name, val1, val2
 .local not_equal, done
-          myprintf condition_name
+          te_printf condition_name
 .if (.match (.left (1, {val1}), #))
             lda #(.right (.tcount ({val1})-1, {val1}))
 .else
@@ -14,10 +14,10 @@
             cmp val2
 .endif
           bne not_equal
-          myprintf "passed"
+          te_printf "passed"
           jmp done
 not_equal:          
-          myprintf "failed"
+          te_printf "failed"
 done:     
 .endmacro
 .endif

@@ -1,0 +1,7 @@
+.macro    de_collision a1, a2
+          lda a1
+          sta de_checkx
+          lda a2
+          sta de_checky
+          jsr de_check
+.endmacro

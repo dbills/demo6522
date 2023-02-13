@@ -172,9 +172,14 @@ l2:
 l3:
             cmp #13                     ; cr is easy to make from editor
             bne l4
+            ;; disable inline carriage return/linefeed in runtime mode
+            ;; as the game is running, and text boxes would be absolute
+            ;; positioned
+.ifdef TESTS
             ldx #0                      ; cr/lf if we see cr 
             stx s_x
             add8 #TEXT_HEIGHT + 1, s_y
+.endif
             jmp loop
 l4:       
             cmp #'a'

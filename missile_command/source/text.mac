@@ -53,13 +53,27 @@ mystring:
 done:     
 .endmacro
 
-.macro    myprintf2 p1, p2, s, a1, a2, a3
+;;; C style printf, with screen positioning 
+;;; if in unit test compilation mode, then positioning
+;;; is disabled
+;;; IN:
+;;;   p1: x coord in pixel to render text
+;;;   p2: y coord in pixel to render text
+;;; 
+;;;   see te_printf for other args
+;;; OUT:
+.macro    te_printf2 p1, p2, s, a1, a2, a3
           .local done
           saveall
           lda frame_cnt
           bne done
-          te_clearpos p1,p2
-          ;te_pos p1,p2
+          ;; disable positioning if in unit test mode, as we generally
+          ;; want those lines of text to scroll by on the screen more 
+          ;; like a terminal
+.ifndef TESTS
+          te_clearpos p1, p2
+          te_pos p1, p2
+.endif
           te_printf_ s, a1, a2, a3
 done:     
           resall
@@ -72,7 +86,7 @@ done:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.macro    myprintf s, a1, a2, a3
+.macro    te_printf s, a1, a2, a3
           .if     (.xmatch (.left (1, {a1}), {te_scratch_X}))
             stx a1
           .elseif (.xmatch (.left (1, {a1}), {te_scratch_Y}))
@@ -151,7 +165,7 @@ done:
 loop:
           accessor
           sta scratch
-          myprintf "%d,", scratch
+          te_printf "%d,", scratch
           cpy end
           beq done
           iny

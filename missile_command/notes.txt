@@ -139,4 +139,5 @@ WOW: this is the last time I worked on this after all the
     e.g. if detonations require a lot of clerical work and icbm data is well cooked, thent he previous loop structure is fastest
     optimization would be to leave data that we need for collision detection hanging around from routines that manipulated that entity
     e.g. the screen column byte could be 'saved' from when we are draing ICBMs since those routines must also calculate that
-    it looks like the erase line routine has a bug where it's always erasing from the missile base
+
+    it looks like the erase line routine has a bug where it's always erasing from the missile base.  We only need to draw the line up to the point where it was terminated: how do we do that?

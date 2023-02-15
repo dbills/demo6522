@@ -59,7 +59,7 @@
           jsr i_sound
 
           jsr in_init
-          jsr init_lines
+          jsr li_init
           jsr de_init
           jsr pl_init
 .ifdef TESTS
@@ -136,9 +136,9 @@ foo:
 
 .proc     line_tests
           ldx #0
-          mov #line_data01,_lstore
+          mov #line_data01,z_lstore
           ;lineto #176/2,#176-26, #160,#0
           li_lineto #160,#0,#176/2,#176-26
-          jsr _general_render
+          jsr li_full_render
           rts
 .endproc

@@ -10,7 +10,7 @@ _line_h=1
 ;;; or variables for byte
 ;;; IN:
 ;;;   X: line index to draw
-;;;   _lstore: word pointer where to store line data
+;;;   z_lstore: word pointer where to store line data
 ;;; OUT:
 ;;;     
 .macro    li_lineto x1,y1,x2,y2
@@ -20,29 +20,29 @@ _line_h=1
 .else
             lda x1
 .endif
-            sta _x1
+            sta z_x1
 .if (.match (.left (1, {x2}), #))
             lda #(.right (.tcount ({x2})-1, {x2}))
 .else
             lda x2
 .endif
-            sta _x2
+            sta z_x2
 
 .if (.match (.left (1, {y1}), #))
             lda #(.right (.tcount ({y1})-1, {y1}))
 .else
             lda y1
 .endif
-            sta _y1
+            sta z_y1
 
 .if (.match (.left (1, {y2}), #))
             lda #(.right (.tcount ({y2})-1, {y2}))
 .else
             lda y2
 .endif
-            sta _y2
-            jsr _genline
-;            jsr _general_render
+            sta z_y2
+            jsr li_genline
+;            jsr li_full_render
           resx
 .endmacro
 
@@ -59,17 +59,17 @@ _line_h=1
 ;;; to the right are icbm
 .define MAX_MISSILES 1
 
-;;; set _lstore pointer to label linedataX
+;;; set z_lstore pointer to label linedataX
 ;;; where X is contents of X register
 ;;; IN:
-;;;   X: which line to set _lstore to point to
+;;;   X: which line to set z_lstore to point to
 ;;; OUT:
-;;;   _lstore
-.macro    li_set_lstore
+;;;   z_lstore
+.macro    li_setz_lstore
           lda line_offsetsL,x
-          sta _lstore
+          sta z_lstore
           lda line_offsetsH,x           
-          sta _lstore+1
+          sta z_lstore+1
 .endmacro
 
 .endif
@@ -93,7 +93,7 @@ _line_h=1
 ;;;   X: line to erase
 ;;; OUT:
 .macro li_deactivate
-          jsr _general_render
+          jsr li_full_render
           lda #0
           sta line_data_indices,x
 .endmacro

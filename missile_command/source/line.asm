@@ -15,24 +15,24 @@
 ;;; x1,x2,y1,y2: the 2 respective endpoints of a line
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
-.exportzp _x1, _x2, _y1, _y2, _lstore, _dx, _dy
-.export _genline, _general_render, _partial_render, li_render_pixel
-.export init_lines, line_types, long_axis_start_values, long_axis_lengths
-.export line_data_indices, long_axis_current_values, _iline
+.exportzp z_x1, z_x2, z_y1, z_y2, z_lstore, z_dx, z_dy
+.export li_genline, li_full_render, li_partial_render, li_render_pixel
+.export li_init, line_types, long_axis_start_values, long_axis_lengths
+.export line_data_indices, long_axis_current_values, z_iline
 .export line_data00
 .export line_data01
 ;,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
 .ZEROPAGE
 line_type:
 err:        .res 1
-_dx:        .res 1
-_dy:        .res 1
-_x1:        .res 1
-_y1:        .res 1
-_x2:        .res 1
-_y2:        .res 1
-_lstore:    .res 2
-_iline:     .res 1
+z_dx:        .res 1
+z_dy:        .res 1
+z_x1:        .res 1
+z_y1:        .res 1
+z_x2:        .res 1
+z_y2:        .res 1
+z_lstore:    .res 2
+z_iline:     .res 1
 
 .BSS
 
@@ -79,11 +79,17 @@ line_offsetsH:
 .endrep
 
 .code
-          ;; distance beteen _1 and _2
-          ;; Y=value if _2 < _1
-          ;; return abs(_2 - _1) in distance
-.macro    delta _1,_2,value
-.local normal,done
+;;; Distance beteen _1 and _2
+;;; IN:
+;;;   _1: axis value
+;;;   _2: axis value
+;;;   value: a value to return in Y
+;;; OUT:
+;;; Y = value if _2 < _1
+;;;         0 if _2 > _1
+;;; A =return abs(_2 - _1) in distance
+.macro    delta _1, _2, value
+.local normal, done
           lda _2
           sec
           sbc _1
@@ -106,17 +112,13 @@ normal:
           ldy #0                        ;no return value
 done:     
 .endmacro
-.proc     generate_forward_forward_steep
-          generate_line_data forward,forward,steep
-          rts
-.endproc
 ;;; Generate line data
-;;; IN: _x1, _x2, _y1, _y2,_lstore
+;;; IN: z_x1, z_x2, z_y1, z_y2,z_lstore
 ;;;   coords are closed interval
-;;;   _lstore is pointer to where to store data
+;;;   z_lstore is pointer to where to store data
 ;;;   X: index of line
-;;; OUT: _dy,_dx,err
-;;; A=_dy on exit
+;;; OUT: z_dy,z_dx,err
+;;; A=z_dy on exit
 ;;; 0  q1_steep
 ;;; 1  q4_steep
 ;;; 2  q2_steep
@@ -134,24 +136,24 @@ done:
 ;;; top to bottom of screen
 ;;; forms an acute angle between the X axis
 ;;; the the line
-.proc     _genline
+.proc     li_genline
           lda #0                        ;err=0
           sta err
           ;; the delta macro calls effectively build 3 bit number
           ;; we check which way the line runs left or right, up or down
           ;; by subtracting endponts, and then determine slope by dy - dx
           ;; we end up with a # from 0-7 for the type/class of line to draw
-          delta _y1,_y2,#1
-          sta _dy
+          delta z_y1,z_y2,#1
+          sta z_dy
           tya
           ora err
           sta err
-          delta _x1,_x2,#2
-          sta _dx
+          delta z_x1,z_x2,#2
+          sta z_dx
           tya
           ora err
           sta err
-          delta _dx,_dy,#4
+          delta z_dx,z_dy,#4
           tya
           ora err
           ;; A now has 0-7 to indicate one of the 8 line types
@@ -292,12 +294,12 @@ s8:
           rts
 .endmacro
 
-.proc _general_render
+.proc li_full_render
           _general_render_template render_line_data
           rts
 .endproc
 
-.proc _partial_render
+.proc li_partial_render
 .ifdef debug
           ;; check if line is still in progress
           lda line_data_indices,x
@@ -322,7 +324,7 @@ draw:
 ;;; OUT:
 ;;;   line_data_indices: set to 0 for all lines
 ;;;   Y: unchanged
-.proc     init_lines
+.proc     li_init
           ldx #MAX_LINES-1
 loop:
           lda #0

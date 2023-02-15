@@ -50,14 +50,14 @@ loop:
           ;; need drawn
           lda line_data_indices,x
           beq next
-          li_set_lstore
+          li_setz_lstore
           jsr li_render_pixel
           beq reached_target
           de_collision _pl_x, _pl_y
           lda de_hit
           beq next
           ;; icbm was destroy by a detonation
-          jsr _general_render
+          jsr li_full_render
           lda #0
           sta line_data_indices,x
 next:   
@@ -80,9 +80,9 @@ reached_target:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.import _general_render
+.import li_full_render
 .proc icbm_genwave
-          mov #line_data01,_lstore
+          mov #line_data01,z_lstore
           ldx #1
           li_lineto #10,#10,#89,#155
           rts

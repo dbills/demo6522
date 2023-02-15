@@ -42,11 +42,11 @@ loop:
           lda #crosshair_xoff
           clc
           adc target_x
-          sta _x2
+          sta z_x2
           lda #crosshair_yoff
           clc
           adc target_y
-          sta _y2
+          sta z_y2
           ;; do we have interceptors left to launch?
           ;; TODO
           ;; bne ok
@@ -58,8 +58,8 @@ loop:
           lda line_data_indices
           bne next                      ;slot if full
           ;; slot is open
-          li_set_lstore
-          li_lineto #base_x, #base_y, _x2, _y2
+          li_setz_lstore
+          li_lineto #base_x, #base_y, z_x2, z_y2
           jsr snd_missile_away
           rts
 next:     
@@ -117,7 +117,7 @@ empty:
 loop:                                   ; do {
           lda line_data_indices
           beq  next                     ; inactive
-          li_set_lstore
+          li_setz_lstore
           ;; todo: replace with macro instead of expensive JSR
           jsr li_render_pixel
           beq erase
@@ -127,7 +127,7 @@ next:
           rts
 erase:    
           ;; erase the line because we've reached our target
-          jsr _general_render
+          jsr li_full_render
           lda #0
           sta line_data_indices,x
           ;; queue an explosion

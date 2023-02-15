@@ -35,25 +35,25 @@ noshift:
 .local loop, iterator, short_axis_start_value, long_axis_start_value
 .local long_axis_length, short_axis_length
 .if (.xmatch ({slope}, steep))
-  .define long_axis_length _dy
-  .define short_axis_length _dx
-  .define short_axis_start_value _x1
+  .define long_axis_length z_dy
+  .define short_axis_length z_dx
+  .define short_axis_start_value z_x1
   .if (.xmatch ({xdirection}, forward))
     .define iterator inx
   .else
     .define iterator dex
   .endif
-  .define long_axis_start_value _y1
+  .define long_axis_start_value z_y1
 .else
-  .define long_axis_length _dx
-  .define short_axis_length _dy
-  .define short_axis_start_value _y1
+  .define long_axis_length z_dx
+  .define short_axis_length z_dy
+  .define short_axis_start_value z_y1
   .if (.xmatch ({ydirection}, forward))
     .define iterator inx
   .else
     .define iterator dex
   .endif
-  .define long_axis_start_value _x1
+  .define long_axis_start_value z_x1
 .endif
             sta line_types,x
             lda short_axis_length
@@ -71,11 +71,11 @@ noshift:
             ldx short_axis_start_value
 loop:
             txa
-            sta (_lstore),y
+            sta (z_lstore),y
             step_short_axis short_axis_length, long_axis_length, iterator
             dey
             bne loop
             ;; debug
             lda #$bb
-            sta (_lstore),y
+            sta (z_lstore),y
 .endmacro

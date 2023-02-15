@@ -1,5 +1,6 @@
-          .include "screen.mac"
-;;; render a single pixel of a line
+.include "screen.mac"
+;;; Render a single pixel of a line
+;;;   X: line to render
 ;;; OUT:
 ;;;   Z: true if line is finished
 ;;;   _pl_x: x coord of pixel just plotted
@@ -26,7 +27,7 @@
           lda long_axis_current_values,x
           sta long_axis
           ldy line_data_indices,x
-          lda(_lstore),y
+          lda(z_lstore),y
           sta short_axis
           jsr _plot
           iterator

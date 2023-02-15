@@ -61,11 +61,12 @@
           jsr in_init
           jsr init_lines
           jsr de_init
+          jsr pl_init
 .ifdef TESTS
           jsr unit_tests
 forever:  jmp forever
 .endif
-          jsr draw_cities
+          jsr pl_draw_cities
           ;; jsr bigplot
           ;; lda #1
           ;; sta bigx

@@ -17,8 +17,8 @@
             jsr mcommand
             jsr i_scroller
             lda #YMAX-16
-            sta city_base
-            jsr draw_cities
+            sta pl_city_base
+            jsr pl_draw_cities
 
 loop:
             jsr rand_8

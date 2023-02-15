@@ -88,3 +88,13 @@ _line_h=1
           ;; TDB - perhaps it's easier to do the collision check 
           ;; after the line is drawn?
 .endmacro
+;;; Erase and deactive a line
+;;; IN:
+;;;   X: line to erase
+;;; OUT:
+.macro li_deactivate
+          jsr _general_render
+          lda #0
+          sta line_data_indices,x
+.endmacro
+

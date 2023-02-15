@@ -7,9 +7,14 @@
 .include "jstick.inc"
 .include "screen.inc"
 .include "shapes.mac"
+.include "colors.equ"
 
 .include "debugscreen.inc"
 .include "text.inc"
+
+;;; Debugging macros
+;DISABLE_ANIMATION = 1
+;;; End Debugging macros
 
 .export de_queue, de_init, de_test, de_draw, de_hit
 .export de_update, de_erase, de_rand, de_process
@@ -50,8 +55,8 @@ explosion_drawtable_by_offset_table:
 ;;; start small fireball grow large, then shrink again
 ;;; the sequence is run from the end to the beginning for performance
 explosion_frame_table:
-;            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
-            .byte 7,2
+            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
+;            .byte 7,2
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -113,11 +118,11 @@ loop:
 .endproc
 ;;; queue a detonation animation centered at _pl_x, _pl_y
 ;;; pl_x,pl_y are typically used by the plot routines
-;;; and threfore the line drawing routines, it's convenient
-;;; to call this after drawing a line, as pl_x,pl_y would contain
+;;; and therefore the line drawing routines, it's convenient
+;;; to call this after drawing a line, as pl_x, pl_y would contain
 ;;; the last pixel drawn
 .proc       de_queue
-            ldx #slots-1
+            ldx #slots-1      
 loop:
             lda i_detonation_frame,x
             cmp #$fe
@@ -127,51 +132,50 @@ loop:
             rts
 available:
           lda _pl_x
-          ;; store the upper left coordinates, not the 
-          ;; center which we were given
-            sec
-            sbc #detonation_xoff
-            sta detonation_x,x          ;TODO optimize ( delete tay,tya)
-            tay                         ;save x coord
-            sp_calc_screen_column       ;x/8
-            sta screen_column,x
-            tya                         ;restore x coord
-            and #7                      ;% 8; modulo8
-            asl                         ;* 2
-            tay
-            ;; we have the bit offset, place the
-            ;; table of explosion draw routines, for this
-            ;; offset into the detonation_table for this
-            ;; explosion
-            lda explosion_drawtable_by_offset_table,y
-            sta detonation_tableL,x
-            lda explosion_drawtable_by_offset_table+1,y
-            sta detonation_tableH,x
-            lda _pl_y
-            sec
-            sbc #detonation_yoff
-            sta detonation_y,x
-            ;; initialize to just beyond end of table
-            lda #sz_explosion_frame_table-1
-            sta i_detonation_frame,x
-            jsr update_detonation_data
-            lda #$ff                    ;-1
-            sta i_detonation_frame2,x
-            rts
+          ;; store upper left coordinates, not center as given
+          sec
+          sbc #detonation_xoff
+          sta detonation_x,x          ;TODO optimize ( delete tay,tya)
+          tay                         ;save x coord
+          sp_calc_screen_column       ;x/8
+          sta screen_column,x
+          tya                         ;restore x coord
+          and #7                      ;% 8; modulo8
+          asl                         ;* 2
+          tay
+          ;; we have the bit offset, place the
+          ;; table of explosion draw routines, for this
+          ;; offset into the detonation_table for this
+          ;; explosion
+          lda explosion_drawtable_by_offset_table,y
+          sta detonation_tableL,x
+          lda explosion_drawtable_by_offset_table+1,y
+          sta detonation_tableH,x
+          lda _pl_y
+          sec
+          sbc #detonation_yoff
+          sta detonation_y,x
+          ;; initialize to just beyond end of table
+          lda #sz_explosion_frame_table - 1
+          sta i_detonation_frame,x
+          jsr update_detonation_data
+          lda #$ff                    ;-1
+          sta i_detonation_frame2,x
+          rts
 .endproc
 rmax = YMAX-32
-.proc       myrand
-            jsr rand_8
+.proc     myrand
+          jsr rand_8
 check:
-            cmp #rmax
-            bcc done
-            sec
-            sbc #rmax
-            jmp check
+          cmp #rmax
+          bcc done
+          sec
+          sbc #rmax
+          jmp check
 done:
-            clc
-            adc #8
-            rts
+          clc
+          adc #8
+          rts
 .endproc
 
 .proc       de_rand
@@ -221,14 +225,16 @@ skip:
           ;; ( when we get around to optimizing the main loop )
 
           ldx #(slots-1)
+.ifndef DISABLE_ANIMATION
           ;; skip for now while we test collisions
-          ;jsr de_update
+          jsr de_update
+.endif
           rts
 .endproc
 ;;; x = explosion to update
 ;;; note: there is a sequence of animation 'frames' to
-;;; show, that sequence is stored at explosion_frame_table
-;;; after an explosion is erased
+;;; show, that sequence is stored at explosion_frame_table.
+;;; After an explosion is erased the following is true:
 ;;; i_detonation_frame = -2
 ;;; i_detonation_frame2 = -1
 .proc       update_detonation
@@ -251,6 +257,16 @@ skip:
 inactive:
             rts
 .endproc
+;;; Update non-time critical data about a detonation
+;;; i.e. these are the things not done during vertical blank
+;;; load the next pointers for sprite data, precalculated data, etc
+;;; 
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+
 ;;; in: A = detonation frame
 ;;;     X = detonation number
 .proc       update_detonation_data
@@ -286,6 +302,11 @@ active:
             sta detonation_procH,x
             rts
 .endproc
+;;; Erase a detonation ( vblank/time critical )
+;;; self-modifying code for dynamic jmp vector
+;;; IN:
+;;;   X: detonation to erase
+;;; OUT:
 .proc       erase_detonation
 jmp_operand = jmp0 + 1
             lda i_detonation_frame2,x
@@ -302,7 +323,11 @@ jmp0:
 done:
             rts
 .endproc
-;;; x = explosion to draw
+;;; Draw a detonation ( vblank/time critical )
+;;; self-modifying code for dynamic jmp vector
+;;; IN:
+;;;   X: detonation to draw
+;;; OUT:
 .proc       draw_detonation
             lda i_detonation_frame,x
             bmi done
@@ -357,10 +382,6 @@ done:
             rts
 .endproc
 
-.data
-old_target: .byte 0
-.code
-.include "colors.equ"
 ;;; Check for collision of an ICBM with a detonation that may be on the screen
 ;;;
 ;;; The x,y coordinate of a detonation are stored as the upper left of a
@@ -382,6 +403,10 @@ old_target: .byte 0
 ;;; We look at the current 'sprite' that's drawn in that box and check for a
 ;;; 1 bit at the corresponding location by using a precomputed collision table
 ;;; 
+;;; IN:
+;;;   de_checkx, de_checky: pixel to check
+;;; OUT:
+;;;   X is clobbered
 .bss
 ;;; todo: these, of course, should be moved to ZP for speed
 x_intersect:        .res 1
@@ -395,6 +420,7 @@ bounding_width = 15
 .export de_check
 .export de_checkx, de_checky
 .proc de_check
+          savex
           lda #0
           sta de_hit
           ;; iterate through detonations
@@ -410,11 +436,11 @@ active:
           sec
           sbc detonation_x, x
           bcs xgreater0
-          te_printf2 #0,#50, "tl"     ; left of bounding box
+          ;te_printf2 #0,#50, "tl"     ; left of bounding box
           jmp next
 xgreater0: 
           BRANCH_LT A, #bounding_width, inside_x
-          te_printf2 #0,#50, "tr"      ; right of bounding box
+          ;te_printf2 #0,#50, "tr"      ; right of bounding box
           jmp next
 inside_x:           
           ;; save x offset within the bounding column
@@ -423,16 +449,16 @@ inside_x:
           sec
           sbc detonation_y,x
           bcs ygreater0
-          te_printf2 #0,#50, "ab"       ; above bounding box
+          ;te_printf2 #0,#50, "ab"       ; above bounding box
           jmp next
 ygreater0:          
           BRANCH_LT A, #bounding_height, inside_y
           ;; below bounding box
-          te_printf2 #0,#50, "be"
+          ;te_printf2 #0,#50, "be"
           jmp next
 inside_y: 
           sta y_intersect
-          te_printf2 #0, #58, "i:%d:%d", x_intersect, y_intersect
+          ;te_printf2 #0, #58, "i:%d:%d", x_intersect, y_intersect
           ;; load the correct collision map for the 
           ;; explosion animation frame being displayed
           ldy i_detonation_frame,x      ;index into frame table
@@ -460,16 +486,17 @@ inside_y:
           ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
           sta de_hit
-          te_printf2 #0,#41, " h:%d", de_hit
+          ;te_printf2 #0,#41, " h:%d", de_hit
           lda de_hit
           beq next
-          rts                           ; no need more, this one hit
+          ;; no more checks, this one hit
+exit:     
+          resx
+          rts                       
 next:     
           dex
           bmi exit
           jmp loop
-exit:     
-          rts
 .endproc
 
 .ifdef TESTS

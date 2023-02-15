@@ -52,15 +52,23 @@ loop:
           beq next
           li_set_lstore
           jsr li_render_pixel
+          beq reached_target
           de_collision _pl_x, _pl_y
           lda de_hit
           beq next
-;forever:  jmp forever
+          ;; icbm was destroy by a detonation
+          jsr _general_render
+          lda #0
+          sta line_data_indices,x
 next:   
           inx
           jmp loop
 done:     
           rts
+          ;; a city will be destroyed
+          ;; jsr pl_mushroom
+reached_target:     
+          li_deactivate
 .endproc
 
 ;;; Creates the line definitions for 

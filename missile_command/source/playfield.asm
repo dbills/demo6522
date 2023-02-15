@@ -4,10 +4,13 @@
 .include "zerop.inc"
 .include "screen.mac"
 .include "colors.equ"
-.export draw_cities, city_base, city_x_positions
+
+.export pl_draw_cities, pl_city_base, pl_city_x_positions, pl_init
+
 .bss
+city_count: .res 1
 .data
-city_base:  .byte YMAX-9
+pl_city_base:  .byte YMAX - 9
 missile_base_width = 16
 ;;; note city shape has 4 empty pixels on left
 city_margin = 4
@@ -15,8 +18,7 @@ city_width = 12
 content_width = XMAX - (city_width * 6) - missile_base_width
 ;;; 6 cities + base + 1 = margins
 spacing = content_width / 8
-city_count: .byte 5
-city_x_positions:
+pl_city_x_positions:
             .byte spacing + (city_width+spacing)*0 - city_margin
             .byte spacing + (city_width+spacing)*1 - city_margin
             .byte spacing + (city_width+spacing)*2 - city_margin
@@ -24,8 +26,23 @@ city_x_positions:
             .byte spacing + (city_width+spacing)*4 + 16 + spacing - city_margin
             .byte spacing + (city_width+spacing)*5 + 16 + spacing - city_margin
 .code
+;;; Initialize playfield data
+;;; 
+;;; IN:
+;;; OUT:
+.proc pl_init
+          lda #5
+          sta city_count
+          rts
+.endproc
+;;; Draw cities at bottom the screen
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 ;;; arg1 = pixels from bottom of screen to draw cities
-.proc       draw_cities
+.proc       pl_draw_cities
           ;; draw ground
           lda #255
           .repeat 23, COL
@@ -45,7 +62,7 @@ city_x_positions:
             lda #XMAX/2-8
             sta s_x
             ;lda #YMAX-9
-            lda city_base
+            lda pl_city_base
             sec
             sbc #2
             sta s_y
@@ -58,11 +75,11 @@ city_x_positions:
 blarg:    
             lda #5
             sta sp_height
-            lda city_base
+            lda pl_city_base
             sta s_y
 loop:
             ldx city_count
-            lda city_x_positions,x
+            lda pl_city_x_positions,x
             sta s_x
             mov #city_left,ptr_0
             jsr sp_draw_unshifted

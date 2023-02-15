@@ -1,7 +1,7 @@
 .include "screen.inc"
 .include "zerop.mac"
 .exportzp ptr_0, ptr_1, ptr_2, ptr_3, pltbl, save_y, ptr_string, sleep_t
-.exportzp debugb,ptr_4,sp_col0,sp_col1,sp_col2,frame_cnt, scratch1
+.exportzp debugb,ptr_4,sp_col0,sp_col1,sp_col2,frame_cnt, scratch1, zb_icbm
 ;;; place me last in the 'main' includes
 ;;; I allocate space for arrays allocated in zp
 ;;; using variables that subsytem modules may have incremented
@@ -32,4 +32,5 @@ sp_col2:                                ;sprite screen column 2
 ptr_4:      .res 2
 frame_cnt:  .res 1
 scratch1:   .res 1
+zb_icbm:   .res 1                      ; icbm iterator
 .CODE

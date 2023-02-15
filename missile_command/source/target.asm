@@ -9,6 +9,8 @@
 .include "sprite.inc"
 .include "shapes.inc"
 
+;SLOW_CROSSHAIR = 1
+
 .import _ldata1
 .export   ta_move
 ;;; speed of crosshair 
@@ -71,6 +73,7 @@ done:
           .endmacro
 
 .proc     ta_move
+.ifdef SLOW_CROSSHAIR
           ;; code to artificially slow the cross hair during development
           ;; for debugging
           lda slow
@@ -78,7 +81,8 @@ done:
           sta slow
           bcs go
           rts
-          ;; end debug code
+.endif
+
 go:       
           jsr j_read
           and #bJOYT

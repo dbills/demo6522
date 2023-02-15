@@ -23,8 +23,8 @@
 .export line_data01
 ;,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
 .ZEROPAGE
-line_type:
-err:        .res 1
+z_line_type:
+z_err:        .res 1
 z_dx:        .res 1
 z_dy:        .res 1
 z_x1:        .res 1
@@ -36,7 +36,7 @@ z_iline:     .res 1
 
 .BSS
 
-.enum line_type
+.enum z_line_type
           q1_steep
           q4_steep
           q2_steep
@@ -117,7 +117,7 @@ done:
 ;;;   coords are closed interval
 ;;;   z_lstore is pointer to where to store data
 ;;;   X: index of line
-;;; OUT: z_dy,z_dx,err
+;;; OUT: z_dy,z_dx,z_err
 ;;; A=z_dy on exit
 ;;; 0  q1_steep
 ;;; 1  q4_steep
@@ -137,8 +137,8 @@ done:
 ;;; forms an acute angle between the X axis
 ;;; the the line
 .proc     li_genline
-          lda #0                        ;err=0
-          sta err
+          lda #0                        ;z_err=0
+          sta z_err
           ;; the delta macro calls effectively build 3 bit number
           ;; we check which way the line runs left or right, up or down
           ;; by subtracting endponts, and then determine slope by dy - dx
@@ -146,68 +146,64 @@ done:
           delta z_y1,z_y2,#1
           sta z_dy
           tya
-          ora err
-          sta err
+          ora z_err
+          sta z_err
           delta z_x1,z_x2,#2
           sta z_dx
           tya
-          ora err
-          sta err
+          ora z_err
+          sta z_err
           delta z_dx,z_dy,#4
           tya
-          ora err
+          ora z_err
           ;; A now has 0-7 to indicate one of the 8 line types
           ;; to be drawn
-          ;; line_type;:q1_steep
-          ;; pos 0,40
-          ;; debug_number A
-          ;; crlf
 s0:
           ;; optmization note:
           ;; this line could be removed
-          cmp #line_type::q1_steep
+          cmp #z_line_type::q1_steep
           bne s1
 ;          te_printf "ffs"
           generate_line_data forward,forward,steep
           rts
 s1:
-          cmp #line_type::q4_steep
+          cmp #z_line_type::q4_steep
           bne s2
 ;          te_printf "frs"
           generate_line_data forward,reverse,steep
           rts
 s2:
-          cmp #line_type::q2_steep
+          cmp #z_line_type::q2_steep
           bne s3
 ;          te_printf "rfs"
           generate_line_data reverse,forward,steep
           rts
 s3:
-          cmp #line_type::q3_steep
+          cmp #z_line_type::q3_steep
           bne s4
 ;          te_printf "rrs"
           generate_line_data reverse,reverse,steep
           rts
 s4:
-          cmp #line_type::q1_shallow
+          cmp #z_line_type::q1_shallow
           bne s5
 ;          te_printf "ffa"
           generate_line_data forward,forward,shallow
           rts
 s5:
-          cmp #line_type::q4_shallow
+          cmp #z_line_type::q4_shallow
           bne s6
 ;          te_printf "fra"
           generate_line_data forward,reverse,shallow
           rts
 s6:
-          cmp #line_type::q2_shallow
+          cmp #z_line_type::q2_shallow
           bne s7
 ;          te_printf "rfa"
           generate_line_data reverse,forward,shallow
           rts
 s7:
-          cmp #line_type::q3_shallow
+          cmp #z_line_type::q3_shallow
           bne s8
 ;          te_printf "rra"
           generate_line_data reverse,reverse,shallow
@@ -241,49 +237,49 @@ s8:
 .local s0,s1,s2,s3,s4,s5,s6,s7,s8
           lda line_types,x
 s0:
-          cmp #line_type::q1_steep
+          cmp #z_line_type::q1_steep
           bne s1
 ;          dbgmsg 'A',#1
           render_type forward, forward, steep
           rts
 s1:
-          cmp #line_type::q4_steep
+          cmp #z_line_type::q4_steep
           bne s2
 ;          dbgmsg 'B',#1
           render_type forward,reverse,steep
           rts
 s2:
-          cmp #line_type::q2_steep
+          cmp #z_line_type::q2_steep
           bne s3
 ;          dbgmsg 'C',#1
           render_type reverse,forward,steep
           rts
 s3:
-          cmp #line_type::q3_steep
+          cmp #z_line_type::q3_steep
           bne s4
 ;          dbgmsg 'D',#1
           render_type reverse,reverse,steep
           rts
 s4:
-          cmp #line_type::q1_shallow
+          cmp #z_line_type::q1_shallow
           bne s5
 ;          dbgmsg 'E',#1
           render_type forward,forward,shallow
           rts
 s5:
-          cmp #line_type::q4_shallow
+          cmp #z_line_type::q4_shallow
           bne s6
 ;          dbgmsg 'F',#1
           render_type forward,reverse,shallow
           rts
 s6:
-          cmp #line_type::q2_shallow
+          cmp #z_line_type::q2_shallow
           bne s7
 ;          dbgmsg 'G',#1
           render_type reverse,forward,shallow
           rts
 s7:
-          cmp #line_type::q3_shallow
+          cmp #z_line_type::q3_shallow
           bne s8
 ;          dbgmsg 'H',#1
           render_type reverse,reverse,shallow

@@ -16,6 +16,7 @@
 .include "detonation.inc"
 .include "m16.mac"
 .include "screen.inc"
+.include "zerop.inc"
 .export icbm_genwave,icbm_update
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
 .data
@@ -57,9 +58,23 @@ loop:
           lda de_hit
           beq next
           ;; icbm was destroy by a detonation
-          jsr li_full_render
+          ;; save it's current location - we erase to this point in scratch1
+          lda line_data_indices,x
+          sta scratch1               
+          li_reset_line               
+          ;; erase it, up to where it as
+erase_loop:
+          jsr li_render_pixel
+          lda line_data_indices,x
+          cmp scratch1
+          bne erase_loop
+          ;; deactivate line
           lda #0
           sta line_data_indices,x
+          ;; queue another detonation, pl_x,pl_y already set
+          savex
+          jsr de_queue
+          resx
 next:   
           inx
           jmp loop

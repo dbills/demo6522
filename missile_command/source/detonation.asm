@@ -116,20 +116,26 @@ loop:
           sta fm
           rts
 .endproc
-;;; queue a detonation animation centered at _pl_x, _pl_y
+;;; Queue a detonation animation centered
+;;; 
 ;;; pl_x,pl_y are typically used by the plot routines
 ;;; and therefore the line drawing routines, it's convenient
 ;;; to call this after drawing a line, as pl_x, pl_y would contain
 ;;; the last pixel drawn
-.proc       de_queue
-            ldx #slots-1      
+;;; 
+;;; IN:
+;;;   pl_x, pl_y: center of detonation
+;;; OUT:
+;;;   X,Y,A: clobbered
+.proc     de_queue
+          ldx #slots-1      
 loop:
-            lda i_detonation_frame,x
-            cmp #$fe
-            beq available
-            dex
-            bpl loop
-            rts
+          lda i_detonation_frame,x
+          cmp #$fe
+          beq available
+          dex
+          bpl loop
+          rts
 available:
           lda _pl_x
           ;; store upper left coordinates, not center as given

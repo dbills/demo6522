@@ -12,24 +12,24 @@
 ;;; position
 .macro    step_short_axis saxis,laxis,step_operation
 .local shift, noshift
-          lda err
+          lda z_err
           clc
           adc saxis
           bcs shift
-          sta err
+          sta z_err
           cmp laxis
           bcc noshift                   ;TODO optimize
           beq noshift
 shift:
           sec
           sbc laxis
-          sta err
+          sta z_err
           step_operation
 noshift:
 .endmacro
 ;;; slope controls what the long axis is
 ;;; short = x , steep = y
-;;; IN: A = line type, one of line_type enum
+;;; IN: A = line type, one of z_line_type enum
 ;;;     X = index of line
 .macro generate_line_data xdirection, ydirection, slope
 .local loop, iterator, short_axis_start_value, long_axis_start_value
@@ -57,7 +57,7 @@ noshift:
 .endif
             sta line_types,x
             lda short_axis_length
-            sta err
+            sta z_err
             lda long_axis_start_value
             sta long_axis_start_values,x
             sta long_axis_current_values,x

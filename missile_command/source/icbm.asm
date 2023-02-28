@@ -17,6 +17,9 @@
 .include "m16.mac"
 .include "screen.inc"
 .include "zerop.inc"
+.include "system.inc"
+.include "playfield.inc"
+
 .export icbm_genwave,icbm_update
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
 .data
@@ -86,6 +89,35 @@ reached_target:
           li_deactivate
 .endproc
 
+.zeropage
+sy_rand:  .res 1
+.code
+.proc rand_n
+          jsr rand_8
+          ;; A % N
+loop:     
+          sec
+          sbc #sy_rand
+          cmp sy_rand
+          blte loop
+          rts
+.endproc
+
+.proc random_city
+          savey
+          lda #6
+          sta sy_rand
+          jsr rand_n 
+          tay
+          lda pl_city_x_positions,y
+          clc
+          adc #6                        ;city width / 2 
+          sta z_x2
+          lda #155
+          sta z_y2
+          resy
+          rts
+.endproc
 ;;; Creates the line definitions for 
 ;;; a attack wave
 ;;; todo: there are multiple waves per level

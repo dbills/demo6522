@@ -24,7 +24,7 @@
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
 .data
 ;;; generate a delay to slow icbm advance
-counter:  .byte 255
+counter:  .byte 12
 .code
 ;;; Draw one pixel for all enemy icbms active
 ;;; There is one array line line data for both icbm and player interceptors
@@ -37,19 +37,18 @@ counter:  .byte 255
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc     icbm_update
-          ldx #MAX_MISSILES
+          ;; introduce delay {
+          dec counter
+          beq begin
+          rts
+          ;; }
+begin:    
+          lda #12
+          sta counter
+          ldx #MAX_MISSILES   
 loop:     
           cpx #MAX_LINES
           beq done
-          ;; introduce delay {
-          lda counter
-          sec
-          sbc #5
-          sta counter
-          bcs next
-          adc #60
-          sta counter
-          ;; }
           ;; if the index = 0, then this line doesn't
           ;; need drawn
           lda line_data_indices,x
@@ -103,17 +102,30 @@ loop:
           rts
 .endproc
 
+.macro city_location
+          tay
+          lda pl_city_x_positions,y
+          clc
+          adc #9                        ;city width / 2 
+.endmacro
+
+;;; Select a random city coordinate
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .proc random_city
           savey
           lda #6
           sta sy_rand
           jsr rand_n 
-          tay
-          lda pl_city_x_positions,y
-          clc
-          adc #6                        ;city width / 2 
+          ;; random city # in A
+          city_location
           sta z_x2
-          lda #155
+          lda #pl_city_basey
+          sec
+          sbc #5
           sta z_y2
           resy
           rts
@@ -128,15 +140,40 @@ loop:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .import li_full_render
+.proc icbm_genwave1
+          ;mov #line_data01,z_lstore
+          ldx #MAX_LINES
+loop:     
+          dex
+          li_setz_lstore
+          lda #XMAX - 10
+          sta sy_rand
+          jsr rand_n
+          sta z_x1
+          lda #10
+          sta z_y1
+          jsr random_city
+          li_lineto z_x1,z_y1,z_x2,z_y2
+          cpx #MAX_MISSILES
+          bne loop
+          rts
+.endproc
 .proc icbm_genwave
           mov #line_data01,z_lstore
           ldx #1
-          li_lineto #10,#10,#89,#155
-          rts
+;          li_lineto #10,#10,#89,#155
+          lda #3
+          city_location
+          sta z_x2
+;          li_lineto #1,#0,z_x2,#165
+          li_lineto #XMAX-1,#0,z_x2,#165
+;          li_lineto #XMAX-1,#0,#90,#165
+;          rts
           ldx #1
 loop:     
           jsr li_render_pixel
           bne loop
+
 loop2:    
           jmp loop2
           rts

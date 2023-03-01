@@ -19,8 +19,7 @@
 .export li_genline, li_full_render, li_partial_render, li_render_pixel
 .export li_init, line_types, long_axis_start_values, long_axis_lengths
 .export line_data_indices, long_axis_current_values, z_iline
-.export line_data00
-.export line_data01
+.export line_data00,line_data01,line_data02
 ;,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
 .ZEROPAGE
 z_line_type:

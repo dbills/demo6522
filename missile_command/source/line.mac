@@ -52,7 +52,7 @@ _line_h=1
   ltype_steep_forward
   ltype_steep_reverse
 .endenum
-.define MAX_LINES 2
+.define MAX_LINES 3
 ;;; the lines array is partitioned into two parts
 ;;; one for interceptors(missiles) and one for icbms
 ;;; MAX_MISSILES is delimiter, to the left is missiles

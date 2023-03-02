@@ -49,7 +49,7 @@ counter:  .byte 12
           rts
           ;; }
 begin:    
-          lda #12
+          lda #6
           sta counter
           ldx #MAX_MISSILES   
 loop:     
@@ -88,15 +88,11 @@ next:
           jmp loop
 done:     
           rts
-          ;; a city will be destroyed
-          mu_queue                      ;mushroom cloud
 reached_target:     
+          li_deactivate
+          mu_queue                      ;mushroom cloud
           ;; erase icbm trail and start city explosion, it doesn't matter
           ;; if a city was there or not, we run the explosion animation
-          li_deactivate
-          lda _pl_y
-          clc
-          adc #detonation_height
           rts
 .endproc
 

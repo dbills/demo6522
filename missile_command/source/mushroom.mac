@@ -1,3 +1,7 @@
+MU_MAX = pl_max_cities
+MU_Y = YMAX- 13
+MU_END_FRAME = 12                          ;last frame of mushroom
+
 ;;; Queue a mushroom cloud
 ;;; IN:
 ;;;   pl_x: x location of icbm that reached target
@@ -14,4 +18,33 @@
           lsr
           lsr
           sta mu_screen_col,x
+.endmacro
+
+;;; Update mushroom clouds
+;;; IN:
+;;;   idx: slot to update
+;;; OUT:
+;;;
+.macro mu_update idx
+.local loop, skip
+          ldy #idx
+
+          lda mu_frame_num,y            ;animation frame
+          cmp #MU_END_FRAME
+          beq skip
+          tax                           ;save frame # in X
+
+          clc                           ;inc frame
+          adc #1
+          sta mu_frame_num,y
+
+          lda mu_screen_col,y           ;setup screen pointers
+          tay
+          sp_setup_draw
+          
+          ldy #MU_Y             
+          ;; Y=pixel X=frame #
+          jsr mu_draw
+          lda #1                        ;return 1
+skip:     
 .endmacro

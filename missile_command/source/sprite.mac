@@ -1,28 +1,49 @@
 
 ;;; A = x coord
-.macro      sp_calc_screen_column
-            ;; divide by 8, multiply by 2
-            ;; to get screen character column
-            ;; pointer from table, i.e. shift right
-            ;; twice and clear low bit
-            lsr
-            lsr
-            and #$fe
+.macro    sp_calc_screen_column
+          ;; divide by 8, multiply by 2
+          ;; to get screen character column
+          ;; pointer from table, i.e. shift right
+          ;; twice and clear low bit
+          ;; which is the same as 3 shifts right
+          ;; and one shift left
+          lsr
+          lsr
+          and #$fe
 .endmacro
 
-;;; load the screen column pointers
-;;; sp_col[012] for screen column starting at Y
-.macro      sp_setup_draw
-            lda pltbl+0,y
-            sta sp_col0
-            lda pltbl+1,y
-            sta sp_col0+1
-            lda pltbl+2,y
-            sta sp_col1
-            lda pltbl+3,y
-            sta sp_col1+1
-            lda pltbl+4,y
-            sta sp_col2
-            lda pltbl+5,y
-            sta sp_col2+1
+;;; Load the screen column pointers
+;;; IN:
+;;;   reg: X or Y containing screen column start
+;;; OUT:
+;;;   sp_col0, sp_col1, sp_col2 : 
+;;;     the three zero page pointers to draw sprite data
+.macro    sp_setup_draw reg
+          .if (.match (.left (1, {reg}), X))
+          lda pltbl+0,x
+          sta sp_col0
+          lda pltbl+1,x
+          sta sp_col0+1
+          lda pltbl+2,x
+          sta sp_col1
+          lda pltbl+3,x
+          sta sp_col1+1
+          lda pltbl+4,x
+          sta sp_col2
+          lda pltbl+5,x
+          sta sp_col2+1
+          .else
+          lda pltbl+0,y
+          sta sp_col0
+          lda pltbl+1,y
+          sta sp_col0+1
+          lda pltbl+2,y
+          sta sp_col1
+          lda pltbl+3,y
+          sta sp_col1+1
+          lda pltbl+4,y
+          sta sp_col2
+          lda pltbl+5,y
+          sta sp_col2+1
+          .endif
 .endmacro

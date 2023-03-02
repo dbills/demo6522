@@ -144,7 +144,14 @@ iloop:
             lda mem
             .endif
 .endmacro
-.macro    dynamic_jump tableL,tableH
+;;; Jump, dynamically to the address in a table using self modifying code
+;;; IN:
+;;;   1: low byte table
+;;;   2: high byte table
+;;;   X: index in table
+;;; OUT:
+;;; 
+.macro    sy_dynajump tableL,tableH
           .local jmp0,jmp_operand
 jmp_operand = jmp0 + 1
             lda tableL,x
@@ -154,5 +161,4 @@ jmp_operand = jmp0 + 1
 jmp0:
             jmp 0                       ;dynamic operand
 .endmacro
-;;;
 .endif

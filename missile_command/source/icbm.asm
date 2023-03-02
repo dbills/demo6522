@@ -19,9 +19,15 @@
 .include "zerop.inc"
 .include "system.inc"
 .include "playfield.inc"
+.include "mushroom.inc"
 
 .export icbm_genwave,icbm_update
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
+
+;;; height above a city that icbm targets
+detonation_height = 5
+;;; distance from left of city to it's centerline where icbms target
+city_centerline = 9
 .data
 ;;; generate a delay to slow icbm advance
 counter:  .byte 12
@@ -59,12 +65,12 @@ loop:
           de_collision _pl_x, _pl_y
           lda de_hit
           beq next
-          ;; icbm was destroy by a detonation
-          ;; save it's current location - we erase to this point in scratch1
+          ;; icbm was destroyed by a detonation
+          ;; save its current location - we erase to this point in scratch1
           lda line_data_indices,x
           sta scratch1               
           li_reset_line               
-          ;; erase it, up to where it as
+          ;; erase it, up to where it is
 erase_loop:
           jsr li_render_pixel
           lda line_data_indices,x
@@ -83,9 +89,15 @@ next:
 done:     
           rts
           ;; a city will be destroyed
-          ;; jsr pl_mushroom
+          mu_queue                      ;mushroom cloud
 reached_target:     
+          ;; erase icbm trail and start city explosion, it doesn't matter
+          ;; if a city was there or not, we run the explosion animation
           li_deactivate
+          lda _pl_y
+          clc
+          adc #detonation_height
+          rts
 .endproc
 
 .zeropage
@@ -102,19 +114,18 @@ loop:
           rts
 .endproc
 
-.macro city_location
-          tay
-          lda pl_city_x_positions,y
-          clc
-          adc #9                        ;city width / 2 
-.endmacro
-
 ;;; Select a random city coordinate
 ;;; IN:
 ;;;   arg1: does this and that
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
+.macro city_location
+          tay
+          lda pl_city_x_positions,y
+          clc
+          adc #9                        ;city width / 2 
+.endmacro
 .proc random_city
           savey
           lda #6
@@ -125,7 +136,7 @@ loop:
           sta z_x2
           lda #pl_city_basey
           sec
-          sbc #5
+          sbc #detonation_height
           sta z_y2
           resy
           rts
@@ -158,17 +169,23 @@ loop:
           bne loop
           rts
 .endproc
+;;; Generate an attack wave
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .proc icbm_genwave
           mov #line_data01,z_lstore
           ldx #1
 ;          li_lineto #10,#10,#89,#155
-          lda #3
+          lda #0
           city_location
           sta z_x2
 ;          li_lineto #1,#0,z_x2,#165
           li_lineto #XMAX-1,#0,z_x2,#165
 ;          li_lineto #XMAX-1,#0,#90,#165
-;          rts
+          rts
           ldx #1
 loop:     
           jsr li_render_pixel

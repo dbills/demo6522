@@ -25,6 +25,8 @@
 .include "sound.inc"
 .include "detonation.inc"
 .include "icbm.inc"
+.include "mushroom.inc"
+
 .ifdef TESTS
 .include "unit_tests.inc"          
 .endif
@@ -62,6 +64,7 @@
           jsr li_init
           jsr de_init
           jsr pl_init
+          jsr mu_init
 .ifdef TESTS
           jsr unit_tests
 forever:  jmp forever
@@ -77,12 +80,12 @@ forever:  jmp forever
 
           jsr icbm_genwave              
 
-          jsr main_loop                 
+          ;jsr main_loop                 
 
           ;jsr line_tests
           ;jsr de_test
-.import test_mushroom
-          ;jsr test_mushroom
+
+          jsr mu_test
 loop:     jmp loop
           ;jsr line_tests
 .import attract

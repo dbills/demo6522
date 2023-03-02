@@ -31,7 +31,12 @@ const char * make_name(const char * name, int frame, int shift) {
 }
 // C is row-major order
 // x[r][c]
-void generate(const char * name, uint32_t * array, int frames, int rows, int columns, int skip, int shift) {
+// shift: pixels to shift to the right
+// skip: the starting row in the frame data -- which you would use for example
+// because there is blank space at the top the image data, no sense in encoding that
+void generate(const char * name, uint32_t * array, int frames, int rows, int columns, 
+              int skip, int shift) 
+{
   printf(".export %s_framesL,%s_framesH", name, name);
   for (int frame = 0; frame < frames; frame++) {
     printf(", ");
@@ -60,7 +65,7 @@ void generate(const char * name, uint32_t * array, int frames, int rows, int col
       unsigned int dword = 0;
       for (int col = 0; col < columns; col++) {
         int pixel_offset = row * rows + col;
-        unsigned int * addr = (array +
+        unsigned int *addr = (array +
           (frame * rows * columns) +
           pixel_offset);
         int val = * addr;
@@ -95,12 +100,18 @@ int main(int argc, char ** argv) {
   /* int r=1; */
   /* int c=2; */
   /* printf("%d,%d\n", x[r][c],*(p+(r*3)+c)); */
+
+  // these are the hex X locations of the start of the cities currently
+  // 08 20 38 6c  84 9c
+  // add 9 to each of them to get the mushroom cloud centerline
+  // because 9 is what the icbm target.  See icbm.asm:city_centerline equate
+  const int city_centerline = 9;
   generate("mushroom", (unsigned int * ) & mc_mushrom_data,
     MC_MUSHROM_FRAME_COUNT,
     MC_MUSHROM_FRAME_WIDTH,
     MC_MUSHROM_FRAME_HEIGHT,
     5, /* start row */
-    0 /* shift amount */
+    (0x8 + city_centerline)%8 /* shift amount */
   );
 
   //generate(x,2,2,2);

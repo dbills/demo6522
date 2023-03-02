@@ -19,8 +19,8 @@ spacing = content_width / 8
 city_count: .res 1
 pl_city_x_positions: .res 6
 .code
-;;; Initialize playfield data
-;;; 
+;;; Initialize playfield data for start of game
+;;; reset cities, and live city count
 ;;; IN:
 ;;; OUT:
 .proc pl_init
@@ -41,7 +41,10 @@ pl_city_x_positions: .res 6
           sta pl_city_x_positions+5
           rts
 .endproc
-;;; Draw cities at bottom the screen
+;;; Draw cities at bottom the screen.  This will need update to take into account
+;;; cities that have been destroyed which will not have an x coord in 
+;;; pl_city_x_positions
+;;; 
 ;;; IN:
 ;;;   arg1: does this and that
 ;;; OUT:
@@ -61,12 +64,13 @@ pl_city_x_positions: .res 6
           ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2
           ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2+1
           
+          ;; draw missile base in center of screen
           lda #8
           sta sp_height
           mov #base_left,ptr_0
           lda #XMAX/2-8
           sta s_x
-          lda #pl_city_basey
+          lda #pl_city_basey            ;2 pixels above cities
           sec
           sbc #2
           sta s_y
@@ -76,6 +80,7 @@ pl_city_x_positions: .res 6
           mov #base_right,ptr_0
           jsr sp_draw_unshifted
 
+          ;; draw the six cities
 blarg:    
           lda #5
           sta sp_height
@@ -87,6 +92,7 @@ loop:
           sta s_x
           mov #city_left,ptr_0
           jsr sp_draw_unshifted
+          ;; move 8 right, for right piece
           clc
           lda #8
           adc s_x

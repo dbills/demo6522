@@ -1,0 +1,17 @@
+;;; Queue a mushroom cloud
+;;; IN:
+;;;   pl_x: x location of icbm that reached target
+;;;   X: which city was desroyed
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.macro mu_queue 
+          ldx #0
+          lda #0                        ;start at frame 0
+          sta mu_frame_num,x
+          lda _pl_x                     ;column = pl_x/8
+          lsr
+          lsr
+          lsr
+          sta mu_screen_col,x
+.endmacro

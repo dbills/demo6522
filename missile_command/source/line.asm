@@ -21,7 +21,9 @@
 .export line_data_indices, long_axis_current_values, z_iline
 .export line_data00,line_data01,line_data02
 ;,line_data03,line_data04,line_data05,line_data06,line_data07,line_data08,line_data09,line_data10,line_data11,line_data12,line_data13,line_data14,line_data15,line_data16,line_data17,line_data18,line_data19,line_data20,line_data21,line_data22,line_data23,line_data24,line_data25,line_data26,line_data27,line_data28,line_data29,line_data30
+
 .ZEROPAGE
+
 z_line_type:
 z_err:        .res 1
 z_dx:        .res 1
@@ -50,6 +52,8 @@ z_iline:     .res 1
 ;;; with a label starting at line_data00
 ;;; byte line_data[LINEMAX][MAX_LINES]
 ;;; recall the C language is row-major order
+;;; line_dataX[0] = target city.  This first byte is unused by the line rendering
+;;; code to save a cycle on loops.  E.g. dec, and beq together
 .repeat MAX_LINES,I
   .ident (.sprintf ("line_data%02d", I)): .res LINEMAX
 .endrepeat
@@ -61,7 +65,6 @@ long_axis_lengths:        .res MAX_LINES
 line_data_indices:        .res MAX_LINES
 ;;; short axis point?
 long_axis_current_values: .res MAX_LINES
-
 .data
 ;;; low, high bytes for line data
 ;;; E.g. line00 = (line_offsetsL[0] << 8) + line_offsetsH[0]
@@ -321,9 +324,11 @@ draw:
 ;;;   Y: unchanged
 .proc     li_init
           ldx #MAX_LINES-1
-loop:
           lda #0
+          ldy #255
+loop:
           sta line_data_indices,x
+          ;sty li_target_city,x
           dex
           bpl loop
           rts

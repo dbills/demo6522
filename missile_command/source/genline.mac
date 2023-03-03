@@ -66,7 +66,7 @@ noshift:
             sta line_data_indices,x
             ;; y is long axis coordinate
             ;; x is short axis coordinate
-            ;; store short axis coords in life buffer
+            ;; we store short axis coords in line buffer
             tay
             ldx short_axis_start_value
 loop:

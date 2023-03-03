@@ -114,7 +114,7 @@ loop:
 ;;; IN:
 ;;;   arg1: does this and that
 ;;; OUT:
-;;;   foo: is updated
+;;;   Y: random city #
 ;;;   X is clobbered
 .macro city_location
           tay
@@ -123,7 +123,6 @@ loop:
           adc #9                        ;city width / 2 
 .endmacro
 .proc random_city
-          savey
           lda #6
           sta sy_rand
           jsr rand_n 
@@ -134,7 +133,7 @@ loop:
           sec
           sbc #detonation_height
           sta z_y2
-          resy
+          ;; Y = random city on exit
           rts
 .endproc
 ;;; Creates the line definitions for 
@@ -147,20 +146,27 @@ loop:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .import li_full_render
-.proc icbm_genwave1
+.proc icbm_genwave
           ;mov #line_data01,z_lstore
           ldx #MAX_LINES
 loop:     
           dex
           li_setz_lstore
+          ;; define incoming icbm left, right edge at 5 pixels
           lda #XMAX - 10
           sta sy_rand
           jsr rand_n
-          sta z_x1
-          lda #10
+          clc
+          adc #5
+          sta z_x1                      ; icbm x origin
+          lda #10                       ; icbm y origin
           sta z_y1
+          ;; pick a target city
           jsr random_city
-          li_lineto z_x1,z_y1,z_x2,z_y2
+          tya                           ; store target city in line_data[0]
+          ldy #0                        ; "
+          sta (z_lstore),y              ; "
+          li_lineto z_x1,z_y1,z_x2,z_y2 
           cpx #MAX_MISSILES
           bne loop
           rts
@@ -171,7 +177,7 @@ loop:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.proc icbm_genwave
+.proc icbm_genwave2
           mov #line_data01,z_lstore
           ldx #1
 ;          li_lineto #10,#10,#89,#155

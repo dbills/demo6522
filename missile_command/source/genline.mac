@@ -75,7 +75,4 @@ loop:
             step_short_axis short_axis_length, long_axis_length, iterator
             dey
             bne loop
-            ;; debug
-            lda #$bb
-            sta (z_lstore),y
 .endmacro

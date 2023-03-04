@@ -16,7 +16,7 @@
 ;;; NOTE: please see line.txt for
 ;;; important notes about terms in this file
 .exportzp z_x1, z_x2, z_y1, z_y2, z_lstore, z_dx, z_dy
-.export li_genline, li_full_render, li_partial_render, li_render_pixel
+.export li_genline, li_full_render, li_render_pixel
 .export li_init, line_types, long_axis_start_values, long_axis_lengths
 .export line_data_indices, long_axis_current_values, z_iline
 .export line_data00,line_data01,line_data02
@@ -296,24 +296,13 @@ s8:
           _general_render_template render_line_data
           rts
 .endproc
-
-.proc li_partial_render
-.ifdef debug
-          ;; check if line is still in progress
-          lda line_data_indices,x
-;          bne draw
-          ;; abort with code and print register X
-          brk
-draw:
-.endif
-          _general_render_template render_partial_line
-.endproc
 ;;; Plot the next pixel of an active line
 ;;; IN:
-;;;   arg1: does this and that
+;;;   X: the active line
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
+;;;   Z: true if line is finished
+;;;   _pl_x: x coord of pixel just plotted
+;;;   _pl_y: to coord of pixel just plotted
 .proc li_render_pixel
           _general_render_template render_partial_line
 .endproc
@@ -325,10 +314,8 @@ draw:
 .proc     li_init
           ldx #MAX_LINES-1
           lda #0
-          ldy #255
 loop:
           sta line_data_indices,x
-          ;sty li_target_city,x
           dex
           bpl loop
           rts

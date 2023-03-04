@@ -70,7 +70,8 @@ loop:
           lda line_data_indices,x
           sta scratch1               
           li_reset_line               
-          ;; erase it, up to where it is
+          ;; erase it, up to where it is - we can't use li_deactive here
+          ;; because the line isn't full
 erase_loop:
           jsr li_render_pixel
           lda line_data_indices,x
@@ -90,7 +91,9 @@ done:
           rts
 reached_target:     
           li_deactivate
-          mu_queue                      ;mushroom cloud
+          ldy #0
+          lda (z_lstore),y           ; get target city
+          mu_queue                   ;mushroom cloud
           ;; erase icbm trail and start city explosion, it doesn't matter
           ;; if a city was there or not, we run the explosion animation
           rts
@@ -110,12 +113,11 @@ loop:
           rts
 .endproc
 
-;;; Select a random city coordinate
+;;; Get X coord of center of a city
 ;;; IN:
-;;;   arg1: does this and that
+;;;   A: city #
 ;;; OUT:
-;;;   Y: random city #
-;;;   X is clobbered
+;;;   Y: city #
 .macro city_location
           tay
           lda pl_city_x_positions,y
@@ -141,12 +143,12 @@ loop:
 ;;; todo: there are multiple waves per level
 ;;; so we need a function that captures that
 ;;; IN:
-;;;   arg1: does this and that
+;;;   ?: possibly an argument for how many icbms are in this wave
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
+;;;   line_data[..]: contains pre-rendered attack vector
+;;;   line_data[0]: target city
 .import li_full_render
-.proc icbm_genwave
+.proc icbm_genwave1
           ;mov #line_data01,z_lstore
           ldx #MAX_LINES
 loop:     
@@ -177,16 +179,16 @@ loop:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.proc icbm_genwave2
+.proc icbm_genwave
           mov #line_data01,z_lstore
           ldx #1
 ;          li_lineto #10,#10,#89,#155
-          lda #0
+          lda #0                        ; select city 0
+          ldy #0                        ; "
+          sta (z_lstore),y              ; store target city data in line buffer
           city_location
           sta z_x2
-;          li_lineto #1,#0,z_x2,#165
           li_lineto #XMAX-1,#0,z_x2,#165
-;          li_lineto #XMAX-1,#0,#90,#165
           rts
           ldx #1
 loop:     
@@ -198,4 +200,3 @@ loop2:
           rts
 
 .endproc
-

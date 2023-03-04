@@ -2,6 +2,7 @@
 // into a format useable by ca65 and missile command
 
 #include <stdio.h>
+#include <string>
  // consider piskel/*
 //#include "/tmp/mc_mushrom.c"
 #include "../piskel/mc_mushrom.c"
@@ -34,22 +35,28 @@ const char * make_name(const char * name, int frame, int shift) {
 // shift: pixels to shift to the right
 // skip: the starting row in the frame data -- which you would use for example
 // because there is blank space at the top the image data, no sense in encoding that
-void generate(const char * name, uint32_t * array, int frames, int rows, int columns, 
-              int skip, int shift) 
+void generate(const char * name, 
+              uint32_t * array, 
+              int frames, 
+              int rows, 
+              int columns, 
+              int skip, 
+              int shift) 
 {
-  printf(".export %s_framesL,%s_framesH", name, name);
+  printf(".export %s_frames_shift%dL,%s_frames_shift%dH", name, shift,
+         name,shift);
   for (int frame = 0; frame < frames; frame++) {
     printf(", ");
     printf("%s", make_name(name, frame, shift));
   }
   printf("\n.data\n");
-  printf("%s_framesL: .byte ", name);
+  printf("%s_frames_shift%dL: .byte ", name, shift);
   for (int frame = 0; frame < frames; frame++) {
     if(frame)
       printf(", ");
     printf("<(%s)", make_name(name, frame, shift));
   }
-  printf("\n%s_framesH: .byte ", name);
+  printf("\n%s_frames_shift%dH: .byte ", name, shift);
   for (int frame = 0; frame < frames; frame++) {
     if(frame)
       printf(", ");
@@ -63,27 +70,57 @@ void generate(const char * name, uint32_t * array, int frames, int rows, int col
     for (int row = skip; row < rows; row++) {
       printf("  ;; %2d|", row);
       unsigned int dword = 0;
+      bool solid_fill = false;
       for (int col = 0; col < columns; col++) {
         int pixel_offset = row * rows + col;
-        unsigned int *addr = (array +
-          (frame * rows * columns) +
-          pixel_offset);
-        int val = * addr;
-        //printf("[%d][%d] (%x) - %u\n",frame, pixel_offset,addr,val);
+        // one byte per pixel?
+        unsigned int *addr = (array + (frame * rows * columns) + pixel_offset);
+        int val = *addr;
+        // piskel writes ff for each on bit in the top two nybbles
+        // we build a regular byte by shifting into it
         dword <<= 1;
-        if (val) {
+        if (val & 0xff000000) {
           printf("\u2588");
           dword |= 1;
         } else {
           printf(" ");
         }
+        // if any pixel int has low bit set
+        if(val & 0x01 == 1) {
+          solid_fill = true;
+        }
+        //fprintf(stderr,"[%d][%d] (%x) - %u:%x\n",frame, pixel_offset,addr, val?1:0,dword);
       }
+      // shift one more byte to left so we have 1 byte more than the width
+      // e.g. 16 wide sprite is 3 bytes, so we can subsequently pre-shift it by
+      // 0-7 bits for performance in the generated assembly
+      unsigned int a,b,c=0;
+      a=dword;
       dword <<= 8;
+      b=dword;
+      // use 1 bit as code to set background to on, instead of off by default
+      if(solid_fill) {
+        // top bit is signal to the final shift loop
+        // for background set to on
+        dword|=0xff0000ff;
+        c=dword;
+      }
+      dword>>=shift;
+      char buf[255];
+      /* sprintf(buf,"%06x,%06x,%06x,%06x", */
+      /*         a&0x00ffffff, */
+      /*         b&0x00ffffff, */
+      /*         c&0x00ffffff, */
+      /*         dword&0x00ffffff); */
+      for (auto & c: buf) c = toupper(c);
+      fprintf(stderr,"%s\n",buf);
       dwords[row] = dword;
-      printf("| $%06x\n", dwords[row]);
+      sprintf(buf,"%06x", dword & 0x00ffffff);
+      printf("| $%s\n", buf);
     }
+    // shift the sprite bytes we recorded
     for (int row = skip; row < rows; row++) {
-      const unsigned int dword = dwords[row] >> shift;
+      const unsigned int dword = dwords[row];
       write_byte(B3(dword), 0);
       write_byte(B2(dword), 1);
       write_byte(B1(dword), 2);
@@ -103,16 +140,27 @@ int main(int argc, char ** argv) {
 
   // these are the hex X locations of the start of the cities currently
   // 08 20 38 6c  84 9c
+  // city 0,1,2 = offset 1
+  // city 3,4,5 = offset 5
   // add 9 to each of them to get the mushroom cloud centerline
   // because 9 is what the icbm target.  See icbm.asm:city_centerline equate
   const int city_centerline = 9;
-  generate("mushroom", (unsigned int * ) & mc_mushrom_data,
-    MC_MUSHROM_FRAME_COUNT,
-    MC_MUSHROM_FRAME_WIDTH,
-    MC_MUSHROM_FRAME_HEIGHT,
-    5, /* start row */
-    (0x8 + city_centerline)%8 /* shift amount */
+  generate("mushroom", 
+           (unsigned int*)&mc_mushrom_data,
+           MC_MUSHROM_FRAME_COUNT,
+           MC_MUSHROM_FRAME_HEIGHT,
+           MC_MUSHROM_FRAME_WIDTH,
+           5, /* start row */
+           (0x8 + city_centerline)%8 /* shift amount */
   );
+  generate("mushroom", 
+           (unsigned int*)&mc_mushrom_data,
+           MC_MUSHROM_FRAME_COUNT,
+           MC_MUSHROM_FRAME_HEIGHT,
+           MC_MUSHROM_FRAME_WIDTH,
+           5, /* start row */
+           (0x6c + city_centerline)%8 /* shift amount */
+           );
 
   //generate(x,2,2,2);
 }

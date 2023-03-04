@@ -1,23 +1,25 @@
 MU_MAX = pl_max_cities
-MU_Y = YMAX- 14
+MU_Y = YMAX- 12
 MU_END_FRAME = 12                          ;last frame of mushroom
 
 ;;; Queue a mushroom cloud
 ;;; IN:
-;;;   pl_x: x location of icbm that reached target
-;;;   X: which city was desroyed
+;;;   A: target city
+;;;   _pl_x: x coord of center of city
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
+;;;   Y: clobbered
 .macro mu_queue 
-          ldx #0
+          ;; city 0,1,2 = offset 1
+          ;; city 3,4,5 = offset 5
+          tay
           lda #0                        ;start at frame 0
-          sta mu_frame_num,x
+          sta mu_frame_num,y
+
           lda _pl_x                     ;column = pl_x/8
           lsr
           lsr
           lsr
-          sta mu_screen_col,x
+          sta mu_screen_col,y
 .endmacro
 
 ;;; Update mushroom clouds
@@ -45,7 +47,11 @@ MU_END_FRAME = 12                          ;last frame of mushroom
           
           ldy #MU_Y             
           ;; Y=pixel X=frame #
-          jsr mu_draw
+.if (idx = 0 || idx = 1 || idx = 2)
+          jsr mu_draw_west
+.else
+          jsr mu_draw_east
+.endif
           lda #1                        ;return 1
 skip:     
 .endmacro

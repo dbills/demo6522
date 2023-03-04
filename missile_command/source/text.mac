@@ -187,19 +187,3 @@ done:
 .macro    print_array array,start,end
           print_array_ start,end,{direct_access array}
 .endmacro
-
-;;; Prints an indirect array to hires screen
-;;; e.g. 
-;;;   foo:    dc.b 12 13 14
-;;;   array1: dc.w foo, foo + 1, foo + 2
-;;;   print_indirect_array array1, 0, 3
-;;; 
-;;; would print:
-;;;   12, 13, 14 on the screen
-;;; 
-;;; IN:
-;;;   start: integer index of array begin
-;;;   end:   integer index of array end
-;;; 
-;;; TDB
-

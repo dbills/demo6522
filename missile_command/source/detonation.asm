@@ -9,7 +9,7 @@
 .include "shapes.mac"
 .include "colors.equ"
 
-.include "debugscreen.inc"
+.include "dbgscreen.inc"
 .include "text.inc"
 
 ;;; Debugging macros

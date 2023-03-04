@@ -7,6 +7,7 @@ _SCREEN_H = 1
 .else
   .define CLRRAM 37888
 .endif
+;;; screen 23x11
 SCRROWS = 23 / 2
 YMAX = SCRROWS * 16
 SCRCOLS .set 23

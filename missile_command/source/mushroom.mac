@@ -1,3 +1,5 @@
+.include "sprite.inc"
+
 MU_MAX = 6
 MU_Y = YMAX- 12
 MU_END_FRAME = 12                          ;last frame of mushroom
@@ -16,9 +18,7 @@ MU_END_FRAME = 12                          ;last frame of mushroom
           sta mu_frame_num,y
 
           lda _pl_x                     ;column = pl_x/8
-          lsr
-          lsr
-          lsr
+          sp_calc_screen_column
           sta mu_screen_col,y
 .endmacro
 

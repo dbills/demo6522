@@ -92,7 +92,7 @@ done:
 reached_target:     
           li_deactivate
           ldy #0
-          lda (z_lstore),y           ; get target city
+          lda (z_lstore),y           ;get target city
           mu_queue                   ;mushroom cloud
           ;; erase icbm trail and start city explosion, it doesn't matter
           ;; if a city was there or not, we run the explosion animation

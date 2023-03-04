@@ -13,7 +13,7 @@ CA65FIX= sed  -e 's/^\([^(]*\)[(]\([0-9]*\)[)]:/\1:\2:0:/'
 tests:
 	cd testing && make
 
-OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o debugscreen.o playfield.o interceptor.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o unit_tests.o icbm.o mushroom.o mushroom_draw.o 
+OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o unit_tests.o icbm.o mushroom.o mushroom_draw.o 
 
 SOURCE=$(OBJS:.o=.asm)
 
@@ -27,6 +27,7 @@ extra_graphics:
 
 #
 # run tests with DEFINES=TESTS make ...
+# check bounds DEFINE=CHECKED_BUILD make ...
 #
 port: graphics extra_graphics
 	if [ ! -d obj ]; then mkdir obj;fi

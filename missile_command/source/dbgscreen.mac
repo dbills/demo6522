@@ -1,22 +1,21 @@
-.ifndef _DEBUGSCREEN_H
-_DEBUGSCREEN_H = 1
 .include "system.mac"
+
 .macro    dbgmsg msgchar, b
           saveall
           lda #msgchar-'A'+1
-          jsr _debug_screen_write_char
+          jsr db_wchar
           lda #58
-          jsr _debug_screen_write_char
+          jsr db_wchar
           loadA b
-          jsr _debug_screen_write_byte
+          jsr db_wbyte
           lda #32
-          jsr _debug_screen_write_char
+          jsr db_wchar
           resall
 .endmacro
 .macro    dbgmsg1 msgchar
           saveall
           lda #msgchar-'A'+1
-          jsr _debug_screen_write_char
+          jsr db_wchar
           resall
 .endmacro
 ;;; abort by showing the debug screen
@@ -24,7 +23,10 @@ _DEBUGSCREEN_H = 1
 ;;; between screens with the fire button
 .macro    abort msgchar,b
           dbgmsg msgchar,b
-          jsr show_debug_screen
-          jmp abort_
+          jsr db_show
+          jmp db_abort
 .endmacro
-.endif
+
+;;; error codes for the debug screen
+.define SPRITE_COL_ODD #1
+

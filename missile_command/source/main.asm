@@ -17,7 +17,7 @@
 .include "target.inc"
 .include "sprite.inc"
 .include "text.inc"
-.include "debugscreen.inc"
+.include "dbgscreen.inc"
 .include "shapes.inc"
 .include "playfield.inc"
 .include "interceptor.inc"
@@ -56,7 +56,7 @@
           bcolor_i BLUE
           scolor_i CYAN
 
-          jsr i_debug_screen
+          jsr db_init
 
           jsr i_sound
 

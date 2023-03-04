@@ -3,7 +3,7 @@
 .include "m16.mac"
 .include "text.inc"
 .include "genline.mac"
-.include "debugscreen.inc"
+.include "dbgscreen.inc"
 .include "line.mac"
 ;;; public line symbols
 ;;; line* routines put the 'line instructions' in ram

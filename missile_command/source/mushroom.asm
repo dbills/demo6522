@@ -1,6 +1,6 @@
 .include "zerop.inc"
 .include "mushroom_draw.inc"
-.include "sprite.mac"
+.include "sprite.inc"
 .include "system.inc"
 .include "jstick.inc"
 .include "screen.inc"
@@ -60,12 +60,12 @@ start:
           lda #test_city                ;city number
           mu_queue
 loop:     
-          sc_update_frame
+          ;sc_update_frame
           mu_update test_city
-          beq start
 
+wait:     
           waitv
-          jmp loop
+          jmp wait
           rts
 .endproc
 

@@ -1,5 +1,12 @@
+.include "dbgscreen.inc"
 
-;;; A = x coord
+;;; Calculate offset into the screen column table 
+;;; IN:
+;;;   A: screen X pixel coord
+;;; OUT:
+;;;   A: the offset into the hires character memory pointer table
+;;;      e.g. pixel 9 is the second pointer, the second column
+;;;      sp_calc_screen_column 9 => 1
 .macro    sp_calc_screen_column
           ;; divide by 8, multiply by 2
           ;; to get screen character column
@@ -11,14 +18,15 @@
           lsr
           and #$fe
 .endmacro
-
 ;;; Load the screen column pointers
 ;;; IN:
-;;;   reg: X or Y containing screen column start
+;;;   reg: X or Y containing 2X screen column start because it's a table
+;;;        of pointers
 ;;; OUT:
 ;;;   sp_col0, sp_col1, sp_col2 : 
 ;;;     the three zero page pointers to draw sprite data
 .macro    sp_setup_draw reg
+.local ok
           .if (.match (.left (1, {reg}), X))
           lda pltbl+0,x
           sta sp_col0
@@ -33,6 +41,13 @@
           lda pltbl+5,x
           sta sp_col2+1
           .else
+.ifdef CHECKED_BUILD
+          tya
+          and #1
+          beq ok
+          abort 'E',SPRITE_COL_ODD
+ok:       
+.endif                                  
           lda pltbl+0,y
           sta sp_col0
           lda pltbl+1,y

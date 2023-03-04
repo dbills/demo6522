@@ -7,7 +7,7 @@
 .include "shapes.inc"
 .include "system.mac"
 .include "text.inc"
-.include "debugscreen.inc"
+.include "dbgscreen.inc"
 
 .export in_init, in_launch, in_update
 

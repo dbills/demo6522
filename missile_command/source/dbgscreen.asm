@@ -1,19 +1,18 @@
 ;;; routines for maintaining an invisible text debugging screen
 ;;; that may be swapped in when needed
-.include "debugscreen.mac"
+.include "dbgscreen.mac"
 .include "screen.inc"
 .include "zerop.inc"
 .include "m16.mac"
 .include "jstick.inc"
 
-;.include "system.mac"
-.export i_debug_screen,show_debug_screen, _debug_screen_write_char, _debug_screen_write_byte, _debug_screen_write_digit,abort_
+.export db_init,db_show, db_wchar, db_wbyte, db_whexchar, db_abort
 .bss
 z_save:   .res 1
 .code
 ;;; set screen back to normal
 ;;; text mode
-.proc     show_debug_screen
+.proc     db_show
           sc_shortchar
           ;; reset chargen to ROM
           sc_chbase $8000
@@ -31,7 +30,7 @@ loop:
           rts
 .endproc
 
-.proc     i_debug_screen
+.proc     db_init
           mov #DEBUG_SCREEN, ptr_1
           ldy #0
 loop:
@@ -43,7 +42,7 @@ loop:
           rts
 .endproc
 
-.proc     scroll_debug_screen
+.proc     db_scroll
           mov #DEBUG_SCREEN, ptr_0
 loop:
           cmpw #DEBUG_SCREEN_END,ptr_0
@@ -63,43 +62,47 @@ done:
 ;;; write to the invisible debug text screen
 ;;; which is normal VIC text
 ;;; IN: A = char
-.proc     _debug_screen_write_char
+.proc     db_wchar
           sta DEBUG_SCREEN_END-1
-          jsr scroll_debug_screen
+          jsr db_scroll
           rts
 .endproc
-.proc     _debug_screen_write_digit
+.proc     db_whexchar
           cmp #9
           bcc is_not_letter
           sec
           sbc #9
-          jsr _debug_screen_write_char
+          jsr db_wchar
           jmp done
 is_not_letter:
           clc
           adc #48
-          jsr _debug_screen_write_char
+          jsr db_wchar
 done:
           rts
 .endproc
-.proc     _debug_screen_write_byte
+;;; Write byte to debug screen
+;;; IN:
+;;;   A: byte to write
+;;; OUT:
+.proc     db_wbyte
           pha
           and #$f0
           lsr
           lsr
           lsr
           lsr
-          jsr _debug_screen_write_digit
+          jsr db_whexchar
           pla
           and #$0f
-          jsr _debug_screen_write_digit
+          jsr db_whexchar
           rts
 .endproc
 
-.proc abort_
+.proc db_abort
 loop:
           jsr j_wfire
-          jsr show_debug_screen
+          jsr db_show
           jsr j_wfire
           jsr sc_hires
           jmp loop

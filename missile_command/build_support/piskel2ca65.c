@@ -113,7 +113,6 @@ void generate(const char * name,
       /*         c&0x00ffffff, */
       /*         dword&0x00ffffff); */
       for (auto & c: buf) c = toupper(c);
-      fprintf(stderr,"%s\n",buf);
       dwords[row] = dword;
       sprintf(buf,"%06x", dword & 0x00ffffff);
       printf("| $%s\n", buf);

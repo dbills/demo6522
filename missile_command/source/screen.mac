@@ -26,34 +26,34 @@ DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)
 ;;; $2000 - $21FA non-visible debug text screen
 .define CHARHT  16
 .INCLUDE  "zerop.mac"
-.macro    tallchar
+.macro    sc_tallchar
           ;; activate 16 high chars
           lda $9003
           ora #1
           sta $9003
 .endmacro
 
-.macro    shortchar
+.macro    sc_shortchar
           lda $9003
           and #$FE
           sta $9003
 .endmacro
 
-.macro      setleft _1
+.macro      sc_setleft _1
             lda $9000
             and #128
             ora #_1
             sta $9000
 .endmacro
 
-.macro      setcolumns _1
+.macro      sc_setcolumns _1
             lda $9002
             and #%10000000
             ora #_1
             sta $9002
 .endmacro
 
-.macro    setrows _1
+.macro    sc_setrows _1
           ;; bits 1-6 are row
           lda $9003
           and #%10000001
@@ -69,7 +69,7 @@ DEBUG_SCREEN_END = DEBUG_SCREEN + (SCRCOLS * SCRROWS)
           ;; 000xxxy000000000
           ;; y lives as bit 7 in register
           ;; 36866 ($9002)
-.macro    screenmem addr
+.macro    sc_screenmem addr
 .local bit9, bit10_12
           .local bit9,bit10_12
           ;;  bit [9-12] inclusive are the screen
@@ -93,7 +93,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
 
 .endmacro
 ;;; set character generator pointer
-.macro chbase _1
+.macro sc_chbase _1
 .local nibble
 .if(_1 = $1000)
   nibble = %1100
@@ -139,7 +139,7 @@ bit10_12  = (addr & %0001110000000000) >> 6
           ;; 0 based 0,0 is upper left
           ;; 175,175 lower right
           ;; x_to_a = instruction to move X  coord into A
-.macro    plotm x_to_a
+.macro    sc_plotm x_to_a
 ;          sty save_y
           x_to_a
           ;; divide by 8
@@ -170,7 +170,12 @@ bit10_12  = (addr & %0001110000000000) >> 6
 ;          ldy save_y
 .endmacro
 detonation_div = 128
-.macro      update_frame
+;;; Update the global frame_cnt, a sequencing counter for animations
+;;; that runs from 0-7
+;;; IN:
+;;; OUT:
+;;;   frame_cnt: incremented by 1
+.macro      sc_update_frame
             lda frame_cnt
             clc
             adc #1

@@ -1,4 +1,4 @@
-MU_MAX = pl_max_cities
+MU_MAX = 6
 MU_Y = YMAX- 12
 MU_END_FRAME = 12                          ;last frame of mushroom
 
@@ -30,8 +30,8 @@ MU_END_FRAME = 12                          ;last frame of mushroom
 .macro mu_update idx
 .local loop, skip
           ldy #idx
-          cpy frame_cnt
-          bne skip
+          ;; cpy frame_cnt
+          ;; bne skip
           lda mu_frame_num,y            ;animation frame
           cmp #MU_END_FRAME
           beq skip

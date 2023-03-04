@@ -36,7 +36,7 @@
           ldy line_data_indices,x
           lda(z_lstore),y
           sta short_axis
-          jsr _plot
+          jsr sc_plot
           iterator
           dec line_data_indices,x
 .endmacro

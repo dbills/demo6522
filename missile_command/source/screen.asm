@@ -7,14 +7,14 @@
 _pl_x:      .res 1
 _pl_y:      .res 1
 .CODE
-.export _plot,i_pltbl,BMASKS,abort,i_pltbl,i_hires,i_chrset
+.export sc_plot, sc_pltbl, BMASKS, abort, sc_pltbl,sc_hires,sc_chrset
 .exportzp _pl_x,_pl_y
 .proc abort
 .endproc
 ;;; initialize the plot table
 ;;; ram starting location for all hires
 ;;; screen columns
-.proc     i_pltbl
+.proc     sc_pltbl
           ldy #SCADDR_SZ - 1
           mov #SCADDR, ptr_0
 loop:
@@ -25,20 +25,20 @@ loop:
           rts
 .endproc
 
-.proc     _plot
-          plotm lda _pl_x
+.proc     sc_plot
+          sc_plotm lda _pl_x
           rts
 .endproc
 
 ;;; fill screen with a tiled
 ;;; set of chars to allow bitmapped
 ;;; graphics
-.proc     i_hires
-          chbase CHBASE1
-          setrows SCRROWS
-          setcolumns SCRCOLS
-          setleft 3
-          tallchar
+.proc     sc_hires
+          sc_chbase CHBASE1
+          sc_setrows SCRROWS
+          sc_setcolumns SCRCOLS
+          sc_setleft 3
+          sc_tallchar
           ldy SCRMAP_SZ
           ;; fill screen with chars tile
           ;; pattern
@@ -53,7 +53,7 @@ loop:
 .endproc
 ;;; clear ram allocated to custom
 ;;; character set
-.proc     i_chrset
+.proc     sc_chrset
           mov #CHBASE1, ptr_0
           ldy #0
           ldx #16                       ;# of pages

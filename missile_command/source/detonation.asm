@@ -205,7 +205,7 @@ loop:
             jsr de_rand
 skip:
             jsr wait_v
-            update_frame
+            sc_update_frame
 
             ;jsr j_wfire
             ldx #(slots-1)
@@ -538,7 +538,7 @@ l00:
 
           te_printf "press trigger"
           jsr j_wfire
-          jsr i_chrset
+          jsr sc_chrset
           te_pos #0, #0
           te_printf "detonation cx"
           ;; 
@@ -557,7 +557,7 @@ l00:
 
           te_printf "press trigger"
           jsr j_wfire
-          jsr i_chrset
+          jsr sc_chrset
           jmp l00
 
           rts

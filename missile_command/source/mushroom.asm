@@ -52,22 +52,19 @@ loop:
 
 ;;; ==========================================================================
 
+.define test_city 1
 .proc mu_test
 start:    
-          lda #17
+          lda #$20+9                    ;city center
           sta _pl_x
-          lda #0   
+          lda #test_city                ;city number
           mu_queue
 loop:     
-          mu_update 0
+          sc_update_frame
+          mu_update test_city
           beq start
 
-          ldy #240
-waiter:   
           waitv
-          dey
-          bne waiter
-          
           jmp loop
           rts
 .endproc

@@ -128,7 +128,7 @@ xloop:
             lda lwidth
             sta counter2
 drawx:
-            jsr _plot
+            jsr sc_plot
             inc _pl_x
             dec counter2
             bne drawx

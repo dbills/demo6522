@@ -14,9 +14,9 @@ z_save:   .res 1
 ;;; set screen back to normal
 ;;; text mode
 .proc     show_debug_screen
-          shortchar
+          sc_shortchar
           ;; reset chargen to ROM
-          chbase $8000
+          sc_chbase $8000
           ;; reset screen
           mov #SCREEN, ptr_0
           mov #DEBUG_SCREEN, ptr_1
@@ -101,6 +101,6 @@ loop:
           jsr j_wfire
           jsr show_debug_screen
           jsr j_wfire
-          jsr i_hires
+          jsr sc_hires
           jmp loop
 .endproc

@@ -44,12 +44,12 @@
           lda #8
           sta 36878
 
-          jsr i_pltbl                   ;init plotting table
-          jsr i_chrset                  ;init character set
-          jsr i_hires                   ;init hi-res screen
+          jsr sc_pltbl                   ;init plotting table
+          jsr sc_chrset                  ;init character set
+          jsr sc_hires                   ;init hi-res screen
           jsr i_joy                     ;init joystick
           jsr i_rand                    ;init random numbers
-          screenmem SCREEN              ;set VIC screen address
+          sc_screenmem SCREEN              ;set VIC screen address
 
           ;; border colors
           invmode 1
@@ -110,7 +110,7 @@ iloop:
           ta_draw
 loop:
           jsr wait_v
-          update_frame                  ;update frame counter
+          sc_update_frame                  ;update frame counter
 ;          bcolor_i CYAN
           jsr de_process
           mu_update 0

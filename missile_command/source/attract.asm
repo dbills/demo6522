@@ -26,7 +26,7 @@ loop:
 skip:
             waitv
             bcolor_i CYAN
-            update_frame
+            sc_update_frame
 
             jsr de_erase
             jsr de_draw

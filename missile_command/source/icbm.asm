@@ -20,6 +20,7 @@
 .include "system.inc"
 .include "playfield.inc"
 .include "mushroom.inc"
+.include "playfield.inc"
 
 .export icbm_genwave,icbm_update
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor

@@ -57,9 +57,7 @@
           scolor_i CYAN
 
           jsr db_init
-
           jsr i_sound
-
           jsr in_init
           jsr li_init
           jsr de_init
@@ -113,7 +111,7 @@ loop:
           sc_update_frame                  ;update frame counter
 ;          bcolor_i CYAN
           jsr de_process
-          mu_update 0
+          mu_update
 ;          bcolor_i BLACK
           ta_update
           ;; animate player missiles

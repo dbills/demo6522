@@ -1,4 +1,6 @@
 pl_city_margin = 4
 pl_city_width = 12
 pl_max_cities = 6
+;;; pixel to center of a city
+pl_city_center = 9
 pl_city_basey = YMAX - 9

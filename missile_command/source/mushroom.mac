@@ -1,8 +1,8 @@
 .include "sprite.inc"
 
-MU_MAX = 6
-MU_Y = YMAX- 12
-MU_END_FRAME = 12                          ;last frame of mushroom
+MU_MAX = 7                              ;6 cities + missile base
+MU_Y = YMAX- 12 -10
+MU_END_FRAME = 12                       ;last frame of mushroom
 
 ;;; Queue a mushroom cloud
 ;;; IN:
@@ -11,6 +11,13 @@ MU_END_FRAME = 12                          ;last frame of mushroom
 ;;; OUT:
 ;;;   Y: clobbered
 .macro mu_queue 
+.ifdef CHECKED_BUILD
+          tya
+          cpy #7
+          beq ok
+          abort 'E',E_MUSHROOM_RANGE
+ok:       
+.endif                                  
           ;; city 0,1,2 = offset 1
           ;; city 3,4,5 = offset 5
           tay
@@ -22,36 +29,37 @@ MU_END_FRAME = 12                          ;last frame of mushroom
           sta mu_screen_col,y
 .endmacro
 
-;;; Update mushroom clouds
-;;; IN:
-;;;   idx: slot to update
+;;; Update mushroom clouds.  They are updated one a system frame tick
+;;; there's going to be a jitter since it's 8 and there are six slots
 ;;; OUT:
-;;;
-.macro mu_update idx
-.local loop, skip
-          ldy #idx
-          ;; cpy frame_cnt
-          ;; bne skip
-          lda mu_frame_num,y            ;animation frame
-          cmp #MU_END_FRAME
-          beq skip
+.macro mu_update
+.local loop, done, east
+          ldy frame_cnt
+          ;; skip if frame_cnt = 0, since we only have at most 7 mushrooms cloud
+          ;; and frame_cnt is 0-7
+          dey
+          bmi done
+loop:    
+          lda mu_frame_num,y            ;if animation frame == finished
+          cmp #MU_END_FRAME             ;
+          beq done                      ;then return
           tax                           ;save frame # in X
 
-          clc                           ;inc frame
+          clc                           ;increment frame
           adc #1
           sta mu_frame_num,y
 
-          lda mu_screen_col,y           ;setup screen pointers
-          tay
+          lda mu_screen_col,y           ;load screen-column-table offset
+          tay                           ;transfer and setup sprite rendering pointers
           sp_setup_draw
-          
-          ldy #MU_Y             
-          ;; Y=pixel X=frame #
-.if (idx = 0 || idx = 1 || idx = 2)
+          cpy #22                       ;if left of missile base then draw east
+          blt east
+
+          ldy #MU_Y                     ;Y=pixel X=frame #
           jsr mu_draw_west
-.else
-          jsr mu_draw_east
-.endif
-          lda #1                        ;return 1
-skip:     
+          jmp done
+east:     
+          ldy #MU_Y                     ;Y=pixel X=frame #
+          jsr mu_draw_east              ;else mu_draw_west
+done:     
 .endmacro

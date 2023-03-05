@@ -12,8 +12,6 @@
 .bss
 mu_screen_col:         .res MU_MAX
 mu_frame_num:          .res MU_MAX
-.zeropage
-mushroom_idx:       .res 1
 .code
 
 ;;; Init mushroom cloud drawing
@@ -52,20 +50,18 @@ loop:
 
 ;;; ==========================================================================
 
-.define test_city 1
+.define test_city 7
 .proc mu_test
 start:    
-          lda #$20+9                    ;city center
+          lda pl_city_x_positions + test_city
           sta _pl_x
           lda #test_city                ;city number
           mu_queue
 loop:     
-          ;sc_update_frame
-          mu_update test_city
-
-wait:     
           waitv
-          jmp wait
+          sc_update_frame
+          mu_update 
+          jmp loop
           rts
 .endproc
 

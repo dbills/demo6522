@@ -45,7 +45,7 @@
           tya
           and #1
           beq ok
-          abort 'E',SPRITE_COL_ODD
+          abort 'E',E_SPRITE_COL_ODD
 ok:       
 .endif                                  
           lda pltbl+0,y

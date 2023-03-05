@@ -19,6 +19,10 @@ spacing = content_width / 8
 city_count: .res 1
 pl_city_x_positions: .res 6
 .code
+;;; proposed new city layout, this is not the current
+;;;  c  c  c  bbb  c  c  c
+;;; 01234567890123456789012
+
 ;;; Initialize playfield data for start of game
 ;;; reset cities, and live city count
 ;;; IN:

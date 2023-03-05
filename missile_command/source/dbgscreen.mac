@@ -28,5 +28,6 @@
 .endmacro
 
 ;;; error codes for the debug screen
-.define SPRITE_COL_ODD #1
+.define E_SPRITE_COL_ODD #1
+.define E_MUSHROOM_RANGE #2
 

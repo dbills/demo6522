@@ -218,7 +218,7 @@ int main(int argc, char ** argv) {
            0  /* shift amount */
            );
 
-  for(int i=0;i<MC_CITY_FRAME_COUNT;++i) {
+  for(int i=0;i<25;++i) {
     skip_offsets[i]=0;
     rows_to_show[i]=-1; // show them all
   }
@@ -227,8 +227,8 @@ int main(int argc, char ** argv) {
            MC_CITY_FRAME_COUNT,
            MC_CITY_FRAME_WIDTH,
            MC_CITY_FRAME_HEIGHT,
-           base_skip_offsets, /* start row */
-           base_rows_to_show,
+           skip_offsets, /* start row */
+           rows_to_show,
            0  /* shift amount */
            );
 }

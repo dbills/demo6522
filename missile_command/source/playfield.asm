@@ -43,7 +43,7 @@ pl_city_x_positions: .res 6
           rts
 .endproc
 
-;;; Draw city at location in Y
+;;; Draw city at location in Y, low elevation
 ;;; IN:
 ;;;   Y: screen column *2 to draw city in
 ;;; OUT:
@@ -92,6 +92,36 @@ pl_city_x_positions: .res 6
           jsr draw_city
           ldy #20*2
           jsr draw_city
+          ;; left edge elevation texture
+          ldy #0
+          sp_setup_draw
+          ldy #YMAX-5
+          lda #%11000000
+          sta (sp_col0),y
+          iny
+          lda #%11100000
+          sta (sp_col0),y
+          iny
+          lda #%11110000
+          sta (sp_col0),y
+          iny
+          lda #%11111001
+          sta (sp_col0),y
+          ;; right edge elevation texture
+          ldy #44
+          sp_setup_draw
+          ldy #YMAX-5
+          lda #%00011000
+          sta (sp_col0),y
+          iny
+          lda #%01111000
+          sta (sp_col0),y
+          iny
+          lda #%11111100
+          sta (sp_col0),y
+          iny
+          lda #%11111110
+          sta (sp_col0),y
           ;; 
           ldy #10*2                       ;start of base column 10
           sp_setup_draw

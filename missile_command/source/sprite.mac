@@ -28,6 +28,13 @@
 .macro    sp_setup_draw reg
 .local ok
           .if (.match (.left (1, {reg}), X))
+.ifdef CHECKED_BUILD
+          tya
+          and #1
+          beq ok
+          abort 'E',E_SPRITE_COL_ODD
+ok:       
+.endif
           lda pltbl+0,x
           sta sp_col0
           lda pltbl+1,x

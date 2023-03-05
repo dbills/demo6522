@@ -30,7 +30,7 @@
 .ifdef TESTS
 .include "unit_tests.inc"          
 .endif
-;.segment "STARTUP"
+
 ;          jmp demo
           .CODE
 .proc     demo
@@ -78,7 +78,7 @@ forever:  jmp forever
 
           jsr icbm_genwave              
 
-          jsr main_loop                 
+          ;jsr main_loop                 
 
           ;jsr line_tests
           ;jsr de_test
@@ -88,7 +88,7 @@ loop:     jmp loop
           ;jsr line_tests
 .import attract
             ;jsr attract
-          ;; debug_string "rmissilecommandtheend"
+
           rts
 .endproc
 ;;; wait vertical blank

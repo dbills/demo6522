@@ -5,6 +5,7 @@
 .include "screen.mac"
 .include "colors.equ"
 .include "playfield.mac"
+.include "shape_draw.inc"
 
 .export pl_draw_cities, pl_city_x_positions, pl_init
 
@@ -19,10 +20,6 @@ spacing = content_width / 8
 city_count: .res 1
 pl_city_x_positions: .res 6
 .code
-;;; proposed new city layout, this is not the current
-;;;  c  c  c  bbb  c  c  c
-;;; 01234567890123456789012
-
 ;;; Initialize playfield data for start of game
 ;;; reset cities, and live city count
 ;;; IN:
@@ -45,9 +42,27 @@ pl_city_x_positions: .res 6
           sta pl_city_x_positions+5
           rts
 .endproc
+
+;;; Draw city at location in Y
+;;; IN:
+;;;   Y: screen column *2 to draw city in
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.proc draw_city
+          ;ldy #2
+          sp_setup_draw
+          ldy #YMAX-12
+          jsr mcity0_shift0
+          rts
+.endproc
+
 ;;; Draw cities at bottom the screen.  This will need update to take into account
 ;;; cities that have been destroyed which will not have an x coord in 
 ;;; pl_city_x_positions
+;;; proposed new city layout, this is not the current
+;;;  c  c  c  bbb  c  c  c
+;;; 01234567890123456789012
 ;;; 
 ;;; IN:
 ;;;   arg1: does this and that
@@ -59,10 +74,30 @@ pl_city_x_positions: .res 6
           ;; draw ground
           lda #255
           .repeat 23, COL
-          sta CHBASE1 + (COL * SCRROWS * CHARHT) + YMAX - 3
+          ;sta CHBASE1 + (COL * SCRROWS * CHARHT) + YMAX - 3
           sta CHBASE1 + (COL * SCRROWS * CHARHT) + YMAX - 2
           sta CHBASE1 + (COL * SCRROWS * CHARHT) + YMAX - 1
           .endrepeat
+          ;; west side cities
+          ldy #1*2
+          jsr draw_city
+          ldy #4*2
+          jsr draw_city
+          ldy #7*2
+          jsr draw_city
+          ;; east side
+          ldy #14*2
+          jsr draw_city
+          ldy #17*2
+          jsr draw_city
+          ldy #20*2
+          jsr draw_city
+          ;; 
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-16
+          jsr mbase0_shift0
+          rts
           ;; lda #PURPLE
           ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2-1
           ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2

@@ -6,7 +6,8 @@
  // consider piskel/*
 //#include "/tmp/mc_mushrom.c"
 #include "../piskel/mc_mushrom.c"
-#include "../piskel/mbase.c"
+#include "../piskel/missile_base.c"
+#include "../piskel/mc_city.c"
 
 int mode = 0;
 bool code = false;
@@ -138,7 +139,8 @@ void generate(const char * name,
       const unsigned int dword = dwords[row];
       write_byte(B3(dword), 0);
       write_byte(B2(dword), 1);
-      write_byte(B1(dword), 2);
+      if(shift>0 || columns>16)
+        write_byte(B1(dword), 2);
       if (row < rows - 1)
         printf("  iny\n");
       ++row_counter;
@@ -211,6 +213,20 @@ int main(int argc, char ** argv) {
            MISSILE_BASE_FRAME_COUNT,
            MISSILE_BASE_FRAME_WIDTH,
            MISSILE_BASE_FRAME_HEIGHT,
+           base_skip_offsets, /* start row */
+           base_rows_to_show,
+           0  /* shift amount */
+           );
+
+  for(int i=0;i<MC_CITY_FRAME_COUNT;++i) {
+    skip_offsets[i]=0;
+    rows_to_show[i]=-1; // show them all
+  }
+  generate("mcity",
+           (unsigned int*)&mc_city_data,
+           MC_CITY_FRAME_COUNT,
+           MC_CITY_FRAME_WIDTH,
+           MC_CITY_FRAME_HEIGHT,
            base_skip_offsets, /* start row */
            base_rows_to_show,
            0  /* shift amount */

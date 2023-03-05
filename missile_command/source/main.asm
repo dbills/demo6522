@@ -78,7 +78,7 @@ forever:  jmp forever
 
           jsr icbm_genwave              
 
-          ;jsr main_loop                 
+          jsr main_loop                 
 
           ;jsr line_tests
           ;jsr de_test

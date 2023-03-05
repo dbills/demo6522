@@ -1,4 +1,4 @@
-.export crosshair,city_left,city_right,base_left,base_right,crosshair_left,crosshair_right
+.export crosshair,crosshair_left,crosshair_right
 .listbytes 100
 .DATA
 
@@ -52,45 +52,4 @@ crosshair:
 
 crosshair_left = crosshair
 crosshair_right = crosshair  + (8*8)
-
-city_left:
-	.byte %00000010
-	.byte %00000010
-	.byte %00000110
-	.byte %00001111
-	.byte %00001111
-city_right:
-	.byte %00000000
-	.byte %10100000
-	.byte %10110100
-	.byte %11111110
-	.byte %11111111
-ground_piece:
-	.byte 0
-	.byte 0
-	.byte 0
-	.byte 0
-	.byte %11111111
-	.byte %11111111
-	.byte %11111111
-	.byte %11111111
-	.byte %11111111
-base_left:
-          .byte %00000000
-          .byte %00000011
-          .byte %00000111
-          .byte %00001111
-          .byte %00011111
-          .byte %00111111
-          .byte %01111111
-          .byte %11111111
-base_right:
-          .byte %00000000
-          .byte %11000000
-          .byte %11100000
-          .byte %11110000
-          .byte %11111000
-          .byte %11111100
-          .byte %11111110
-          .byte %11111111
 

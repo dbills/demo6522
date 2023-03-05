@@ -17,8 +17,16 @@ content_width = XMAX - (city_width * 6) - missile_base_width
 spacing = content_width / 8
 
 .bss
+
 city_count: .res 1
-pl_city_x_positions: .res 6
+
+.data
+
+pl_city_x_positions: 
+.byte 1*8+4, 4*8+4, 7*8+4               ;west
+.byte 14*8+4,17*8+4,20*8+4              ;east
+.byte 11*8+4                            ;base
+
 .code
 ;;; Initialize playfield data for start of game
 ;;; reset cities, and live city count
@@ -27,19 +35,6 @@ pl_city_x_positions: .res 6
 .proc pl_init
           lda #5
           sta city_count
-          ;; 6 cities + base + 1 = margins
-          lda #spacing + (city_width+spacing)*0 - city_margin
-          sta pl_city_x_positions
-          lda #spacing + (city_width+spacing)*1 - city_margin
-          sta pl_city_x_positions+1
-          lda #spacing + (city_width+spacing)*2 - city_margin
-          sta pl_city_x_positions+2
-          lda #spacing + (city_width+spacing)*3 + 16 + spacing - city_margin
-          sta pl_city_x_positions+3
-          lda #spacing + (city_width+spacing)*4 + 16 + spacing - city_margin
-          sta pl_city_x_positions+4
-          lda #spacing + (city_width+spacing)*5 + 16 + spacing - city_margin
-          sta pl_city_x_positions+5
           rts
 .endproc
 
@@ -61,7 +56,7 @@ pl_city_x_positions: .res 6
 ;;; cities that have been destroyed which will not have an x coord in 
 ;;; pl_city_x_positions
 ;;; proposed new city layout, this is not the current
-;;;  c  c  c  bbb  c  c  c
+;;;  c  c  c  bbb c  c  c 
 ;;; 01234567890123456789012
 ;;; 
 ;;; IN:
@@ -127,48 +122,5 @@ pl_city_x_positions: .res 6
           sp_setup_draw
           ldy #YMAX-16
           jsr mbase0_shift0
-          rts
-          ;; lda #PURPLE
-          ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2-1
-          ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2
-          ;; sta CLRRAM + (23 * (SCRROWS-1)) + SCRCOLS/2+1
-          
-          ;; draw missile base in center of screen
-          lda #8
-          sta sp_height
-          mov #base_left,ptr_0
-          lda #XMAX/2-8
-          sta s_x
-          lda #pl_city_basey            ;2 pixels above cities
-          sec
-          sbc #2
-          sta s_y
-          jsr sp_draw_unshifted
-          lda #XMAX/2
-          sta s_x
-          mov #base_right,ptr_0
-          jsr sp_draw_unshifted
-
-          ;; draw the six cities
-blarg:    
-          lda #5
-          sta sp_height
-          lda #pl_city_basey
-          sta s_y
-loop:
-          ldx city_count
-          lda pl_city_x_positions,x
-          sta s_x
-          mov #city_left,ptr_0
-          jsr sp_draw_unshifted
-          ;; move 8 right, for right piece
-          clc
-          lda #8
-          adc s_x
-          sta s_x
-          mov #city_right,ptr_0
-          jsr sp_draw_unshifted
-          dec city_count
-          bpl loop
           rts
 .endproc

@@ -122,8 +122,6 @@ loop:
 .macro city_location
           tay
           lda pl_city_x_positions,y
-          clc
-          adc #9                        ;city width / 2 
 .endmacro
 .proc random_city
           lda #6

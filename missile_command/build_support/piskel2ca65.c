@@ -36,13 +36,19 @@ const char * make_name(const char * name, int frame, int shift) {
 // shift: pixels to shift to the right
 // skip: the starting row in the frame data -- which you would use for example
 // because there is blank space at the top the image data, no sense in encoding that
+// skip_offsets = array of starting positions for each frame
+// rows_to_show = array of row to show for each frame
+//                e.g. if skip =3 and rows_to_show=3
+//                then that frame shows rows 3-6 in the sprite definition
 void generate(const char * name, 
               uint32_t * array, 
               int frames, 
-              int rows, 
               int columns, 
-              int skip, 
-              int shift) 
+              int rows, 
+              int *skip_offsets, 
+              int *rows_to_show,
+              int shift
+              ) 
 {
   printf(".export %s_frames_shift%dL,%s_frames_shift%dH", name, shift,
          name,shift);
@@ -68,13 +74,16 @@ void generate(const char * name,
   for (int frame = 0; frame < frames; frame++) {
     printf(".proc %s\n", make_name(name, frame, shift));
     unsigned int dwords[rows];
-    for (int row = skip; row < rows; row++) {
+    for (int row = skip_offsets[frame],row_counter=0; 
+         row < rows && (rows_to_show[frame]==-1 ||
+                        row_counter < rows_to_show[frame]);
+         ++row,++row_counter) {
       printf("  ;; %2d|", row);
       unsigned int dword = 0;
       bool solid_fill = false;
       for (int col = 0; col < columns; col++) {
         int pixel_offset = row * columns + col;
-        // one byte per pixel?
+        // one byte per pixel
         unsigned int *addr = (array + (frame * rows * columns) + pixel_offset);
         int val = *addr;
         // piskel writes ff for each on bit in the top two nybbles
@@ -121,13 +130,18 @@ void generate(const char * name,
       printf("| $%s\n", buf);
     }
     // shift the sprite bytes we recorded
-    for (int row = skip; row < rows; row++) {
+    // only emit number of rows requested for this frame
+    for (int row = skip_offsets[frame],row_counter=0; 
+         row < rows && (rows_to_show[frame]==-1 ||
+                        row_counter < rows_to_show[frame]);
+         ++row) {
       const unsigned int dword = dwords[row];
       write_byte(B3(dword), 0);
       write_byte(B2(dword), 1);
       write_byte(B1(dword), 2);
       if (row < rows - 1)
         printf("  iny\n");
+      ++row_counter;
     }
     printf("  rts\n.endproc\n\n");
   }
@@ -147,31 +161,60 @@ int main(int argc, char ** argv) {
   // add 9 to each of them to get the mushroom cloud centerline
   // because 9 is what the icbm target.  See icbm.asm:city_centerline equate
   const int city_centerline = 9;
+  int skip_offsets[25];
+  int rows_to_show[25];
+  for(int i=0;i<MC_MUSHROM_FRAME_COUNT;++i) {
+    skip_offsets[i]=5;
+    rows_to_show[i]=-1; // show them all
+  }
   generate("mushroom",
            (unsigned int*)&mc_mushrom_data,
            MC_MUSHROM_FRAME_COUNT,
-           MC_MUSHROM_FRAME_HEIGHT,
            MC_MUSHROM_FRAME_WIDTH,
-           5, /* start row */
+           MC_MUSHROM_FRAME_HEIGHT,
+           skip_offsets, /* start rows per frame */
+           rows_to_show,
            (0x8 + city_centerline)%8 /* shift amount */
   );
   generate("mushroom",
            (unsigned int*)&mc_mushrom_data,
            MC_MUSHROM_FRAME_COUNT,
-           MC_MUSHROM_FRAME_HEIGHT,
            MC_MUSHROM_FRAME_WIDTH,
-           5, /* start row */
+           MC_MUSHROM_FRAME_HEIGHT,
+           skip_offsets, /* start rows per frame */
+           rows_to_show,
            (0x6c + city_centerline)%8 /* shift amount */
            );
+  int base_skip_offsets[MISSILE_BASE_FRAME_COUNT] = 
+    { 0,           // full sprite
+      13,13,13,13, // erase bottom 4 interceptors
+      9,9,9,       // erase next 3
+      5,5,         // erase 2
+      1            // erase top
+    };
+  int base_rows_to_show[MISSILE_BASE_FRAME_COUNT] = 
+    { -1, // 10
+      3, // 9 bottom
+      3, // 8 "
+      3, // 7 "
+      3, // 6 "
+      3, // 5 middle
+      3, // 4 "
+      3, // 3 "
+      3, // 2 upper-middle
+      3, // 1 "
+      3, // 0 top
+    };
+                                                     
   generate("mbase", 
            (unsigned int*)&missile_base_data,
            MISSILE_BASE_FRAME_COUNT,
-           MISSILE_BASE_FRAME_HEIGHT,
            MISSILE_BASE_FRAME_WIDTH,
-           0, /* start row */
+           MISSILE_BASE_FRAME_HEIGHT,
+           base_skip_offsets, /* start row */
+           base_rows_to_show,
            0  /* shift amount */
            );
-
   //generate(x,2,2,2);
 }
 // xterm

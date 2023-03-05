@@ -1,3 +1,7 @@
+This game is 256x231 in arcade and scaling will be needed for some game logic
+to our reduce screen size
+below 33 was no collision check, for example
+
 TODO:
 WOW: this is the last time I worked on this after all the
      medical drama

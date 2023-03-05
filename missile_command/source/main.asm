@@ -78,12 +78,12 @@ forever:  jmp forever
 
           jsr icbm_genwave              
 
-          ;jsr main_loop                 
+          jsr main_loop                 
 
           ;jsr line_tests
           ;jsr de_test
 
-          jsr mu_test
+          ;jsr mu_test
 loop:     jmp loop
           ;jsr line_tests
 .import attract

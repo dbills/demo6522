@@ -6,7 +6,7 @@
  // consider piskel/*
 //#include "/tmp/mc_mushrom.c"
 #include "../piskel/mc_mushrom.c"
-//#include "../piskel/mbase.c"
+#include "../piskel/mbase.c"
 
 int mode = 0;
 bool code = false;
@@ -164,7 +164,7 @@ int main(int argc, char ** argv) {
   int skip_offsets[25];
   int rows_to_show[25];
   for(int i=0;i<MC_MUSHROM_FRAME_COUNT;++i) {
-    skip_offsets[i]=5;
+    skip_offsets[i]=6;
     rows_to_show[i]=-1; // show them all
   }
   generate("mushroom",
@@ -185,36 +185,36 @@ int main(int argc, char ** argv) {
            rows_to_show,
            (0x6c + city_centerline)%8 /* shift amount */
            );
-  /* int base_skip_offsets[MISSILE_BASE_FRAME_COUNT] =  */
-  /*   { 0,           // full sprite */
-  /*     13,13,13,13, // erase bottom 4 interceptors */
-  /*     9,9,9,       // erase next 3 */
-  /*     5,5,         // erase 2 */
-  /*     1            // erase top */
-  /*   }; */
-  /* int base_rows_to_show[MISSILE_BASE_FRAME_COUNT] =  */
-  /*   { -1, // 10 */
-  /*     3, // 9 bottom */
-  /*     3, // 8 " */
-  /*     3, // 7 " */
-  /*     3, // 6 " */
-  /*     3, // 5 middle */
-  /*     3, // 4 " */
-  /*     3, // 3 " */
-  /*     3, // 2 upper-middle */
-  /*     3, // 1 " */
-  /*     3, // 0 top */
-  /*   }; */
+  int base_skip_offsets[MISSILE_BASE_FRAME_COUNT] =
+    { 0,           // full sprite
+      13,13,13,13, // erase bottom 4 interceptors
+      9,9,9,       // erase next 3
+      5,5,         // erase 2
+      1            // erase top
+    };
+  int base_rows_to_show[MISSILE_BASE_FRAME_COUNT] =
+    { -1, // 10
+      3, // 9 bottom
+      3, // 8 "
+      3, // 7 "
+      3, // 6 "
+      3, // 5 middle
+      3, // 4 "
+      3, // 3 "
+      3, // 2 upper-middle
+      3, // 1 "
+      3, // 0 top
+    };
                                                      
-  /* generate("mbase", */
-  /*          (unsigned int*)&missile_base_data, */
-  /*          MISSILE_BASE_FRAME_COUNT, */
-  /*          MISSILE_BASE_FRAME_WIDTH, */
-  /*          MISSILE_BASE_FRAME_HEIGHT, */
-  /*          base_skip_offsets, /\* start row *\/ */
-  /*          base_rows_to_show, */
-  /*          0  /\* shift amount *\/ */
-  /*          ); */
+  generate("mbase",
+           (unsigned int*)&missile_base_data,
+           MISSILE_BASE_FRAME_COUNT,
+           MISSILE_BASE_FRAME_WIDTH,
+           MISSILE_BASE_FRAME_HEIGHT,
+           base_skip_offsets, /* start row */
+           base_rows_to_show,
+           0  /* shift amount */
+           );
 }
 // xterm
 //- Move the cursor up N lines:

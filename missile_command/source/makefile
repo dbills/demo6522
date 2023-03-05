@@ -1,9 +1,3 @@
-# I'm really bummed about this
-# I can't seem to get directories to show up on my winvice
-# as a drive on my windows PC ( which I must use, a story I will not
-# go into as it depressed me, especially in cause but also as effect ).  The directory
-# as a drive always worked for me under linux, and previously under windows
-# oh well, I have to use c1541 I reckon
 # C1541=c:\winvice3\c1541 -attach disk1.d64 -write a.p00 a
 C1541=/mnt/c/winvice3/c1541.exe
 EXE=a
@@ -41,6 +35,9 @@ port: graphics extra_graphics
 # link
 	cd obj;cl65 -o ../a.p00 -tvic20 -Ln ../vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug $(OBJS)
 	cd obj;perl ../../build_support/mapfile.pl a.map > a.lst
+	@grep ^BSS obj/a.map | awk '{print $$3}' > /tmp/end.txt
+	@printf "ibase=16\n%s\n"  `cat /tmp/end.txt` | bc > /tmp/end2.txt
+	@echo "bytes remaining: $$((32767 - `cat /tmp/end2.txt`))"
 	@if [ -f /tmp/golden.txt ];then \
           echo "golden checksum"; \
           sum a.p00 > /tmp/new_golden.txt && diff /tmp/golden.txt /tmp/new_golden.txt;\

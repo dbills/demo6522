@@ -40,7 +40,6 @@
           mov #sound_interrupt, $0314
           ;mov #MINISR, $0314
           ;mov_wi DEFISR, $0314          ;
-          cli
           lda #8
           sta 36878
 
@@ -63,6 +62,8 @@
           jsr de_init
           jsr pl_init
           jsr mu_init
+
+          cli
 .ifdef TESTS
           jsr unit_tests
 forever:  jmp forever
@@ -77,7 +78,6 @@ forever:  jmp forever
           ;;jsr mcommand
 
           jsr icbm_genwave              
-
           ;jsr main_loop                 
 
           ;jsr line_tests

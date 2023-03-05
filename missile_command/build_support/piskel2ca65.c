@@ -6,6 +6,7 @@
  // consider piskel/*
 //#include "/tmp/mc_mushrom.c"
 #include "../piskel/mc_mushrom.c"
+#include "../piskel/mbase.c"
 
 int mode = 0;
 bool code = false;
@@ -72,7 +73,7 @@ void generate(const char * name,
       unsigned int dword = 0;
       bool solid_fill = false;
       for (int col = 0; col < columns; col++) {
-        int pixel_offset = row * rows + col;
+        int pixel_offset = row * columns + col;
         // one byte per pixel?
         unsigned int *addr = (array + (frame * rows * columns) + pixel_offset);
         int val = *addr;
@@ -96,7 +97,9 @@ void generate(const char * name,
       // 0-7 bits for performance in the generated assembly
       unsigned int a,b,c=0;
       a=dword;
-      dword <<= 8;
+      // 24 bit sprites are not preshiftable with this tech, so we skip the left shit
+      if(columns<16)
+        dword <<= 8;
       b=dword;
       // use 1 bit as code to set background to on, instead of off by default
       if(solid_fill) {
@@ -144,7 +147,7 @@ int main(int argc, char ** argv) {
   // add 9 to each of them to get the mushroom cloud centerline
   // because 9 is what the icbm target.  See icbm.asm:city_centerline equate
   const int city_centerline = 9;
-  generate("mushroom", 
+  generate("mushroom",
            (unsigned int*)&mc_mushrom_data,
            MC_MUSHROM_FRAME_COUNT,
            MC_MUSHROM_FRAME_HEIGHT,
@@ -152,13 +155,21 @@ int main(int argc, char ** argv) {
            5, /* start row */
            (0x8 + city_centerline)%8 /* shift amount */
   );
-  generate("mushroom", 
+  generate("mushroom",
            (unsigned int*)&mc_mushrom_data,
            MC_MUSHROM_FRAME_COUNT,
            MC_MUSHROM_FRAME_HEIGHT,
            MC_MUSHROM_FRAME_WIDTH,
            5, /* start row */
            (0x6c + city_centerline)%8 /* shift amount */
+           );
+  generate("mbase", 
+           (unsigned int*)&missile_base_data,
+           MISSILE_BASE_FRAME_COUNT,
+           MISSILE_BASE_FRAME_HEIGHT,
+           MISSILE_BASE_FRAME_WIDTH,
+           0, /* start row */
+           0  /* shift amount */
            );
 
   //generate(x,2,2,2);

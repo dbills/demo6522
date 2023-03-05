@@ -25,6 +25,12 @@ loop:
           sta seedhi
           rts
 .endproc
+;;; Random byte
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .proc     rand_8
   lda seedhi
   lsr

@@ -14,7 +14,7 @@ MU_END_FRAME = 12                       ;last frame of mushroom
 .ifdef CHECKED_BUILD
           tya
           cpy #7
-          beq ok
+          bgte ok
           abort 'E',E_MUSHROOM_RANGE
 ok:       
 .endif                                  

@@ -18,8 +18,9 @@ spacing = content_width / 8
 .bss
 city_count: .res 1
 pl_city_x_positions: .res 6
+pl_base_x_position:  .res 1
 .code
-;;; proposed new city layout, this is not the current
+;;; proposed new city layout, this is not the current       
 ;;;  c  c  c  bbb  c  c  c
 ;;; 01234567890123456789012
 
@@ -81,11 +82,11 @@ pl_city_x_positions: .res 6
           jsr sp_draw_unshifted
           lda #XMAX/2
           sta s_x
+          sta pl_base_x_position
           mov #base_right,ptr_0
           jsr sp_draw_unshifted
 
           ;; draw the six cities
-blarg:    
           lda #5
           sta sp_height
           lda #pl_city_basey

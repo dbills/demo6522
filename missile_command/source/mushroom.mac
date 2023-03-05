@@ -12,9 +12,8 @@ MU_END_FRAME = 12                       ;last frame of mushroom
 ;;;   Y: clobbered
 .macro mu_queue 
 .ifdef CHECKED_BUILD
-          tya
-          cpy #7
-          beq ok
+          cmp #6
+          bgte ok
           abort 'E',E_MUSHROOM_RANGE
 ok:       
 .endif                                  

@@ -50,7 +50,7 @@ loop:
 
 ;;; ==========================================================================
 
-.define test_city 7
+.define test_city 0
 .proc mu_test
 start:    
           lda pl_city_x_positions + test_city

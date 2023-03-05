@@ -181,23 +181,15 @@ loop:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc icbm_genwave
+          ;; set line pointer and index in X
           mov #line_data01,z_lstore
           ldx #1
 ;          li_lineto #10,#10,#89,#155
-          lda #0                        ; select city 0
+          lda #1                        ; select city 0
           ldy #0                        ; "
           sta (z_lstore),y              ; store target city data in line buffer
           city_location
           sta z_x2
           li_lineto #XMAX-1,#0,z_x2,#165
           rts
-          ldx #1
-loop:     
-          jsr li_render_pixel
-          bne loop
-
-loop2:    
-          jmp loop2
-          rts
-
 .endproc

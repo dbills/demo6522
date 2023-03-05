@@ -23,7 +23,7 @@ ok:
           lda #0                        ;start at frame 0
           sta mu_frame_num,y
 
-          lda _pl_x                     ;column = pl_x/8
+          lda pl_city_x_positions,y
           sp_calc_screen_column
           sta mu_screen_col,y
 .endmacro

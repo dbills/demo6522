@@ -156,12 +156,6 @@ int main(int argc, char ** argv) {
   /* int c=2; */
   /* printf("%d,%d\n", x[r][c],*(p+(r*3)+c)); */
 
-  // these are the hex X locations of the start of the cities currently
-  // 08 20 38 6c  84 9c
-  // city 0,1,2 = offset 1
-  // city 3,4,5 = offset 5
-  // add 9 to each of them to get the mushroom cloud centerline
-  // because 9 is what the icbm target.  See icbm.asm:city_centerline equate
   const int city_centerline = 9;
   int skip_offsets[25];
   int rows_to_show[25];
@@ -176,17 +170,8 @@ int main(int argc, char ** argv) {
            MC_MUSHROM_FRAME_HEIGHT,
            skip_offsets, /* start rows per frame */
            rows_to_show,
-           (0x8 + city_centerline)%8 /* shift amount */
+           0 /* shift amount */
   );
-  generate("mushroom",
-           (unsigned int*)&mc_mushrom_data,
-           MC_MUSHROM_FRAME_COUNT,
-           MC_MUSHROM_FRAME_WIDTH,
-           MC_MUSHROM_FRAME_HEIGHT,
-           skip_offsets, /* start rows per frame */
-           rows_to_show,
-           (0x6c + city_centerline)%8 /* shift amount */
-           );
   int base_skip_offsets[MISSILE_BASE_FRAME_COUNT] =
     { 0,           // full sprite
       13,13,13,13, // erase bottom 4 interceptors

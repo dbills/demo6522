@@ -1,5 +1,5 @@
 .include "zerop.inc"
-.include "mushroom_draw.inc"
+.include "shape_draw.inc"
 .include "sprite.inc"
 .include "system.inc"
 .include "jstick.inc"
@@ -7,7 +7,7 @@
 .include "playfield.inc"
 .include "mushroom.mac"
 
-.export mu_test, mu_init, mu_frame_num, mu_screen_col, mu_draw_east, mu_draw_west
+.export mu_test, mu_init, mu_frame_num, mu_screen_col, mu_draw
 
 .bss
 mu_screen_col:         .res MU_MAX
@@ -27,25 +27,15 @@ loop:
           rts
 .endproc
 
-;;; Draw mushroom cloud for wester cities ( left side of bse )
+;;; Draw mushroom cloud 
 ;;; those cities are sprite shift = 1
 ;;; IN:
 ;;;   Y: Y screen coord
 ;;;   X: frame of animation to draw
 ;;; OUT:
 ;;;
-.proc mu_draw_west 
-          sy_dynajump mushroom_frames_shift1L,mushroom_frames_shift1H
-.endproc
-
-;;; draw mushroom cloud for wester cities ( right side of base )
-;;; IN:
-;;;   Y: Y screen coord
-;;;   X: frame of animation to draw
-;;; OUT:
-;;;
-.proc mu_draw_east
-          sy_dynajump mushroom_frames_shift5L,mushroom_frames_shift5H
+.proc mu_draw
+          sy_dynajump mushroom_frames_shift0L, mushroom_frames_shift0H
 .endproc
 
 ;;; ==========================================================================

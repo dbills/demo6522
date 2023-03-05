@@ -23,8 +23,8 @@ city_count: .res 1
 .data
 
 pl_city_x_positions: 
-.byte 1*8+4, 4*8+4, 7*8+4               ;west
-.byte 14*8+4,17*8+4,20*8+4              ;east
+.byte  1*8+6, 4*8+6, 7*8+6               ;west
+.byte 14*8+6,17*8+6,20*8+6              ;east
 .byte 11*8+4                            ;base
 
 .code
@@ -90,10 +90,7 @@ pl_city_x_positions:
           ;; left edge elevation texture
           ldy #0
           sp_setup_draw
-          ldy #YMAX-5
-          lda #%11000000
-          sta (sp_col0),y
-          iny
+          ldy #YMAX-4
           lda #%11100000
           sta (sp_col0),y
           iny

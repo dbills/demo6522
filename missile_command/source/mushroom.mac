@@ -1,7 +1,7 @@
 .include "sprite.inc"
 
 MU_MAX = 7                              ;6 cities + missile base
-MU_Y = YMAX- 12 -10
+MU_Y = YMAX- 10 
 MU_END_FRAME = 12                       ;last frame of mushroom
 
 ;;; Queue a mushroom cloud
@@ -26,6 +26,14 @@ ok:
           lda pl_city_x_positions,y
           sp_calc_screen_column
           sta mu_screen_col,y
+          ;; erase a piece of the city that the mushroom won't
+          tay
+          sp_setup_draw
+          ldy #YMAX-12
+          lda #0
+          sta (sp_col0),y
+          iny
+          sta (sp_col0),y
 .endmacro
 
 ;;; Update mushroom clouds.  They are updated one a system frame tick
@@ -38,7 +46,7 @@ ok:
           ;; and frame_cnt is 0-7
           dey
           bmi done
-loop:    
+
           lda mu_frame_num,y            ;if animation frame == finished
           cmp #MU_END_FRAME             ;
           beq done                      ;then return
@@ -51,14 +59,7 @@ loop:
           lda mu_screen_col,y           ;load screen-column-table offset
           tay                           ;transfer and setup sprite rendering pointers
           sp_setup_draw
-          cpy #22                       ;if left of missile base then draw east
-          blt east
-
           ldy #MU_Y                     ;Y=pixel X=frame #
-          jsr mu_draw_west
-          jmp done
-east:     
-          ldy #MU_Y                     ;Y=pixel X=frame #
-          jsr mu_draw_east              ;else mu_draw_west
+          jsr mu_draw
 done:     
 .endmacro

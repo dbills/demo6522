@@ -11,6 +11,7 @@ MU_END_FRAME = 12                       ;last frame of mushroom
 ;;; OUT:
 ;;;   Y: clobbered
 .macro mu_queue 
+.local done,is_base
 .ifdef CHECKED_BUILD
           cmp #6
           bgte ok
@@ -26,21 +27,37 @@ ok:
           lda pl_city_x_positions,y
           sp_calc_screen_column
           sta mu_screen_col,y
-          ;; erase a piece of the city that the mushroom won't
+          ;; set screen pointer so we can do some pixel patchups
           tay
           sp_setup_draw
+          cpy #10
+          beq is_base
+          ;; erase a piece of the city 
           ldy #YMAX-12
           lda #0
           sta (sp_col0),y
           iny
           sta (sp_col0),y
+          beq done
+is_base:  
+          ;; erase a piece of base      
+          ldy #YMAX-13
+          lda #0
+          sta (sp_col2),y
+          iny
+          sta (sp_col2),y
+          iny
+          sta (sp_col2),y
+          iny
+          sta (sp_col2),y
+done:     
 .endmacro
 
 ;;; Update mushroom clouds.  They are updated one a system frame tick
 ;;; there's going to be a jitter since it's 8 and there are six slots
 ;;; OUT:
 .macro mu_update
-.local loop, done, east
+.local loop, done, east, is_city
           ldy frame_cnt
           ;; skip if frame_cnt = 0, since we only have at most 7 mushrooms cloud
           ;; and frame_cnt is 0-7
@@ -59,7 +76,13 @@ ok:
           lda mu_screen_col,y           ;load screen-column-table offset
           tay                           ;transfer and setup sprite rendering pointers
           sp_setup_draw
-          ldy #MU_Y                     ;Y=pixel X=frame #
+          tya
+          ldy #MU_Y
+          cmp #10                       ;tile of base
+          beq is_city
+          ldy #MU_Y-6                   ;move explosion higher
+is_city:  
+          ;; Y=pixel X=frame #
           jsr mu_draw
 done:     
 .endmacro

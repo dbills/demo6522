@@ -172,6 +172,16 @@ int main(int argc, char ** argv) {
            rows_to_show,
            0 /* shift amount */
   );
+  // shift 4, to align with missile base explosion
+  /* generate("mushroom", */
+  /*          (unsigned int*)&mc_mushrom_data, */
+  /*          MC_MUSHROM_FRAME_COUNT, */
+  /*          MC_MUSHROM_FRAME_WIDTH, */
+  /*          MC_MUSHROM_FRAME_HEIGHT, */
+  /*          skip_offsets, /\* start rows per frame *\/ */
+  /*          rows_to_show, */
+  /*          4 /\* shift amount *\/ */
+  /* ); */
   int base_skip_offsets[MISSILE_BASE_FRAME_COUNT] =
     { 0,           // full sprite
       13,13,13,13, // erase bottom 4 interceptors

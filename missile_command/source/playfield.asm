@@ -23,9 +23,9 @@ city_count: .res 1
 .data
 
 pl_city_x_positions: 
-.byte  1*8+6, 4*8+6, 7*8+6               ;west
+.byte  1*8+6, 4*8+6, 7*8+6              ;west
 .byte 14*8+6,17*8+6,20*8+6              ;east
-.byte 11*8+4                            ;base
+.byte 10*8+4                            ;base
 
 .code
 ;;; Initialize playfield data for start of game

@@ -5,19 +5,32 @@
 .include "sound.inc"
 .include "sprite.inc"
 .include "shapes.inc"
-.include "system.mac"
+.include "system.inc"
 .include "text.inc"
 .include "dbgscreen.inc"
+.include "playfield.inc"
 
-.export in_init, in_launch, in_update
+.export in_init, in_launch, in_update, remove_routineL,remove_routineH
+
 
 base_x = XMAX/2
 base_y = YMAX-16
 
+.bss
+in_mcount:          .res 1
+.data
+;;; function for updating the missile base at center of screen
+remove_routineL: 
+.byte <(pl_m0),<(pl_m1),<(pl_m2),<(pl_m3),<(pl_m4),<(pl_m5),<(pl_m6),<(pl_m7)
+.byte <(pl_m8),<(pl_m9)
+remove_routineH: 
+.byte >(pl_m0),>(pl_m1),>(pl_m2),>(pl_m3),>(pl_m4),>(pl_m5),>(pl_m6),>(pl_m7)
+.byte >(pl_m8),>(pl_m9)
 .code
 .linecont
 
 .proc     in_init
+          jsr in_reload
           ldx #MAX_LINES-1
           lda #0
 loop:
@@ -26,18 +39,22 @@ loop:
           bpl loop
           rts
 .endproc
+;;; todo: reload missiles
+.proc in_reload
+          lda #10
+          sta in_mcount
+          rts
+.endproc
 
-
+.proc in_remove
+          sy_dynajump2 "remove_routine"
+.endproc
 ;;; launch an interceptor from the missile base
 ;;; to the players current crosshair location
 ;;; IN:
-;;;   arg1: does this and that
+;;;   target_x, target_y: crosshair location
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
-.data
-;;; put a counter in
-.code
+;;;  
 .proc     in_launch
           lda #crosshair_xoff
           clc
@@ -47,26 +64,27 @@ loop:
           clc
           adc target_y
           sta z_y2
-          ;; do we have interceptors left to launch?
-          ;; TODO
-          ;; bne ok
-          ;; jmp empty
-ok:
+
+          ldx in_mcount
+          beq empty
+          dex
+          stx in_mcount
+          jsr in_remove
           ;; find an open missile slot
           ldx #MAX_MISSILES - 1
 loop:     
           lda line_data_indices
-          bne next                      ;slot if full
+          bne next                      ;slot is full
           ;; slot is open
           li_setz_lstore
           li_lineto #base_x, #base_y, z_x2, z_y2
-          jsr snd_missile_away
+          jsr so_missile
           rts
 next:     
           dex
           bpl loop
 empty:
-          snd_missile_empty
+          so_empty
           rts
 .endproc
 .importzp _pl_x,_pl_y
@@ -108,10 +126,7 @@ empty:
 ;;; is removed
 ;;; 
 ;;; IN:
-;;;   arg1: does this and that
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
 .proc     in_update
           ldx #MAX_MISSILES - 1
 loop:                                   ; do {

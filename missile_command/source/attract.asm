@@ -25,7 +25,7 @@ loop:
             jsr de_rand
 skip:
             waitv
-            bcolor_i CYAN
+            sc_bcolor CYAN
             sc_update_frame
 
             jsr de_erase
@@ -35,7 +35,7 @@ skip:
             bne noscroll
             jsr scroll1
 noscroll:
-            bcolor_i PURPLE
+            sc_bcolor PURPLE
             ;; not time critical
             jsr de_update
 

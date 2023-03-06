@@ -8,6 +8,7 @@
 .include "shape_draw.inc"
 
 .export pl_draw_cities, pl_city_x_positions, pl_init
+.export pl_m9,pl_m8,pl_m7,pl_m6,pl_m5,pl_m4,pl_m3,pl_m2,pl_m1,pl_m0
 
 missile_base_width = 16
 ;;; note city shape has 4 empty pixels on left
@@ -120,4 +121,68 @@ pl_city_x_positions:
           ldy #YMAX-16
           jsr mbase0_shift0
           rts
+.endproc
+
+;;; Draw missile base with 9 missiles
+;;; IN:
+;;; OUT:
+.proc pl_m9
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-3
+          jmp mbase1_shift0
+.endproc
+.proc pl_m8
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-3
+          jmp mbase2_shift0
+.endproc
+.proc pl_m7
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-3
+          jmp mbase3_shift0
+.endproc
+.proc pl_m6
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-3
+          jmp mbase4_shift0
+.endproc
+.proc pl_m5
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-7
+          jmp mbase5_shift0
+.endproc
+.proc pl_m4
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-7
+          jmp mbase6_shift0
+.endproc
+.proc pl_m3
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-11
+          jmp mbase8_shift0
+.endproc
+.proc pl_m2
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-11
+          jmp mbase9_shift0
+.endproc
+.proc pl_m1
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-14
+          jmp mbase10_shift0
+.endproc
+.proc pl_m0
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
+          ldy #YMAX-13
+          jmp mbase1_shift0
 .endproc

@@ -36,14 +36,10 @@
 .proc     demo
           sei
           ;; load countdown value into via 2, timer1 latch
-          ;; mov #HZ400, $9124
-          mov #sound_interrupt, $0314
-          ;mov #MINISR, $0314
-          ;mov_wi DEFISR, $0314          ;
+          ;mov #HZ120, $9124
+          mov #HZ60, $9124
+          mov #so_isr, $0314
           cli
-          lda #8
-          sta 36878
-
           jsr sc_pltbl                   ;init plotting table
           jsr sc_chrset                  ;init character set
           jsr sc_hires                   ;init hi-res screen
@@ -52,12 +48,12 @@
           sc_screenmem SCREEN              ;set VIC screen address
 
           ;; border colors
-          invmode 1
-          bcolor_i BLUE
-          scolor_i CYAN
+          sc_invmode 1
+          sc_bcolor BLUE
+          sc_scolor CYAN
 
           jsr db_init
-          jsr i_sound
+          jsr so_init
           jsr in_init
           jsr li_init
           jsr de_init
@@ -67,6 +63,7 @@
           jsr unit_tests
 forever:  jmp forever
 .endif
+          ;jsr test_sound
           jsr pl_draw_cities
           ;; jsr bigplot
           ;; lda #1
@@ -76,9 +73,9 @@ forever:  jmp forever
           ;jsr bigstring
           ;;jsr mcommand
 
-          jsr icbm_genwave              
+          ;jsr icbm_genwave              
 
-          ;jsr main_loop                 
+          jsr main_loop                 
 
           ;jsr line_tests
           ;jsr de_test
@@ -109,10 +106,10 @@ iloop:
 loop:
           jsr wait_v
           sc_update_frame                  ;update frame counter
-;          bcolor_i CYAN
+;          sc_bcolor CYAN
           jsr de_process
           mu_update
-;          bcolor_i BLACK
+;          sc_bcolor BLACK
           ta_update
           ;; animate player missiles
           jsr in_update
@@ -124,17 +121,6 @@ foo:
           jmp loop
           rts
 .endproc
-;;; initialize interrupt vector
-.proc     i_intr
-          sei
-          lda $bf                       ;eabf
-          sta $0314
-          lda $ea
-          sta $0315
-          cli
-          rts
-.endproc
-
 
 .proc     line_tests
           ldx #0

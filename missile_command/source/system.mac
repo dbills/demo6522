@@ -161,4 +161,15 @@ jmp_operand = jmp0 + 1
 jmp0:
             jmp 0                       ;dynamic operand
 .endmacro
+
+.macro  sy_dynajump2 routine
+          .local jmp0,jmp_operand
+jmp_operand = jmp0 + 1
+            lda .ident(.concat(routine,"L")),x
+            sta jmp_operand
+            lda .ident(.concat(routine,"H")),x
+            sta jmp_operand+1
+jmp0:
+            jmp 0                       ;dynamic operand
+.endmacro
 .endif

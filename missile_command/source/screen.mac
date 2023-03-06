@@ -1,3 +1,5 @@
+.include "colors.equ"
+
 .ifndef _SCREEN_H
 _SCREEN_H = 1
 .define SCREEN $200
@@ -115,20 +117,20 @@ bit10_12  = (addr & %0001110000000000) >> 6
           sta $9005
 .endmacro
           ;; inverted mode 0=off 1=on
-.macro invmode _1
+.macro sc_invmode _1
           lda $900f
           ora #_1 & %00001000
           sta $900f
 .endmacro
           ;; screen background
-.macro    scolor_i _1
+.macro    sc_scolor _1
           lda $900f
-          and #      %00001111
+          and #%00001111
           ora #(_1 << 4) & %11110000
           sta $900f
 .endmacro
           ;; border
-.macro bcolor_i _1
+.macro sc_bcolor _1
           lda $900f
           and #%11111000
           ora #_1 & %00000111

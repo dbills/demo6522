@@ -1,3 +1,5 @@
+.ifndef _color_H
+_color_H = 1
 BLACK        = 0
 WHITE        = 1
 RED          = 2
@@ -14,3 +16,4 @@ LTPURPLE     = 12
 LTGREEN      = 13
 LTBLUE       = 14
 LTYELLOW     = 15
+.endif

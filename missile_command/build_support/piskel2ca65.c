@@ -187,7 +187,7 @@ int main(int argc, char ** argv) {
       13,13,13,13, // erase bottom 4 interceptors
       9,9,9,       // erase next 3
       5,5,         // erase 2
-      1            // erase top
+      2            // erase top
     };
   int base_rows_to_show[MISSILE_BASE_FRAME_COUNT] =
     { -1, // 10

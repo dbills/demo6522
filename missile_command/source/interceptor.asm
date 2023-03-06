@@ -9,9 +9,10 @@
 .include "text.inc"
 .include "dbgscreen.inc"
 .include "playfield.inc"
+.include "detonation.inc"
 
 .export in_init, in_launch, in_update, remove_routineL,remove_routineH
-
+.importzp _pl_x,_pl_y
 
 base_x = XMAX/2
 base_y = YMAX-16
@@ -28,10 +29,12 @@ remove_routineH:
 .byte >(pl_m8),>(pl_m9)
 .code
 .linecont
-
+;;; Initialize and interceptor module
+;;; IN:
+;;; OUT:
 .proc     in_init
           jsr in_reload
-          ldx #MAX_LINES-1
+          ldx #MAX_MISSILES-1
           lda #0
 loop:
           sta line_data_indices,x
@@ -54,7 +57,6 @@ loop:
 ;;; IN:
 ;;;   target_x, target_y: crosshair location
 ;;; OUT:
-;;;  
 .proc     in_launch
           lda #crosshair_xoff
           clc
@@ -73,7 +75,7 @@ loop:
           ;; find an open missile slot
           ldx #MAX_MISSILES - 1
 loop:     
-          lda line_data_indices
+          lda line_data_indices,x
           bne next                      ;slot is full
           ;; slot is open
           li_setz_lstore
@@ -83,12 +85,12 @@ loop:
 next:     
           dex
           bpl loop
+          ;; can't fire anymore, but you are not empty
+          rts
 empty:
           so_empty
           rts
 .endproc
-.importzp _pl_x,_pl_y
-.include "detonation.inc"
 ;;; Erase crosshair centered at pl_x, pl_y
 ;;; sprites are drawn  from the upper left
 ;;; so we need to derive upper left coord
@@ -121,16 +123,16 @@ empty:
 .endproc
 
 ;;; Draw player inteceptors on the screen
-;;; when an interceptor has reached its destination
-;;; an explosion drawing is started and the missile line
-;;; is removed
+;;; 
+;;; when an interceptor has reached its destination an explosion drawing
+;;; is started and the missile line is removed
 ;;; 
 ;;; IN:
 ;;; OUT:
 .proc     in_update
           ldx #MAX_MISSILES - 1
 loop:                                   ; do {
-          lda line_data_indices
+          lda line_data_indices,x
           beq  next                     ; inactive
           li_setz_lstore
           ;; todo: replace with macro instead of expensive JSR
@@ -146,7 +148,7 @@ erase:
           lda #0
           sta line_data_indices,x
           ;; queue an explosion
-          jsr erase_crosshair_mark
+          ;jsr erase_crosshair_mark
           jsr de_queue
           rts
 

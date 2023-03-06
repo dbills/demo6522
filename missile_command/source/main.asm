@@ -73,7 +73,7 @@ forever:  jmp forever
           ;jsr bigstring
           ;;jsr mcommand
 
-          ;jsr icbm_genwave              
+          jsr icbm_genwave
 
           jsr main_loop                 
 

@@ -1,7 +1,7 @@
 .include "sprite.inc"
 
 MU_MAX = 7                              ;6 cities + missile base
-MU_Y = YMAX- 10 
+MU_Y = YMAX - 10
 MU_END_FRAME = 12                       ;last frame of mushroom
 
 ;;; Queue a mushroom cloud
@@ -78,11 +78,11 @@ done:
           sp_setup_draw
           tya
           ldy #MU_Y
-          cmp #10                       ;tile of base
-          beq is_city
-          ldy #MU_Y-6                   ;move explosion higher
+          cmp #20                       ;tile of base
+          bne is_city
+          ldy #MU_Y-6                   ;move explosion higher for base
 is_city:  
-          ;; Y=pixel X=frame #
+          ;;Y=pixel X=frame #
           jsr mu_draw
 done:     
 .endmacro

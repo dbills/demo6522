@@ -147,7 +147,7 @@ loop:
 ;;;   line_data[..]: contains pre-rendered attack vector
 ;;;   line_data[0]: target city
 .import li_full_render
-.proc icbm_genwave1
+.proc icbm_genwave
           ;mov #line_data01,z_lstore
           ldx #MAX_LINES
 loop:     
@@ -178,7 +178,7 @@ loop:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.proc icbm_genwave
+.proc icbm_genwave1
           ;; set line pointer and index in X
           mov #line_data01,z_lstore
           ldx #1

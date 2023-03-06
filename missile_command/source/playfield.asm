@@ -150,6 +150,9 @@ pl_city_x_positions:
           ldy #YMAX-3
           jmp mbase4_shift0
 .endproc
+;;; 
+;;; Second row of missiles from the bottom
+;;; 
 .proc pl_m5
           ldy #10*2                       ;start of base column 10
           sp_setup_draw
@@ -165,24 +168,30 @@ pl_city_x_positions:
 .proc pl_m3
           ldy #10*2                       ;start of base column 10
           sp_setup_draw
+          ldy #YMAX-7
+          jmp mbase7_shift0
+.endproc
+;;; 
+;;; Third row from the bottom
+;;; 
+.proc pl_m2
+          ldy #10*2                       ;start of base column 10
+          sp_setup_draw
           ldy #YMAX-11
           jmp mbase8_shift0
 .endproc
-.proc pl_m2
+.proc pl_m1
           ldy #10*2                       ;start of base column 10
           sp_setup_draw
           ldy #YMAX-11
           jmp mbase9_shift0
 .endproc
-.proc pl_m1
+;;; 
+;;; Top row ( a single missile )
+;;; 
+.proc pl_m0
           ldy #10*2                       ;start of base column 10
           sp_setup_draw
           ldy #YMAX-14
           jmp mbase10_shift0
-.endproc
-.proc pl_m0
-          ldy #10*2                       ;start of base column 10
-          sp_setup_draw
-          ldy #YMAX-13
-          jmp mbase1_shift0
 .endproc

@@ -182,7 +182,7 @@ detonation_div = 128
             lda frame_cnt
             clc
             adc #1
-            and #%00000111
+            and #%00001111
             sta frame_cnt
 .endmacro
 .endif

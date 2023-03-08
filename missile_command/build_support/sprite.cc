@@ -62,11 +62,13 @@ int main(int argc, char **argv) {
         upper_bound = r;
     }
     for(int y=lower_bound; y < upper_bound; y++) {
+        // solve for X in circle equation
         double _x = sqrt(pow(r,2) - pow(y, 2));
-        //int x = floor(_x);
-        int x = round(_x);
+        int x = round(_x);         //int x = floor(_x);
         unsigned char byte = 0;
+        // output the picture of this row, and build the bytes for it
         for(int i = -7;i <= 16;i++) {
+            // is this bit 'inside' the x coords for this line of the circle?
             if((i - shift > -x) && (i - shift < x)) {
                 output_pixel(i);
                 byte |= 1;
@@ -74,7 +76,7 @@ int main(int argc, char **argv) {
                 output_blank(i);
             }
             row = y + r - 1;
-            if(i % 8 == 0) {
+            if(i % 8 == 0) {    // on even byte, we store in array for later
                 col = (i + 7) / 8;
                 vbytes[col][row] = byte;
                 byte = 0;

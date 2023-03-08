@@ -8,6 +8,7 @@
 #include "../piskel/mc_mushrom.c"
 #include "../piskel/missile_base.c"
 #include "../piskel/mc_city.c"
+#include "../piskel/mc_explosion.c"
 
 int mode = 0;
 bool code = false;
@@ -137,10 +138,17 @@ void generate(const char * name,
                         row_counter < rows_to_show[frame]);
          ++row) {
       const unsigned int dword = dwords[row];
-      write_byte(B3(dword), 0);
-      write_byte(B2(dword), 1);
-      if(shift>0 || columns>16)
-        write_byte(B1(dword), 2);
+      unsigned char b3 = B3(dword);
+      unsigned char b2 = B2(dword);
+      unsigned char b1= B1(dword);
+      if(b3)
+        write_byte(b3, 0);
+      if(b2)
+        write_byte(b2, 1);
+      if(shift>0 || columns>16) {
+        if(b1)
+          write_byte(b1, 2);
+      }
       if (row < rows - 1)
         printf("  iny\n");
       ++row_counter;
@@ -159,6 +167,11 @@ int main(int argc, char ** argv) {
   const int city_centerline = 9;
   int skip_offsets[25];
   int rows_to_show[25];
+  for(int i=0;i<25;++i) {
+    skip_offsets[i]=0;
+    rows_to_show[i]=-1; // show them all
+  }
+#if 1
   for(int i=0;i<MC_MUSHROM_FRAME_COUNT;++i) {
     skip_offsets[i]=6;
     rows_to_show[i]=-1; // show them all
@@ -226,6 +239,18 @@ int main(int argc, char ** argv) {
            rows_to_show,
            0  /* shift amount */
            );
+#endif
+  for(int i=0;i<8;i++) {
+    generate("draw_explosion_",
+             (unsigned int*)&mc_explosion_data, 
+             MC_EXPLOSION_FRAME_COUNT,
+             MC_EXPLOSION_FRAME_WIDTH,
+             MC_EXPLOSION_FRAME_HEIGHT,
+             skip_offsets, /* start row */
+             rows_to_show,
+             i  /* shift amount */
+             );
+  }
 }
 // xterm
 //- Move the cursor up N lines:

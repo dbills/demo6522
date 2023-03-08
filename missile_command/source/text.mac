@@ -65,7 +65,7 @@ done:
 .macro    te_printf2 p1, p2, s, a1, a2, a3
           .local done
           saveall
-          lda frame_cnt
+          lda frame_cnt                 ;slow updating, if game is running
           bne done
           ;; disable positioning if in unit test mode, as we generally
           ;; want those lines of text to scroll by on the screen more 

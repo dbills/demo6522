@@ -58,9 +58,14 @@ done:
 ;;; OUT:
 .macro mu_update
 .local loop, done, east, is_city
-          ldy frame_cnt
-          ;; skip if frame_cnt = 0, since we only have at most 7 mushrooms cloud
-          ;; and frame_cnt is 0-7
+          ;; frame_cnt is 0-16
+          ;; we divide by 2 and subtract 1 to get 0-6
+          lda frame_cnt
+          lsr
+          bcc done                      ;skip even frame counts
+          tay
+          ;; skip if frame_cnt/2 = 0, since we only have at most 7 mushrooms cloud
+          ;; and frame_cnt/2 is 0-7
           dey
           bmi done
 

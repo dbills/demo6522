@@ -193,9 +193,6 @@ done:
             jsr de_queue
             rts
 .endproc
-.data
-fubar:      .res 1
-.code
 .import wait_v
 .proc       de_test
 loop:
@@ -269,13 +266,9 @@ inactive:
 ;;; load the next pointers for sprite data, precalculated data, etc
 ;;; 
 ;;; IN:
-;;;   arg1: does this and that
+;;;   A: detonation frame
+;;;   X: detonation number
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
-
-;;; in: A = detonation frame
-;;;     X = detonation number
 .proc       update_detonation_data
 active:
             lda i_detonation_frame,x
@@ -287,6 +280,7 @@ active:
             ;; calculate the current Y coordinate to draw at
             ;; it's differenct for every frame, as frame are different
             ;; heights
+          lda #0                        ;tmp hack, fix to full height, all the time
             clc
             adc detonation_y,x
             sta detonation_cy,x

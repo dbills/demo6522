@@ -7,7 +7,8 @@ CA65FIX= sed  -e 's/^\([^(]*\)[(]\([0-9]*\)[)]:/\1:\2:0:/'
 tests:
 	cd testing && make
 
-OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o unit_tests.o icbm.o mushroom.o shape_draw.o 
+#OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o unit_tests.o icbm.o mushroom.o shape_draw.o 
+OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o detonation.o bigletter.o math.o scroller.o attract.o unit_tests.o icbm.o mushroom.o shape_draw.o new_explosion.o
 
 SOURCE=$(OBJS:.o=.asm)
 
@@ -17,8 +18,7 @@ graphics:
 
 extra_graphics:
 	g++-8 -fpermissive -g -D_GLIBCXX_DEBUG -std=c++17 ../build_support/piskel2ca65.c  -o /tmp/piskel2ca65
-	/tmp/piskel2ca65 ../piskel/mc_mushrom.c > shape_draw.asm
-
+	/tmp/piskel2ca65 > shape_draw.asm
 #
 # run tests with DEFINES=TESTS make ...
 # check bounds DEFINE=CHECKED_BUILD make ...
@@ -47,6 +47,3 @@ port: graphics extra_graphics
 # renaming stuff
 golden: port
 	sum a.p00 > /tmp/golden.txt
-
-foo1:
-	ca65 --cpu 6502 shapes.asm -l foo.lst

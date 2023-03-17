@@ -18,6 +18,7 @@
 
 .export de_queue, de_init, de_test, de_draw, de_hit
 .export de_update, de_erase, de_rand, de_process
+.import explosion_frame_skip_offsets
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
 ;;;                    = -2 => don't draw or erase
@@ -55,9 +56,9 @@ explosion_drawtable_by_offset_table:
 ;;; start small fireball grow large, then shrink again
 ;;; the sequence is run from the end to the beginning for performance
 explosion_frame_table:
-          .byte 0,1,2,3,4,5,6,7,7,6,5,4,3,2,1
-;            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
-;            .byte 7,2
+;          .byte 0,1,2,3,4,5,6,7,7,6,5,4,3,2,1
+            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
+            .byte 0
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -193,34 +194,28 @@ done:
             jsr de_queue
             rts
 .endproc
+
 .import wait_v
 .proc       de_test
-loop:
-            jsr rand_8
-            and #7
-            bne skip
-            jsr de_rand
-skip:
-            jsr wait_v
-            sc_update_frame
+          lda #9
+          sta _pl_y
+          lda #7
+          sta _pl_x
+          jsr de_queue
 
-            ;jsr j_wfire
-            ldx #(slots-1)
-            jsr de_erase
-
-            ;jsr j_wfire
-            ldx #(slots-1)
-            jsr de_draw
-
-            ldx #(slots-1)
-            jsr de_update
-            jmp loop
-            rts
+          ldx #slots-1      
+loop:     
+          jsr erase_detonation
+          jsr draw_detonation
+          jsr update_detonation
+          jsr j_wfire
+          jmp loop
+          rts     
 .endproc
 
 .proc     de_process
-          ldx #(slots-1)
-          jsr de_erase
+          ;; ldx #(slots-1)
+          ;; jsr de_erase
 
           ldx #(slots-1)
           jsr de_draw
@@ -274,13 +269,12 @@ active:
             lda i_detonation_frame,x
             tay                         ;index into explosion_frame_table
             ;; animation frame offset: y=7-frame number
-            lda #7
-            sec
-            sbc explosion_frame_table,y
+          lda explosion_frame_table,y
+          tay
+          lda explosion_frame_skip_offsets,y
             ;; calculate the current Y coordinate to draw at
             ;; it's differenct for every frame, as frame are different
             ;; heights
-          lda #0                        ;tmp hack, fix to full height, all the time
             clc
             adc detonation_y,x
             sta detonation_cy,x

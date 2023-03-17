@@ -75,10 +75,10 @@ forever:  jmp forever
 
           jsr icbm_genwave
 
-          jsr main_loop                 
+          ;jsr main_loop                 
 
           ;jsr line_tests
-          ;jsr de_test
+          jsr de_test
 
           jsr mu_test
 loop:     jmp loop
@@ -122,11 +122,3 @@ foo:
           rts
 .endproc
 
-.proc     line_tests
-          ldx #0
-          mov #line_data01,z_lstore
-          ;lineto #176/2,#176-26, #160,#0
-          li_lineto #160,#0,#176/2,#176-26
-          jsr li_full_render
-          rts
-.endproc

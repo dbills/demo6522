@@ -1,6 +1,8 @@
 // convert sprite data exported from the inline sprite editor 'piskel'
 // into a format useable by ca65 and missile command
 
+#define NEWCODE 
+
 #include <stdio.h>
 #include <string>
  // consider piskel/*
@@ -24,7 +26,8 @@ void output_pixel(int bit) {
   }
 }
 void write_byte(unsigned char b, int screen_col) {
-  printf("  lda #$%02x\n", b);
+  printf("  lda (sp_col%d),y\n", screen_col);
+  printf("  eor #$%02x\n", b);
   printf("  sta (sp_col%d),y\n", screen_col);
 }
 
@@ -32,6 +35,31 @@ char g_name[256];
 const char * make_name(const char * name, int frame, int shift) {
   sprintf(g_name, "%s%d_shift%d", name, frame, shift);
   return g_name;
+}
+void  auto_calc_offsets(uint32_t *array, 
+                        int frames, 
+                        int columns, 
+                        int rows,
+                        int skip_offsets[], 
+                        int rows_to_show[]) 
+{
+  for (int frame = 0; frame < frames; frame++) {
+    int skip_offset = 0, row_to_show = 0;
+    for (int row = 0;row<rows;++row) {
+      int val=0;
+      for (int col = 0; col < columns; col++) {
+        int pixel_offset = row * columns + col;
+        unsigned int *addr = (array + (frame * rows * columns) + pixel_offset);
+        val |= *addr;
+      }
+      if(!skip_offset && val)
+        skip_offset=row-1;
+      if(val)
+        row_to_show=row;
+    }
+    skip_offsets[frame]=skip_offset>=0?skip_offset:0;
+    rows_to_show[frame]=row_to_show-skip_offsets[frame]+1;
+  }
 }
 // C is row-major order
 // x[r][c]
@@ -49,7 +77,8 @@ void generate(const char * name,
               int rows, 
               int *skip_offsets, 
               int *rows_to_show,
-              int shift
+              int shift,
+              int eor=0
               ) 
 {
   printf(".export %s_frames_shift%dL,%s_frames_shift%dH", name, shift,
@@ -108,7 +137,7 @@ void generate(const char * name,
       // 0-7 bits for performance in the generated assembly
       unsigned int a,b,c=0;
       a=dword;
-      // 24 bit sprites are not preshiftable with this tech, so we skip the left shit
+      // 24 bit sprites are not preshiftable with this tech, so we skip the left shift
       if(columns<=16)
         dword <<= 8;
       b=dword;
@@ -131,6 +160,55 @@ void generate(const char * name,
       sprintf(buf,"%06x", dword & 0x00ffffff);
       printf("| $%s\n", buf);
     }
+#ifdef NEWCODE
+    int row_counter,row;
+    int ub = rows_to_show[frame]==-1 ? rows -1 : 
+      rows_to_show[frame] + skip_offsets[frame] - 1;
+    int lb = skip_offsets[frame];
+    printf(";; [%d,%d]\n.data\n",lb, ub);
+    if(shift>0 || columns>16) {
+      printf("row3:\n  .byte ");
+      for (row = ub, row_counter = 0; row >= lb; --row, ++row_counter) {
+        printf("%s$%02x", (row_counter ? "," : ""), B1(dwords[row]));
+      }
+      printf("\n");
+    }
+    printf("row2:\n  .byte ");
+    for (row = ub, row_counter = 0; row >= lb; --row, ++row_counter) {
+      printf("%s$%02x", (row_counter ? "," : ""), B2(dwords[row]));
+    }
+    printf("\n");
+    printf("row1:\n  .byte ");
+    for (row = ub, row_counter = 0; row >= lb; --row, ++row_counter) {
+      printf("%s$%02x", (row_counter ? "," : ""), B3(dwords[row]));
+    }
+    printf("\n");
+    printf("\n.code\n  txa\n  pha\n");
+    printf("  ldx #$%02x\n",(unsigned char)(row_counter - 1));
+    printf("loop:\n");
+    // eor
+    printf("  lda row1,x\n");
+    if(eor) printf("  eor (sp_col0),y\n");
+    // write
+    printf("  sta (sp_col0),y\n");
+    // eor 1
+    printf("  lda row2,x\n");
+    if(eor) printf("eor (sp_col1),y\n");
+    // write 1
+    printf("  sta (sp_col1),y\n");
+    if(shift>0||columns>16) {
+      // eor 2
+      printf("\n  lda row3,x\n");
+      if(eor)
+        printf("\n  eor (sp_col2),y\n");
+      // write 2
+      printf("  sta (sp_col2),y\n");
+    }
+    printf("\
+  iny\n\
+  dex\n\
+  bpl loop\n");
+#endif
     // shift the sprite bytes we recorded
     // only emit number of rows requested for this frame
     for (int row = skip_offsets[frame],row_counter=0; 
@@ -141,6 +219,7 @@ void generate(const char * name,
       unsigned char b3 = B3(dword);
       unsigned char b2 = B2(dword);
       unsigned char b1= B1(dword);
+#ifndef NEWCODE
       if(b3)
         write_byte(b3, 0);
       if(b2)
@@ -149,10 +228,16 @@ void generate(const char * name,
         if(b1)
           write_byte(b1, 2);
       }
-      if (row < rows - 1)
-        printf("  iny\n");
+      if (row < rows - 1) {
+        if(b1 || b2 || b3) {
+          printf("  iny\n");
+        }
+      }
+#else
+#endif
       ++row_counter;
     }
+    printf("  pla\n  tax\n");
     printf("  rts\n.endproc\n\n");
   }
 }
@@ -240,6 +325,22 @@ int main(int argc, char ** argv) {
            0  /* shift amount */
            );
 #endif
+  auto_calc_offsets((unsigned int*)&mc_explosion_data,
+                    MC_EXPLOSION_FRAME_COUNT,
+                    MC_EXPLOSION_FRAME_WIDTH,
+                    MC_EXPLOSION_FRAME_HEIGHT,
+                    skip_offsets, rows_to_show);
+  printf(".data\n");
+  printf(".export explosion_frame_skip_offsets\n");
+  printf("explosion_frame_skip_offsets:\n.byte ");
+  for(int i=0;i<MC_EXPLOSION_FRAME_COUNT;++i) {
+    printf("$%02x%s",skip_offsets[i],i==MC_EXPLOSION_FRAME_COUNT-1?"":",");
+  }
+  /* printf("\nexplosion_frame_rows:\n.byte "); */
+  /* for(int i=0;i<MC_EXPLOSION_FRAME_COUNT;++i) { */
+  /*   printf("$%02x%s",rows_to_show[i],i==MC_EXPLOSION_FRAME_COUNT-1?"":","); */
+  /* } */
+  printf("\n.code\n");
   for(int i=0;i<8;i++) {
     generate("draw_explosion_",
              (unsigned int*)&mc_explosion_data, 
@@ -248,7 +349,8 @@ int main(int argc, char ** argv) {
              MC_EXPLOSION_FRAME_HEIGHT,
              skip_offsets, /* start row */
              rows_to_show,
-             i  /* shift amount */
+             i,  /* shift amount */
+             1 // perform exclusive or
              );
   }
 }

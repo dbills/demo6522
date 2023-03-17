@@ -8,13 +8,14 @@ tests:
 	cd testing && make
 
 #OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o screen_draw.o detonation.o bigletter.o math.o scroller.o attract.o unit_tests.o icbm.o mushroom.o shape_draw.o 
-OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o detonation.o bigletter.o math.o scroller.o attract.o unit_tests.o icbm.o mushroom.o shape_draw.o new_explosion.o
+OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o detonation.o bigletter.o math.o scroller.o attract.o icbm.o mushroom.o shape_draw.o new_explosion.o
 
 SOURCE=$(OBJS:.o=.asm)
 
 graphics:
 	cd ../build_support && g++-8 sprite.cc -lm
 	(cd ../build_support && ./explosions2.sh) > screen_draw.asm
+	rm screen_draw.asm
 
 extra_graphics:
 	g++-8 -fpermissive -g -D_GLIBCXX_DEBUG -std=c++17 ../build_support/piskel2ca65.c  -o /tmp/piskel2ca65

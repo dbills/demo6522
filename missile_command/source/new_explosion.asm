@@ -1,19 +1,20 @@
 .include "shape_draw.inc"
-draw_explosion_8_shift7 = draw_explosion_0_shift7 
-draw_explosion_8_shift6 = draw_explosion_0_shift6
-draw_explosion_8_shift5 = draw_explosion_0_shift5
-draw_explosion_8_shift4 = draw_explosion_0_shift4
-draw_explosion_8_shift3 = draw_explosion_0_shift3
-draw_explosion_8_shift2 = draw_explosion_0_shift2
-draw_explosion_8_shift1 = draw_explosion_0_shift1
-draw_explosion_8_shift0 = draw_explosion_0_shift0
+;; draw_explosion_7_shift7 = draw_explosion_6_shift7 
+;; draw_explosion_7_shift6 = draw_explosion_6_shift6
+;; draw_explosion_7_shift5 = draw_explosion_6_shift5
+;; draw_explosion_7_shift4 = draw_explosion_6_shift4
+;; draw_explosion_7_shift3 = draw_explosion_6_shift3
+;; draw_explosion_7_shift2 = draw_explosion_6_shift2
+;; draw_explosion_7_shift1 = draw_explosion_6_shift1
+;; draw_explosion_7_shift0 = draw_explosion_6_shift0
+
 ;;; table of function pointers to
 ;;; draw explosions of preshift 0
 ;;; for each available radius
 .export draw_explosion_R_0_table
 draw_explosion_R_0_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift0", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift0", WIDTH))
 .endrepeat
 ;;; table of function pointers to
 ;;; draw explosions of preshift 1
@@ -21,7 +22,7 @@ draw_explosion_R_0_table:
 .export draw_explosion_R_1_table
 draw_explosion_R_1_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift1", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift1", WIDTH))
 .endrepeat
 ;;; table of function pointers to
 ;;; draw explosions of preshift 2
@@ -29,7 +30,7 @@ draw_explosion_R_1_table:
 .export draw_explosion_R_2_table
 draw_explosion_R_2_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift2", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift2", WIDTH))
 .endrepeat
 ;;; table of function pointers to
 ;;; draw explosions of preshift 3
@@ -37,7 +38,7 @@ draw_explosion_R_2_table:
 .export draw_explosion_R_3_table
 draw_explosion_R_3_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift3", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift3", WIDTH))
 .endrepeat
 ;;; table of function pointers to
 ;;; draw explosions of preshift 4
@@ -45,7 +46,7 @@ draw_explosion_R_3_table:
 .export draw_explosion_R_4_table
 draw_explosion_R_4_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift4", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift4", WIDTH))
 .endrepeat
 ;;; table of function pointers to
 ;;; draw explosions of preshift 5
@@ -53,7 +54,7 @@ draw_explosion_R_4_table:
 .export draw_explosion_R_5_table
 draw_explosion_R_5_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift5", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift5", WIDTH))
 .endrepeat
 ;;; table of function pointers to
 ;;; draw explosions of preshift 6
@@ -61,7 +62,7 @@ draw_explosion_R_5_table:
 .export draw_explosion_R_6_table
 draw_explosion_R_6_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift6", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift6", WIDTH))
 .endrepeat
 ;;; table of function pointers to
 ;;; draw explosions of preshift 7
@@ -69,7 +70,7 @@ draw_explosion_R_6_table:
 .export draw_explosion_R_7_table
 draw_explosion_R_7_table:
 .repeat 8, WIDTH
-.word .ident (.sprintf("draw_explosion_%d_shift7", WIDTH + 1))
+.word .ident (.sprintf("draw_explosion_%d_shift7", WIDTH))
 .endrepeat
 .export collision_1_shift0
 collision_1_shift0:

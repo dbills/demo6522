@@ -214,8 +214,8 @@ loop:
 .endproc
 
 .proc     de_process
-          ;; ldx #(slots-1)
-          ;; jsr de_erase
+          ldx #(slots-1)
+          jsr de_erase
 
           ldx #(slots-1)
           jsr de_draw

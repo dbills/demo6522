@@ -11,6 +11,7 @@
 #include "../piskel/missile_base.c"
 #include "../piskel/mc_city.c"
 #include "../piskel/mc_explosion.c"
+#include <strings.h>
 
 int mode = 0;
 bool code = false;
@@ -78,7 +79,8 @@ void generate(const char * name,
               int *skip_offsets, 
               int *rows_to_show,
               int shift,
-              int eor=0
+              int eor=0,
+              int collision=0
               ) 
 {
   printf(".export %s_frames_shift%dL,%s_frames_shift%dH", name, shift,
@@ -105,6 +107,7 @@ void generate(const char * name,
   for (int frame = 0; frame < frames; frame++) {
     printf(".proc %s\n", make_name(name, frame, shift));
     unsigned int dwords[rows];
+    bzero(dwords,sizeof(dwords));
     for (int row = skip_offsets[frame],row_counter=0; 
          row < rows && (rows_to_show[frame]==-1 ||
                         row_counter < rows_to_show[frame]);
@@ -239,6 +242,22 @@ void generate(const char * name,
     }
     printf("  pla\n  tax\n");
     printf("  rts\n.endproc\n\n");
+    printf(".data\n");
+    if( collision && shift==0) {
+      printf(".export collision_%s\n", make_name(name, frame, shift));
+      printf("collision_%s:\n", make_name(name, frame, shift));
+      for (int row = 0;row < rows; ++row){
+          unsigned int dword = dwords[row]<<8;
+          printf(".byte ");
+          for(int i=0,counter=0;i < 16;++i,++counter) {
+            dword<<=1;
+            printf("%s$%02X", (counter ? "," : ""), (dword&0x80000000) ? 255:0);
+          }
+          printf(" ;; %d\n", row);
+        }
+    }
+    printf(".code\n");
+
   }
 }
 
@@ -350,8 +369,8 @@ int main(int argc, char ** argv) {
              skip_offsets, /* start row */
              rows_to_show,
              i,  /* shift amount */
-             1 // perform exclusive or
-             );
+             1, // perform exclusive or
+             1);
   }
 }
 // xterm

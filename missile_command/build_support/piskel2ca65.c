@@ -406,7 +406,7 @@ int main(int argc, char ** argv) {
              mcb_skip_offsets, /* start row */
              mcb_rows_to_show,
              i,  /* shift amount */
-             0, // perform exclusive or
+             1, // perform exclusive or
              0);
   }
 }

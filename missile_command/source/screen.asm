@@ -52,9 +52,9 @@ loop:
           sc_setleft 3
           sc_tallchar
 
-          ldy #0                        ;screen offset
-          ldx #0                        ;column counter
           lda #0
+          tay                           ;screen offset
+          tax                           ;column counter
 col_loop:    
           sta SCREEN,y
           clc
@@ -66,12 +66,11 @@ col_loop:
 next_row: 
           cpy #SCRCOLS * SCRROWS
           beq done
-          sec                             ;'@' in first row
-          sbc #(SCRCOLS * SCRROWS) - 1    ;'A' in second row
+          sec                             ;subtract so 
+          sbc #(SCRCOLS * SCRROWS) - 1    ;'A' in second row, etc
           ldx #0                          ;reset column counter
-          jmp col_loop
+          beq col_loop                    ;jmp col_loop
 done:     
-;          rts
 
           ldy #SCRCOLS * SCRROWS
 loop:

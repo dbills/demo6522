@@ -33,6 +33,18 @@ loop:
 ;;; fill screen with a tiled
 ;;; set of chars to allow bitmapped
 ;;; graphics
+;;; The character tiles in screen memory
+;;; that comprise the hi-res screen
+;;; as vertical strips i.e.
+;;; the first strip would be:
+;;; column 0123456 ...
+;;;        ----------------------------
+;;;        ADG
+;;;        BEH
+;;;        CFI
+;;; etc ...
+;;; except the height is 11 and not 3 in the
+;;; example
 .proc     sc_hires
           sc_chbase CHBASE1
           sc_setrows SCRROWS
@@ -40,33 +52,31 @@ loop:
           sc_setleft 3
           sc_tallchar
 
-;;           ldy #0                        ;screen offset
-;;           ldx #0                        ;column counter
-;;           txa
-;; col_loop:    
-;;           sta SCREEN,y
-;;           clc
-;;           adc #SCRROWS
-;;           iny                           ;next column
-;;           cpy #SCRCOLS                  ;end of row?
-;;           bne col_loop                  ;nope
-;;           ;; drop to next row
-;;           inx                           ;drop to next row
-;;           cpx #SCRROWS                  ;last row?
-;;           beq done                      ;leave
-;;           txa                           ;row in accumulator
-;;           jmp col_loop                  ;draw this row
-;; done:     
+          ldy #0                        ;screen offset
+          ldx #0                        ;column counter
+          lda #0
+col_loop:    
+          sta SCREEN,y
+          clc
+          adc #SCRROWS
+          iny                           ;next screen tile(char)
+          inx                           ;increment column
+          cpx #SCRCOLS                  ;last column?
+          bne col_loop
+next_row: 
+          cpy #SCRCOLS * SCRROWS
+          beq done
+          sec                             ;'@' in first row
+          sbc #(SCRCOLS * SCRROWS) - 1    ;'A' in second row
+          ldx #0                          ;reset column counter
+          jmp col_loop
+done:     
+;          rts
 
-
-          ldy SCRMAP_SZ
-          ;; fill screen with chars tile
-          ;; pattern
+          ldy #SCRCOLS * SCRROWS
 loop:
           lda #BLACK
           sta CLRRAM-1,y
-          lda SCRMAP-1,y
-          sta SCREEN-1,y
           dey
           bne loop
           rts
@@ -115,29 +125,4 @@ BPOS      .set 128
           .byte BPOS
 BPOS      .set BPOS >> 1
           .endrep
-;;; the character tiles in screen memory
-;;; that comprise the hi-res screen
-;;; as vertical strips i.e.
-;;; the first strip would be:
-;;; column 0123456 ...
-;;;        ----------------------------
-;;;        ADG
-;;;        BEH
-;;;        CFI
-;;; etc ...
-;;; except the height is 11 and not 3 in the
-;;; example
-_SCRMAP:
-SCRMAP:
-ROW       .set 0
-          .repeat SCRROWS
-COL       .set 0
-            .repeat SCRCOLS
-            .byte ROW + COL * SCRROWS
-COL         .set COL + 1
-            .endrep
-ROW       .set ROW + 1
-          .endrep
-SCRMAP_SZ:
-          .byte * - SCRMAP
-.export SCADDR,SCRMAP,_SCRMAP,SCRMAP_SZ
+

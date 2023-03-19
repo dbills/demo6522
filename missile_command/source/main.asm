@@ -48,6 +48,7 @@
           jsr i_rand                     ;init random numbers
           sc_screenmem SCREEN            ;set VIC screen address
 
+;g1:       jmp g1                       
           ;; border colors
           sc_invmode 1
           sc_bcolor BLUE

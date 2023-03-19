@@ -39,6 +39,26 @@ loop:
           sc_setcolumns SCRCOLS
           sc_setleft 3
           sc_tallchar
+
+;;           ldy #0                        ;screen offset
+;;           ldx #0                        ;column counter
+;;           txa
+;; col_loop:    
+;;           sta SCREEN,y
+;;           clc
+;;           adc #SCRROWS
+;;           iny                           ;next column
+;;           cpy #SCRCOLS                  ;end of row?
+;;           bne col_loop                  ;nope
+;;           ;; drop to next row
+;;           inx                           ;drop to next row
+;;           cpx #SCRROWS                  ;last row?
+;;           beq done                      ;leave
+;;           txa                           ;row in accumulator
+;;           jmp col_loop                  ;draw this row
+;; done:     
+
+
           ldy SCRMAP_SZ
           ;; fill screen with chars tile
           ;; pattern

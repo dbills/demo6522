@@ -1,6 +1,6 @@
 ;;; missile detonations
 .include "zerop.inc"
-.include "screen_draw.inc"
+.include "new_explosion.inc"
 .include "sprite.inc"
 .include "m16.mac"
 .include "system.inc"

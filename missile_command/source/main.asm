@@ -26,6 +26,7 @@
 .include "detonation.inc"
 .include "icbm.inc"
 .include "mushroom.inc"
+.include "flyers.inc"
 
 .ifdef TESTS
 .include "unit_tests.inc"          
@@ -43,9 +44,9 @@
           jsr sc_pltbl                   ;init plotting table
           jsr sc_chrset                  ;init character set
           jsr sc_hires                   ;init hi-res screen
-          jsr i_joy                     ;init joystick
-          jsr i_rand                    ;init random numbers
-          sc_screenmem SCREEN              ;set VIC screen address
+          jsr i_joy                      ;init joystick
+          jsr i_rand                     ;init random numbers
+          sc_screenmem SCREEN            ;set VIC screen address
 
           ;; border colors
           sc_invmode 1
@@ -59,6 +60,7 @@
           jsr de_init
           jsr pl_init
           jsr mu_init
+          jsr fl_init
 .ifdef TESTS
           jsr unit_tests
 forever:  jmp forever
@@ -75,12 +77,13 @@ forever:  jmp forever
 
           jsr icbm_genwave
 
-          jsr main_loop                 
+          ;jsr main_loop                 
 
           ;jsr line_tests
           ;jsr de_test
+          jsr fl_test
 
-          jsr mu_test
+          ;jsr mu_test
 loop:     jmp loop
           ;jsr line_tests
 .import attract

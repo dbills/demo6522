@@ -11,6 +11,9 @@
 #include "../piskel/missile_base.c"
 #include "../piskel/mc_city.c"
 #include "../piskel/mc_explosion.c"
+#include "../piskel/k_sat.c"
+#include "../piskel/mc_bomb.c"
+
 #include <strings.h>
 
 int mode = 0;
@@ -371,6 +374,40 @@ int main(int argc, char ** argv) {
              i,  /* shift amount */
              1, // perform exclusive or
              1);
+  }
+
+  int ksat_skip_offsets[K_SAT_FRAME_COUNT] =
+    { 0, 0  };
+  int ksat_rows_to_show[K_SAT_FRAME_COUNT] =
+    { 14,14 };
+  for(int i=0;i<8;i++) {
+    generate("ksat_",
+             (unsigned int*)&k_sat_data, 
+             K_SAT_FRAME_COUNT,
+             K_SAT_FRAME_WIDTH,
+             K_SAT_FRAME_HEIGHT,
+             ksat_skip_offsets, /* start row */
+             ksat_rows_to_show,
+             i,  /* shift amount */
+             1, // perform exclusive or
+             0);
+  }
+
+  int mcb_skip_offsets[MCJETBOMBER_FRAME_COUNT] =
+    { 0, };
+  int mcb_rows_to_show[MCJETBOMBER_FRAME_COUNT] =
+    { 16 };
+  for(int i=0;i<8;i++) {
+    generate("bomber",
+             (unsigned int*)&mcjetbomber_data, 
+             MCJETBOMBER_FRAME_COUNT,
+             MCJETBOMBER_FRAME_WIDTH,
+             MCJETBOMBER_FRAME_HEIGHT,
+             mcb_skip_offsets, /* start row */
+             mcb_rows_to_show,
+             i,  /* shift amount */
+             0, // perform exclusive or
+             0);
   }
 }
 // xterm

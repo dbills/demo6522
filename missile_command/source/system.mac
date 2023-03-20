@@ -105,8 +105,9 @@ HZ16        = $f424           ; 1/16th
 .macro      waitv
             .local iloop
 iloop:
-            lda VICRASTER           ;load raster line
-            bne iloop
+          lda VICRASTER           ;load raster line
+          cmp #100
+          bne iloop
 .endmacro
 .macro sleep t
           saveall

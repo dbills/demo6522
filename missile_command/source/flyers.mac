@@ -1,0 +1,12 @@
+.macro send_bomber
+          ;so_bomber_out
+          ldx #0
+          lda #23
+          sta fl_bomber_tile,x
+          lda #7
+          sta fl_bomber_x,x
+          lda #50
+          sta fl_bomber_y,x
+          lda #0
+          sta fl_bomber_move,x
+.endmacro

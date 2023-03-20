@@ -83,31 +83,35 @@ void generate(const char * name,
               int *rows_to_show,
               int shift,
               int eor=0,
-              int collision=0
+              int collision=0,
+              int emit_frame_data=1
               ) 
 {
-  printf(".export %s_frames_shift%dL,%s_frames_shift%dH", name, shift,
-         name,shift);
-  for (int frame = 0; frame < frames; frame++) {
-    printf(", ");
-    printf("%s", make_name(name, frame, shift));
-  }
-  printf("\n.data\n");
-  printf("%s_frames_shift%dL: .byte ", name, shift);
-  for (int frame = 0; frame < frames; frame++) {
-    if(frame)
+  if(emit_frame_data) {
+    printf(".export %s_frames_shift%dL,%s_frames_shift%dH", name, shift,
+           name,shift);
+    for (int frame = 0; frame < frames; frame++) {
       printf(", ");
-    printf("<(%s)", make_name(name, frame, shift));
+      printf("%s", make_name(name, frame, shift));
+    }
+    printf("\n.data\n");
+    printf("%s_frames_shift%dL: .byte ", name, shift);
+    for (int frame = 0; frame < frames; frame++) {
+      if(frame)
+        printf(", ");
+      printf("<(%s)", make_name(name, frame, shift));
+    }
+    printf("\n%s_frames_shift%dH: .byte ", name, shift);
+    for (int frame = 0; frame < frames; frame++) {
+      if(frame)
+        printf(", ");
+      printf(">(%s)", make_name(name, frame, shift));
+    }
+    printf("\n");
   }
-  printf("\n%s_frames_shift%dH: .byte ", name, shift);
-  for (int frame = 0; frame < frames; frame++) {
-    if(frame)
-      printf(", ");
-    printf(">(%s)", make_name(name, frame, shift));
-  }
-  printf("\n");
   printf(".code\n");
   for (int frame = 0; frame < frames; frame++) {
+    printf(".export %s\n", make_name(name, frame, shift));
     printf(".proc %s\n", make_name(name, frame, shift));
     unsigned int dwords[rows];
     bzero(dwords,sizeof(dwords));
@@ -369,11 +373,12 @@ int main(int argc, char ** argv) {
              MC_EXPLOSION_FRAME_COUNT,
              MC_EXPLOSION_FRAME_WIDTH,
              MC_EXPLOSION_FRAME_HEIGHT,
-             skip_offsets, /* start row */
+             skip_offsets,      /* start row */
              rows_to_show,
-             i,  /* shift amount */
-             1, // perform exclusive or
-             1);
+             i,                 /* shift amount */
+             1,                 /* perform exclusive or */
+             1                  /* emit collision data */
+             );
   }
 
   int ksat_skip_offsets[K_SAT_FRAME_COUNT] =
@@ -388,9 +393,11 @@ int main(int argc, char ** argv) {
              K_SAT_FRAME_HEIGHT,
              ksat_skip_offsets, /* start row */
              ksat_rows_to_show,
-             i,  /* shift amount */
-             1, // perform exclusive or
-             0);
+             i,                 /* shift amount */
+             1,                 /* perform exclusive or */
+             0,                 /* no collision data */
+             0                  /* no frame data */
+             );
   }
 
   int mcb_skip_offsets[MCJETBOMBER_FRAME_COUNT] =
@@ -405,9 +412,11 @@ int main(int argc, char ** argv) {
              MCJETBOMBER_FRAME_HEIGHT,
              mcb_skip_offsets, /* start row */
              mcb_rows_to_show,
-             i,  /* shift amount */
-             1, // perform exclusive or
-             0);
+             i,                 /* shift amount */
+             1,                 /* perform exclusive or*/
+             0,                 /* no collision data */
+             0                  /* no frame data */
+             );
   }
 }
 // xterm

@@ -77,11 +77,11 @@ forever:  jmp forever
 
           jsr icbm_genwave
 
-          ;jsr main_loop                 
+          jsr main_loop                 
 
           ;jsr line_tests
           ;jsr de_test
-          jsr fl_test
+          ;jsr fl_test
 
           ;jsr mu_test
 loop:     jmp loop
@@ -107,12 +107,11 @@ iloop:
           sta target_x
           ta_draw
 loop:
-          jsr wait_v
+          waitv
           sc_update_frame                  ;update frame counter
-;          sc_bcolor CYAN
+          sc_bcolor CYAN
           jsr de_process
           mu_update
-;          sc_bcolor BLACK
           ta_update
           ;; animate player missiles
           jsr in_update
@@ -120,7 +119,7 @@ loop:
           jsr icbm_update
           ;jsr de_check
           ;te_printf2 #0,#130,"f:%d",VICRASTER
-foo:      
+          sc_bcolor PURPLE
           jmp loop
           rts
 .endproc

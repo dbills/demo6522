@@ -113,6 +113,10 @@ tile0R:
 .endproc
 
 .proc fl_render
+          cpx #8
+          bgte ok
+          abort 'E',55
+ok:       
           sy_dynajump bomber_shiftL, bomber_shiftH
 .endproc
 ;;; Draw any flyers that are currently on screen
@@ -144,12 +148,12 @@ draw:
           cmp #FL_OFF_SCREEN
           beq done                      ;nothing to draw
           ;; draw at new location
-          lda fl_bomber_tile,x
           asl                           ;*2
           tay
           jsr setup_from_right
           ldy fl_bomber_y,x
           lda fl_bomber_x,x
+          stx fl_savex
           tax
           jsr fl_render
           ldx fl_savex                  ;restore x
@@ -165,25 +169,20 @@ done:
 ;;;   X is clobbered
 .proc fl_update
           ;; move current location to old location
-.repeat 2, I
-          lda fl_bomber_x+I
-          sta fl_bomber_x2+I
-          lda fl_bomber_tile+I
-          sta fl_bomber_tile2+I
-.endrepeat
-flyer_loop:         
-          ldx #1
+          lda fl_bomber_x,x
+          sta fl_bomber_x2,x
+          lda fl_bomber_tile,x
+          sta fl_bomber_tile2,x
+          cmp #FL_OFF_SCREEN
+          beq next                      ;not active, don't update
           ;; update current location
-          lda fl_bomber_move,x
-          beq move_left
-          ;; move right
-          jsr move_right
-          jmp done
-move_left:          
+          lda fl_bomber_move,x          ;direction?
+          beq left                 ;if left move left
+          jsr move_right                ;else move right
+          jmp next
+left:          
           jsr move_left
-          dex
-          bpl flyer_loop
-done:     
+next:     
           rts
 .endproc
 
@@ -246,9 +245,12 @@ done:
           sta fl_bomber_x,x
           lda #50
           sta fl_bomber_y,x
-
-          jsr fl_draw
+          lda #0
+          sta fl_bomber_move,x
 loop:     
+          jsr fl_draw
+          jsr fl_update
+          jsr j_wfire
           jmp loop
 
           rts

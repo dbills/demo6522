@@ -1,6 +1,20 @@
+SO_BOMBER_START = 180
+
 .macro    so_empty
           lda #245
           sta 36876
           lda #20
           sta so_i_empty
+.endmacro
+
+.macro    so_bomber_out
+          lda #SO_BOMBER_START
+          sta so_bomber_note
+          sta 36875
+.endmacro
+
+.macro    so_bomber_gone
+          lda #0
+          sta so_bomber_note
+          sta 36875
 .endmacro

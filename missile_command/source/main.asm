@@ -37,8 +37,8 @@
 .proc     demo
           sei
           ;; load countdown value into via 2, timer1 latch
-          ;mov #HZ120, $9124
-          mov #HZ60, $9124
+          mov #HZ120, $9124
+          ;mov #HZ60, $9124
           mov #so_isr, $0314
           cli
           jsr sc_pltbl                   ;init plotting table
@@ -48,7 +48,6 @@
           jsr i_rand                     ;init random numbers
           sc_screenmem SCREEN            ;set VIC screen address
 
-;g1:       jmp g1                       
           ;; border colors
           sc_invmode 1
           sc_bcolor BLUE
@@ -66,7 +65,7 @@
           jsr unit_tests
 forever:  jmp forever
 .endif
-          ;jsr test_sound
+          ;jsr so_test
           jsr pl_draw_cities
           ;; jsr bigplot
           ;; lda #1

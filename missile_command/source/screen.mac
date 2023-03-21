@@ -188,8 +188,8 @@ wrapped:
           inc zp_cnt2
 not_wrapped:        
           sta zp_cnt1
-;            and #%00001111
-          and #%00000111
+            and #%00001111
+;          and #%00000111                
           sta frame_cnt
 .endmacro
 .endif

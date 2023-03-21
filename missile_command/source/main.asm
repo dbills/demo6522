@@ -112,11 +112,12 @@ loop:
           sc_update_frame                  ;update frame counter
           sc_bcolor BLACK
           jsr fl_draw_all
-          jsr de_process
+          jsr de_draw_all
           ta_update
           ;; end of time critical?
           mu_update
           jsr fl_update_all
+          jsr de_update_all
           ;; animate player missiles
           jsr in_update
           ;; animate enemy missiles

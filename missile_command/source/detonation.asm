@@ -16,8 +16,8 @@
 ;DISABLE_ANIMATION = 1
 ;;; End Debugging macros
 
-.export de_queue, de_init, de_test, de_draw, de_hit
-.export de_update, de_erase, de_rand, de_process
+.export de_queue, de_init, de_test, de_draw, de_hit,de_draw_all,de_update_all
+.export de_update, de_erase, de_rand
 .import explosion_frame_skip_offsets
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
@@ -214,12 +214,10 @@ loop:
 .endproc
 
 ;;; Erase and draw detonations ( splosions! )
+;;; 
 ;;; IN:
-;;;   arg1: does this and that
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
-.proc     de_process
+.proc     de_draw_all
           ldx #(slots-1)
           jsr de_erase
 
@@ -229,12 +227,15 @@ loop:
           ;; this section would not be time critical
           ;; ( when we get around to optimizing the main loop )
 
+          rts
+.endproc
+
+.proc     de_update_all
           ldx #(slots-1)
 .ifndef DISABLE_ANIMATION
           ;; skip for now while we test collisions
           jsr de_update
 .endif
-          rts
 .endproc
 ;;; x = explosion to update
 ;;; note: there is a sequence of animation 'frames' to

@@ -154,11 +154,11 @@ loop:
           dex
           li_setz_lstore
           ;; define incoming icbm left, right edge at 5 pixels
-          lda #XMAX - 10
+          lda #XMAX - 10                ;10 from right
           sta sy_rand
           jsr rand_n
           clc
-          adc #5
+          adc #5                        ;shift 5 from left
           sta z_x1                      ; icbm x origin
           lda #10                       ; icbm y origin
           sta z_y1

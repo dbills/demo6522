@@ -9,7 +9,9 @@
 FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
 
-.export fl_draw, fl_test, fl_init
+.export fl_draw, fl_test, fl_init, fl_draw_all, fl_update_all 
+.export fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber
+
 .data
 
 bomber_shiftL: .byte  <(bomber0_shift0),<(bomber0_shift1),<(bomber0_shift2),<(bomber0_shift3),<(bomber0_shift4),<(bomber0_shift5),<(bomber0_shift6),<(bomber0_shift7)
@@ -23,6 +25,7 @@ ksat1_shiftH: .byte  >(ksat_1_shift0),>(ksat_1_shift1),>(ksat_1_shift2),>(ksat_1
 
 .bss
 
+fl_next_bomber:     .res 1
 fl_bomber_x:        .res 2              ;0 - 7 in tile
 fl_bomber_x2:       .res 2              ;old location to erase
 fl_bomber_y:        .res 2              ;y location on screen

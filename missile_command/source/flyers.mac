@@ -1,4 +1,9 @@
 .macro send_bomber
+          lda zp_cnt2
+          clc
+          adc #$05
+          sta fl_next_bomber
+
           ;so_bomber_out
           ldx #0
           lda #23
@@ -9,4 +14,8 @@
           sta fl_bomber_y,x
           lda #0
           sta fl_bomber_move,x
+.endmacro
+
+.macro fl_resurrect_bomber
+          lda 
 .endmacro

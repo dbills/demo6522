@@ -106,19 +106,26 @@ iloop:
           lda #XMAX/2
           sta target_x
           ta_draw
+          send_bomber
 loop:
           waitv
           sc_update_frame                  ;update frame counter
-          sc_bcolor CYAN
+          sc_bcolor BLACK
+          jsr fl_draw_all
           jsr de_process
-          mu_update
           ta_update
+          ;; end of time critical?
+          mu_update
+          jsr fl_update_all
           ;; animate player missiles
           jsr in_update
           ;; animate enemy missiles
           jsr icbm_update
-          ;jsr de_check
-          ;te_printf2 #0,#130,"f:%d",VICRASTER
+          lda zp_cnt2
+          cmp fl_next_bomber
+          bne no_flyer
+          send_bomber
+no_flyer: 
           sc_bcolor PURPLE
           jmp loop
           rts

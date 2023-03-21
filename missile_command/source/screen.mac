@@ -179,11 +179,17 @@ detonation_div = 128
 ;;; OUT:
 ;;;   frame_cnt: incremented by 1
 .macro      sc_update_frame
-            lda frame_cnt
-            clc
-            adc #1
+          lda zp_cnt1
+          clc
+          adc #1
+          beq wrapped
+          bne not_wrapped
+wrapped:  
+          inc zp_cnt2
+not_wrapped:        
+          sta zp_cnt1
 ;            and #%00001111
-            and #%00000111
-            sta frame_cnt
+          and #%00000111
+          sta frame_cnt
 .endmacro
 .endif

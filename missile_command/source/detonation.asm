@@ -213,6 +213,12 @@ loop:
           rts     
 .endproc
 
+;;; Erase and draw detonations ( splosions! )
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
 .proc     de_process
           ldx #(slots-1)
           jsr de_erase

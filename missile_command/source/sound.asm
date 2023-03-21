@@ -5,7 +5,8 @@
 .export so_isr, so_test, so_init, so_missile, so_i_empty, so_bomber_note
 
 .bss
-
+so_counter1:        .res 1
+so_counter2:        .res 1
 i_missile_sound:    .res 1
 so_i_empty:         .res 1
 so_bomber_note:     .res 1
@@ -60,6 +61,12 @@ table_sz = * - missile_away_table
 ;;;   all sound table indicies updated
 .proc     so_isr
           sei
+          ;; increment timing counters
+          inc so_counter1
+          bne not_wrapped
+          inc so_counter2
+not_wrapped:        
+
           ;; run interceptor sounds
           ldx i_missile_sound
           bne _1

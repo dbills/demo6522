@@ -36,6 +36,8 @@ pl_city_x_positions:
 .proc pl_init
           lda #5
           sta city_count
+          lda #0
+          sta zp_lvl
           rts
 .endproc
 
@@ -194,4 +196,10 @@ pl_city_x_positions:
           sp_setup_draw
           ldy #YMAX-14
           jmp mbase10_shift0
+.endproc
+
+.proc pl_nextlevel
+          inc zp_lvl
+          ;; check if they won a city
+
 .endproc

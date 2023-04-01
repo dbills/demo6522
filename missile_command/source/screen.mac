@@ -191,5 +191,7 @@ not_wrapped:
             and #%00001111
 ;          and #%00000111                
           sta frame_cnt
+          and #%00000111                
+          sta zp_cnt3
 .endmacro
 .endif

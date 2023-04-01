@@ -1,4 +1,7 @@
-.macro send_bomber
+FL_BOMBER = 0
+FL_KSAT = 1
+
+.macro send_bomber idx
           lda zp_cnt2
           clc
           adc #$05
@@ -18,4 +21,13 @@
 
 .macro fl_resurrect_bomber
           lda 
+.endmacro
+
+.macro fl_check_flyer idx
+.local no_flyer
+          lda zp_cnt2
+          cmp fl_next_bomber + idx
+          bne no_flyer
+          send_bomber idx
+no_flyer: 
 .endmacro

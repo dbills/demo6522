@@ -353,7 +353,7 @@ done:
 loop:
             txa                         ;if index
             and #7                      ;modulo 8
-            cmp frame_cnt               ;==0
+            cmp zp_cnt3                 ;==0
             bne next                    ;then
             routine                     ;execute
 next:

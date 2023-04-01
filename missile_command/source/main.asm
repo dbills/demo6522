@@ -115,18 +115,17 @@ loop:
           jsr de_draw_all
           ta_update
           ;; end of time critical?
-          mu_update
+          mu_update 
           jsr fl_update_all
           jsr de_update_all
           ;; animate player missiles
           jsr in_update
           ;; animate enemy missiles
           jsr icbm_update
-          lda zp_cnt2
-          cmp fl_next_bomber
-          bne no_flyer
-          send_bomber
-no_flyer: 
+          ;; send out flyers
+          fl_check_flyer FL_BOMBER
+
+          ;; end of loop, update performance counter in border color
           sc_bcolor PURPLE
           jmp loop
           rts

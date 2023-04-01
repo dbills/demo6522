@@ -38,6 +38,19 @@ fl_savex:           .res 1
 fl_savea:           .res 1
 .code
 
+;;; Arcade flyer performance table
+;;; --------------------------------------------------------------------------
+;;; lvl   height              cooldown   fire rate
+;;; --------------------------------------------------------------------------
+;;; 1	no fliers allowed 	-	-
+;;; 2	+48 (148-195) 	240	128
+;;; 3	+48 (148-195) 	160	96
+;;; 4	+32 (132-163) 	128	64
+;;; 5	+32 (132-163) 	128	48
+;;; 6	+0 (100-131) 	96	32
+;;; 7	+0 (100-131) 	64	32
+;;; 8	+0 (100-131) 	32	16
+;
 ;;; Y = rightmost tile * 2 of sprite 
 ;;; i.e. 0 would draw the shift=7, third column of our 16x16 sprites on the 
 ;;; the barely left part of the screen
@@ -313,4 +326,22 @@ loop:
           jmp loop
 
           rts
+.endproc
+
+.proc fl_send_bomber
+          lda zp_cnt2
+          clc
+          adc #$05
+          sta fl_next_bomber
+
+          ;so_bomber_out
+          ldx #0
+          lda #23
+          sta fl_bomber_tile,x
+          lda #7
+          sta fl_bomber_x,x
+          lda #50
+          sta fl_bomber_y,x
+          lda #0
+          sta fl_bomber_move,x
 .endproc

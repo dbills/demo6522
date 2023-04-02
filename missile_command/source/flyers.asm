@@ -9,7 +9,7 @@
 FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
 
-.export fl_draw, fl_test, fl_init, fl_draw_all, fl_update_all 
+.export fl_test, fl_init, fl_draw_all, fl_update_all 
 .export fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber
 
 .data
@@ -26,14 +26,14 @@ ksat1_shiftH: .byte  >(ksat_1_shift0),>(ksat_1_shift1),>(ksat_1_shift2),>(ksat_1
 .bss
 
 fl_next_bomber:     .res 1
-fl_bomber_x:        .res 2              ;0 - 7 in tile
-fl_bomber_x2:       .res 2              ;old location to erase
-fl_bomber_y:        .res 2              ;y location on screen
-fl_bomber_move:     .res 2              ;movement direction 1=right 2=left
+fl_bomber_x:        .res 1              ;0 - 7 in tile
+fl_bomber_x2:       .res 1              ;old location to erase
+fl_bomber_y:        .res 1              ;y location on screen
+fl_bomber_move:     .res 1              ;movement direction 1=right 2=left
 ;;; type of flyer: 0=bomber, 1=ksat0, 2=ksat1
-fl_bomber_type:     .res 2            
-fl_bomber_tile:     .res 2
-fl_bomber_tile2:    .res 2
+fl_bomber_type:     .res 1            
+fl_bomber_tile:     .res 1
+fl_bomber_tile2:    .res 1
 fl_savex:           .res 1
 fl_savea:           .res 1
 .code
@@ -169,7 +169,10 @@ frame1:                                 ;ksat frame 1
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.proc fl_draw
+.proc fl_draw_all
+          lda frame_cnt                 ;fliers only move once 3 frames
+          and #3
+          bne done
           ;; on screen?
           lda fl_bomber_tile2
           cmp #FL_OFF_SCREEN
@@ -210,7 +213,10 @@ done:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
-.proc fl_update
+.proc fl_update_all
+          lda frame_cnt                 ;fliers only move once 3 frames
+          and #3
+          bne next
           ;; move current location to old location
           lda fl_bomber_tile
           sta fl_bomber_tile2
@@ -229,27 +235,6 @@ next:
           rts
 .endproc
 
-.proc fl_update_all
-          lda frame_cnt                 ;fliers only move once 3 frames
-          and #3
-          bne done
-          
-          ldx #0
-          jsr fl_update
-done:     
-          rts
-.endproc
-
-.proc fl_draw_all
-          lda frame_cnt                 ;fliers only move once 3 frames
-          and #3
-          bne done
-
-          ldx #0
-          jsr fl_draw
-done:     
-          rts
-.endproc
 ;;; Move right
 ;;; IN:
 ;;;   arg1: does this and that

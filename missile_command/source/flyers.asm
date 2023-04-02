@@ -219,6 +219,56 @@ done:
           rts
 .endproc
 
+;;; Move left
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.macro    move_left
+.local done
+          lda fl_bomber_tile
+          cmp #FL_OFF_SCREEN
+          blte done
+
+          lda fl_bomber_x
+          sec 
+          sbc #1
+          bmi dec_tile
+          sta fl_bomber_x
+          jmp done
+dec_tile: 
+          dec fl_bomber_tile
+          lda #7
+          sta fl_bomber_x
+done:     
+.endmacro
+;;; Move right
+;;; IN:
+;;;   arg1: does this and that
+;;; OUT:
+;;;   foo: is updated
+;;;   X is clobbered
+.macro move_right
+.local done
+          lda fl_bomber_tile
+          cmp #FL_OFF_SCREEN
+          blte done
+
+          lda fl_bomber_x
+          clc 
+          adc #1
+          cmp #8
+          beq inc_tile
+          sta fl_bomber_x
+          jmp done
+inc_tile: 
+          inc fl_bomber_tile
+          lda #0
+          sta fl_bomber_x
+done:     
+.endmacro
+
 ;;; Update screen locations of flyer
 ;;; IN:
 ;;;   arg1: does this and that
@@ -239,61 +289,11 @@ done:
           ;; update current location
           lda fl_bomber_move            ;direction?
           bne left                      ;if left move left
-          jsr move_right                ;else move right
+          move_right                ;else move right
           rts
 left:          
-          jsr move_left
+          move_left
 next:     
-          rts
-.endproc
-
-;;; Move right
-;;; IN:
-;;;   arg1: does this and that
-;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
-.proc move_right
-          lda fl_bomber_tile
-          cmp #FL_OFF_SCREEN
-          blte done
-
-          lda fl_bomber_x
-          clc 
-          adc #1
-          cmp #8
-          beq inc_tile
-          sta fl_bomber_x
-          rts
-inc_tile: 
-          inc fl_bomber_tile
-          lda #0
-          sta fl_bomber_x
-done:     
-          rts
-.endproc
-;;; Move left
-;;; IN:
-;;;   arg1: does this and that
-;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
-.proc move_left
-          lda fl_bomber_tile
-          cmp #FL_OFF_SCREEN
-          blte done
-
-          lda fl_bomber_x
-          sec 
-          sbc #1
-          bmi dec_tile
-          sta fl_bomber_x
-          rts
-dec_tile: 
-          dec fl_bomber_tile
-          lda #7
-          sta fl_bomber_x
-done:     
           rts
 .endproc
 

@@ -57,11 +57,11 @@ FL_BASE_Y = 40
 fl_cooldown_t:      
 .byte 240,160,128,18,96,64,32
 fl_fire_t:          
-.byte 128,96,64,48,32,32,16
+.byte 128,96,64,48,32,32,16,16
 ;;; base range is 76 - 100.  An offset is added to height to make it easer at lower levels
 ;;; height = FL_BASE_Y + rand(32) + fl_range_t[current_level]
 fl_range_t:          
-.byte 0,0,0,24,24,36,36
+.byte 0,0,0,24,24,36,36,36
 .code
 ;;; Y = rightmost tile * 2 of sprite 
 ;;; i.e. 0 would draw the shift=7, third column of our 16x16 sprites on the 
@@ -143,9 +143,6 @@ tile0R:
           sta fl_bomber_tile
           sta fl_bomber_tile2
 
-          sta fl_bomber_tile + 1
-          sta fl_bomber_tile2 + 1
-
           rts
 .endproc
 
@@ -186,9 +183,9 @@ frame1:                                 ;ksat frame 1
           and #3
           bne done
           ;; on screen?
-          lda fl_bomber_tile2
+          lda fl_bomber_tile2           ;255-25 | 25-25, offscreen if either value
           cmp #FL_OFF_SCREEN
-          beq draw                      ;nothing to erase
+          blte draw                      ;nothing to erase
           ;; erase old location
           asl                           ;*2
           tay
@@ -204,7 +201,7 @@ frame1:                                 ;ksat frame 1
 draw:     
           lda fl_bomber_tile
           cmp #FL_OFF_SCREEN
-          beq done                      ;nothing to draw
+          blte done                      ;nothing to draw
           ;; draw at new location
           asl                           ;*2
           tay
@@ -226,7 +223,7 @@ done:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .macro    move_left
-.local done
+.local done,dec_tile
           lda fl_bomber_tile
           cmp #FL_OFF_SCREEN
           blte done
@@ -250,7 +247,7 @@ done:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .macro move_right
-.local done
+.local done,inc_tile
           lda fl_bomber_tile
           cmp #FL_OFF_SCREEN
           blte done
@@ -276,7 +273,7 @@ done:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc fl_update_all
-          lda frame_cnt                 ;fliers only move once 3 frames
+          lda frame_cnt                 ;fliers only move once 4 frames
           and #3
           bne next
           ;; move current location to old location
@@ -284,12 +281,12 @@ done:
           sta fl_bomber_tile2
           cmp #FL_OFF_SCREEN
           beq next                      ;not active, don't update
-          lda fl_bomber_x
+          lda fl_bomber_x               ;double buffer location
           sta fl_bomber_x2
           ;; update current location
           lda fl_bomber_move            ;direction?
           bne left                      ;if left move left
-          move_right                ;else move right
+          move_right                    ;else move right
           rts
 left:          
           move_left
@@ -347,9 +344,14 @@ loop:
           fl_flyer_height
           sta fl_bomber_y
 
-          jsr rand_8
+          ldy #0                        ;fl_bomber_type=0
+          jsr rand_8                    ;get a random number
+          bmi bomber                    ;use high bit to decide bomber/satellite
+          iny                           ;fl_bomber_type=1
+bomber:   
+          sty fl_bomber_type
           and #1
-;          lda #0
+          lda #1
           sta fl_bomber_move
           bne left
           ;; left to right

@@ -9,7 +9,7 @@
 FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
 
-.export fl_test, fl_init, fl_draw_all, fl_update_all 
+.export fl_init, fl_draw_all, fl_update_all 
 .export fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber, fl_send_bomber
 
 .data
@@ -161,15 +161,19 @@ tile0R:
 ok:       
           lda fl_savea
 .endif
+          lda fl_bomber_type
+          bne sat
+          sy_dynajump bomber_shiftL, bomber_shiftH ;rts
+sat:      
+          ;; animate the satellite blinky lights
           txa
           and #4
           beq frame1
           ;; ksat frame 0
-          sy_dynajump ksat0_shiftL, ksat0_shiftH
-frame1:                                 ;ksat frame 1
-          sy_dynajump ksat1_shiftL, ksat1_shiftH
-;; ksat:                                   ;killer sattelite
-;;           sy_dynajump bomber_shiftL, bomber_shiftH
+          sy_dynajump ksat0_shiftL, ksat0_shiftH ;rts
+frame1:
+          sy_dynajump ksat1_shiftL, ksat1_shiftH ;rts
+          
 .endproc
 ;;; Draw any flyers that are currently on screen
 ;;; erase at old position, draw at new
@@ -294,28 +298,6 @@ next:
           rts
 .endproc
 
-.proc fl_test
-          ;so_bomber_out
-          ldx #0
-          lda #23
-          sta fl_bomber_tile,x
-          lda #7
-          sta fl_bomber_x,x
-          lda #50
-          sta fl_bomber_y,x
-          lda #0
-          sta fl_bomber_move,x
-loop:     
-          waitv
-          sc_update_frame
-          jsr fl_draw_all
-          jsr fl_update_all
-          ;jsr j_wfire
-          jmp loop
-
-          rts
-.endproc
-
 .macro fl_flyer_height
           lda zp_lvl
           ;; if lvl > 8 then lvl = 8
@@ -351,7 +333,6 @@ loop:
 bomber:   
           sty fl_bomber_type
           and #1
-          lda #1
           sta fl_bomber_move
           bne left
           ;; left to right

@@ -10,7 +10,7 @@ FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
 
 .export fl_test, fl_init, fl_draw_all, fl_update_all 
-.export fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber
+.export fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber, fl_send_bomber
 
 .data
 
@@ -23,22 +23,22 @@ ksat0_shiftH: .byte  >(ksat_0_shift0),>(ksat_0_shift1),>(ksat_0_shift2),>(ksat_0
 ksat1_shiftL: .byte  <(ksat_1_shift0),<(ksat_1_shift1),<(ksat_1_shift2),<(ksat_1_shift3),<(ksat_1_shift4),<(ksat_1_shift5),<(ksat_1_shift6),<(ksat_1_shift7)
 ksat1_shiftH: .byte  >(ksat_1_shift0),>(ksat_1_shift1),>(ksat_1_shift2),>(ksat_1_shift3),>(ksat_1_shift4),>(ksat_1_shift5),>(ksat_1_shift6),>(ksat_1_shift7)
 
-.bss
+;.bss
+.segment "CASS"
 
 fl_next_bomber:     .res 1
 fl_bomber_x:        .res 1              ;0 - 7 in tile
 fl_bomber_x2:       .res 1              ;old location to erase
 fl_bomber_y:        .res 1              ;y location on screen
-fl_bomber_move:     .res 1              ;movement direction 1=right 2=left
+fl_bomber_move:     .res 1              ;movement direction 0=right 1=left
 ;;; type of flyer: 0=bomber, 1=ksat0, 2=ksat1
 fl_bomber_type:     .res 1            
 fl_bomber_tile:     .res 1
 fl_bomber_tile2:    .res 1
 fl_savex:           .res 1
 fl_savea:           .res 1
-.code
 
-;;; Arcade flyer performance table
+;;; Arcade flyer performance table.  Arcade height is 230
 ;;; --------------------------------------------------------------------------
 ;;; lvl   height              cooldown   fire rate
 ;;; --------------------------------------------------------------------------
@@ -50,7 +50,19 @@ fl_savea:           .res 1
 ;;; 6	+0 (100-131) 	96	32
 ;;; 7	+0 (100-131) 	64	32
 ;;; 8	+0 (100-131) 	32	16
-;
+.data
+;;; size of all difficulty tables
+FL_DIFFICULTY_T_SZ = 8
+FL_BASE_Y = 40
+fl_cooldown_t:      
+.byte 240,160,128,18,96,64,32
+fl_fire_t:          
+.byte 128,96,64,48,32,32,16
+;;; base range is 76 - 100.  An offset is added to height to make it easer at lower levels
+;;; height = FL_BASE_Y + rand(32) + fl_range_t[current_level]
+fl_range_t:          
+.byte 0,0,0,24,24,36,36
+.code
 ;;; Y = rightmost tile * 2 of sprite 
 ;;; i.e. 0 would draw the shift=7, third column of our 16x16 sprites on the 
 ;;; the barely left part of the screen
@@ -226,9 +238,9 @@ done:
           sta fl_bomber_x2
           ;; update current location
           lda fl_bomber_move            ;direction?
-          beq left                      ;if left move left
+          bne left                      ;if left move left
           jsr move_right                ;else move right
-          jmp next
+          rts
 left:          
           jsr move_left
 next:     
@@ -307,20 +319,51 @@ loop:
           rts
 .endproc
 
+.macro fl_flyer_height
+          lda zp_lvl
+          ;; if lvl > 8 then lvl = 8
+          and #%111
+          tax                           ;x=level s.t. level < 8
+          jsr rand_8
+          and #%11111                    ;0-31
+          ;; height = FL_BASE_Y + rand(32) + fl_range_t[current_level]
+          clc 
+          adc #FL_BASE_Y
+          clc
+          adc fl_range_t,x
+.endmacro
+
 .proc fl_send_bomber
+          ;; lda zp_lvl
+          ;; beq done
           lda zp_cnt2
           clc
           adc #$05
           sta fl_next_bomber
 
           ;so_bomber_out
-          ldx #0
+
+          ;; set height from table
+          fl_flyer_height
+          sta fl_bomber_y
+
+          jsr rand_8
+          and #1
+;          lda #0
+          sta fl_bomber_move
+          bne left
+          ;; left to right
+right:    
+          sta fl_bomber_tile
+          sta fl_bomber_x
+          ;; send out a flyer from right to left
+          rts
+left:     
           lda #23
-          sta fl_bomber_tile,x
+          sta fl_bomber_tile
           lda #7
-          sta fl_bomber_x,x
-          lda #50
-          sta fl_bomber_y,x
-          lda #0
-          sta fl_bomber_move,x
+          sta fl_bomber_x
+          ;; send out a flyer from left to right
+done:     
+          rts
 .endproc

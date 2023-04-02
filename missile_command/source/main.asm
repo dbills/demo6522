@@ -106,7 +106,7 @@ iloop:
           lda #XMAX/2
           sta target_x
           ta_draw
-          send_bomber
+          jsr fl_send_bomber
 loop:
           waitv
           sc_update_frame                  ;update frame counter
@@ -123,7 +123,7 @@ loop:
           ;; animate enemy missiles
           jsr icbm_update
           ;; send out flyers
-          fl_check_flyer FL_BOMBER
+          fl_check_flyer
 
           ;; end of loop, update performance counter in border color
           sc_bcolor PURPLE

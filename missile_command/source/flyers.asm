@@ -171,7 +171,7 @@ frame1:                                 ;ksat frame 1
 ;;;   X is clobbered
 .proc fl_draw
           ;; on screen?
-          lda fl_bomber_tile2,x
+          lda fl_bomber_tile2
           cmp #FL_OFF_SCREEN
           beq draw                      ;nothing to erase
           ;; erase old location
@@ -179,23 +179,23 @@ frame1:                                 ;ksat frame 1
           tay
           jsr setup_from_right
 
-          ldy fl_bomber_y,x
-          lda fl_bomber_x2,x
-          ldy fl_bomber_y,x
+          ldy fl_bomber_y
+          lda fl_bomber_x2
+          ldy fl_bomber_y
           stx fl_savex
           tax
           jsr fl_render
           ldx fl_savex                  ;restore x
 draw:     
-          lda fl_bomber_tile,x
+          lda fl_bomber_tile
           cmp #FL_OFF_SCREEN
           beq done                      ;nothing to draw
           ;; draw at new location
           asl                           ;*2
           tay
           jsr setup_from_right
-          ldy fl_bomber_y,x
-          lda fl_bomber_x,x
+          ldy fl_bomber_y
+          lda fl_bomber_x
           stx fl_savex
           tax
           jsr fl_render
@@ -204,7 +204,7 @@ done:
           rts
 .endproc
 
-;;; Update screen locations of all flyers
+;;; Update screen locations of flyer
 ;;; IN:
 ;;;   arg1: does this and that
 ;;; OUT:
@@ -212,14 +212,14 @@ done:
 ;;;   X is clobbered
 .proc fl_update
           ;; move current location to old location
-          lda fl_bomber_tile,x
-          sta fl_bomber_tile2,x
+          lda fl_bomber_tile
+          sta fl_bomber_tile2
           cmp #FL_OFF_SCREEN
           beq next                      ;not active, don't update
-          lda fl_bomber_x,x
-          sta fl_bomber_x2,x
+          lda fl_bomber_x
+          sta fl_bomber_x2
           ;; update current location
-          lda fl_bomber_move,x          ;direction?
+          lda fl_bomber_move            ;direction?
           beq left                      ;if left move left
           jsr move_right                ;else move right
           jmp next
@@ -233,12 +233,9 @@ next:
           lda frame_cnt                 ;fliers only move once 3 frames
           and #3
           bne done
-
-          ldx #1
-loop:     
+          
+          ldx #0
           jsr fl_update
-          dex
-          bpl loop
 done:     
           rts
 .endproc
@@ -248,11 +245,8 @@ done:
           and #3
           bne done
 
-          ldx #1
-loop:     
+          ldx #0
           jsr fl_draw
-          dex
-          bpl loop
 done:     
           rts
 .endproc
@@ -263,21 +257,21 @@ done:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc move_right
-          lda fl_bomber_tile,x
+          lda fl_bomber_tile
           cmp #FL_OFF_SCREEN
           blte done
 
-          lda fl_bomber_x,x
+          lda fl_bomber_x
           clc 
           adc #1
           cmp #8
           beq inc_tile
-          sta fl_bomber_x,x
+          sta fl_bomber_x
           rts
 inc_tile: 
-          inc fl_bomber_tile,x
+          inc fl_bomber_tile
           lda #0
-          sta fl_bomber_x,x
+          sta fl_bomber_x
 done:     
           rts
 .endproc
@@ -288,20 +282,20 @@ done:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc move_left
-          lda fl_bomber_tile,x
+          lda fl_bomber_tile
           cmp #FL_OFF_SCREEN
           blte done
 
-          lda fl_bomber_x,x
+          lda fl_bomber_x
           sec 
           sbc #1
           bmi dec_tile
-          sta fl_bomber_x,x
+          sta fl_bomber_x
           rts
 dec_tile: 
-          dec fl_bomber_tile,x
+          dec fl_bomber_tile
           lda #7
-          sta fl_bomber_x,x
+          sta fl_bomber_x
 done:     
           rts
 .endproc

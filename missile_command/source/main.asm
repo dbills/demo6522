@@ -53,6 +53,7 @@
           sc_bcolor BLUE
           sc_scolor CYAN
 
+          jsr ta_init
           jsr db_init
           jsr so_init
           jsr in_init

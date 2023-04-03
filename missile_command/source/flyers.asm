@@ -24,15 +24,15 @@ ksat1_shiftL: .byte  <(ksat_1_shift0),<(ksat_1_shift1),<(ksat_1_shift2),<(ksat_1
 ksat1_shiftH: .byte  >(ksat_1_shift0),>(ksat_1_shift1),>(ksat_1_shift2),>(ksat_1_shift3),>(ksat_1_shift4),>(ksat_1_shift5),>(ksat_1_shift6),>(ksat_1_shift7)
 
 ;.bss
-.segment "CASS"
-
+;.segment "CASS"
+.zeropage
 fl_next_bomber:     .res 1
 fl_bomber_x:        .res 1              ;0 - 7 in tile
 fl_bomber_x2:       .res 1              ;old location to erase
 fl_bomber_y:        .res 1              ;y location on screen
 fl_bomber_move:     .res 1              ;movement direction 0=right 1=left
 ;;; type of flyer: 0=bomber, 1=ksat0, 2=ksat1
-fl_bomber_type:     .res 1            
+fl_bomber_type:     .res 1              ;0=sat else bomber
 fl_bomber_tile:     .res 1
 fl_bomber_tile2:    .res 1
 fl_savex:           .res 1
@@ -162,7 +162,7 @@ ok:
           lda fl_savea
 .endif
           lda fl_bomber_type
-          bne sat
+          beq sat
           sy_dynajump bomber_shiftL, bomber_shiftH ;rts
 sat:      
           ;; animate the satellite blinky lights

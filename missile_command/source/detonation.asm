@@ -409,7 +409,7 @@ done:
 ;;;   de_checkx, de_checky: pixel to check
 ;;; OUT:
 ;;;   X is clobbered
-.bss
+.zeropage
 ;;; todo: these, of course, should be moved to ZP for speed
 x_intersect:        .res 1
 y_intersect:        .res 1
@@ -420,7 +420,7 @@ bounding_height = 15
 bounding_width = 15
 .code
 .export de_check
-.export de_checkx, de_checky
+.exportzp de_checkx, de_checky
 .proc de_check
           savex
           lda #0

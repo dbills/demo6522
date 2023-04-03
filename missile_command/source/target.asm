@@ -11,14 +11,19 @@
 
 ;SLOW_CROSSHAIR = 1
 
-.import _ldata1
-.export   ta_move
+.export   ta_move,ta_init
 ;;; speed of crosshair 
 ch_speed = 1
-.data
-slow:      .byte 0
-trigger_count:      .byte 0
+.zeropage
+slow:               .res 1
+trigger_count:      .res 1
 .code
+.proc ta_init
+          lda #0
+          sta slow
+          sta trigger_count
+          rts
+.endproc
           ;; crosshair inc
           .macro ch_inc b
           lda b

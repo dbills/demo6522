@@ -9,8 +9,8 @@
 FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
 
-.export fl_init, fl_draw_all, fl_update_all 
-.export fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber, fl_send_bomber
+.export fl_init, fl_draw_all, fl_update_all, fl_send_bomber
+.exportzp fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber
 
 .data
 

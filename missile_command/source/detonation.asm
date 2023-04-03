@@ -56,9 +56,11 @@ explosion_drawtable_by_offset_table:
 ;;; start small fireball grow large, then shrink again
 ;;; the sequence is run from the end to the beginning for performance
 explosion_frame_table:
-;          .byte 0,1,2,3,4,5,6,7,7,6,5,4,3,2,1
-            .byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
-            .byte 0
+.ifdef TESTS
+.byte 0
+.else
+.byte 0,1,2,3,4,5,6,7,6,5,4,3,2,1
+.endif
 sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
@@ -475,18 +477,12 @@ inside_y:
           ;; find the byte in explosion collison map
           ;; byte = y * 16 + x
           lda y_intersect
-          ;; multiply by 16
+          ;; multiply by 2 to get byte
           asl
-          asl
-          asl
-          asl
-          ;; add x offset
-          clc
-          adc x_intersect
           tay
-          ;; this byte(not bit), 0 or 1 tells us if there is a hit
-          ;; for the underlying pixel. whole bytes were used for speed
           lda (ptr_0),y
+          ldy x_intersect
+          and de_bitpos,y
           sta de_hit
           ;te_printf2 #0,#41, " h:%d", de_hit
           lda de_hit
@@ -500,6 +496,11 @@ next:
           bmi exit
           jmp loop
 .endproc
+
+.data
+de_bitpos:          
+.byte 128,64,32,16,8,4,2,1
+.code
 
 .ifdef TESTS
 
@@ -528,6 +529,7 @@ l00:
 
 .repeat test_bound                      ; 1 line after the bounding box
           jsr de_check                  
+          te_printf " y:%d h:%d", de_checky, de_hit
           inc de_checky
 .endrepeat
 
@@ -541,12 +543,13 @@ l00:
           ;; 
           lda #50
           sta de_checky
-          ;; check collisions at 14 different heights
+          ;; check collisions at different x positions
           lda #50 - 8                   ; 1 line left the bounding box
           sta de_checkx
 
 .repeat test_bound
           jsr de_check                  
+          te_printf " x:%d h:%d", de_checkx, de_hit
           inc de_checkx
 .endrepeat
 

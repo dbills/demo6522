@@ -113,6 +113,7 @@ void generate(const char * name,
   for (int frame = 0; frame < frames; frame++) {
     printf(".export %s\n", make_name(name, frame, shift));
     printf(".proc %s\n", make_name(name, frame, shift));
+    printf(";;;     7654321+76543210\n");
     unsigned int dwords[rows];
     bzero(dwords,sizeof(dwords));
     for (int row = skip_offsets[frame],row_counter=0; 
@@ -255,10 +256,17 @@ void generate(const char * name,
       printf("collision_%s:\n", make_name(name, frame, shift));
       for (int row = 0;row < rows; ++row){
           unsigned int dword = dwords[row]<<8;
-          printf(".byte ");
-          for(int i=0,counter=0;i < 16;++i,++counter) {
+          printf(".byte %%");
+          for(int i=0,counter=0;i < 8;++i,++counter) {
+            //printf("%s$%02X", (counter ? "," : ""), (dword&0x80000000) ? 255:0);
+            printf("%c", (dword&0x80000000) ? '1':'0');
             dword<<=1;
-            printf("%s$%02X", (counter ? "," : ""), (dword&0x80000000) ? 255:0);
+          }
+          printf(",%%");
+          for(int i=0,counter=0;i < 8;++i,++counter) {
+            //printf("%s$%02X", (counter ? "," : ""), (dword&0x80000000) ? 255:0);
+            printf("%c", (dword&0x80000000) ? '1':'0');
+            dword<<=1;
           }
           printf(" ;; %d\n", row);
         }
@@ -395,7 +403,7 @@ int main(int argc, char ** argv) {
              ksat_rows_to_show,
              i,                 /* shift amount */
              1,                 /* perform exclusive or */
-             0,                 /* no collision data */
+             1,                 /* no collision data */
              0                  /* no frame data */
              );
   }
@@ -414,7 +422,7 @@ int main(int argc, char ** argv) {
              mcb_rows_to_show,
              i,                 /* shift amount */
              1,                 /* perform exclusive or*/
-             0,                 /* no collision data */
+             1,                 /* no collision data */
              0                  /* no frame data */
              );
   }

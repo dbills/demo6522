@@ -9,3 +9,17 @@ TODO:
 * leave a crosshair mark when an ABM is fired
 
 * implement 8.8 speed coding
+
+* move the inside_x to the last check
+  then you can check for left/right byte
+  and do the conditional right there, 
+  can I change the data structure so it doesn't care
+  sbc #8
+  bcs byte1
+byte1:
+  
+  ldy byte_offset
+  lda (ptr_0),y
+  
+
+IDEA: use the existing shape definition, it's already broken out into two separate arrays

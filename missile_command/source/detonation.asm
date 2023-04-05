@@ -480,6 +480,16 @@ inside_y:
           ;; multiply by 2 to get byte
           asl
           tay
+          ;; figure out if we need the first byte of collision bits
+          ;; or the second
+          lda #7
+          cmp x_intersect
+          bgt byte2
+          ;; byte1 of collision
+          jmp check_collision_bit
+byte2:    
+          iny
+check_collision_bit:          
           lda (ptr_0),y
           ldy x_intersect
           and de_bitpos,y
@@ -499,7 +509,7 @@ next:
 
 .data
 de_bitpos:          
-.byte 128,64,32,16,8,4,2,1
+.byte 128,64,32,16,8,4,2,1,128,64,32,16,8,4,2,1
 .code
 
 .ifdef TESTS
@@ -521,7 +531,7 @@ l00:
           te_printf "detonation cy"
           ;; detonation at 50,50
 
-          lda #50
+          lda #52
           sta de_checkx
           ;; check collisions at 14 different heights
           lda #50 - 8                   ; 1 line above the bounding box

@@ -494,8 +494,6 @@ check_collision_bit:
           ldy x_intersect
           and de_bitpos,y
           sta de_hit
-          ;te_printf2 #0,#41, " h:%d", de_hit
-          lda de_hit
           beq next
           ;; no more checks, this one hit
 exit:     
@@ -505,6 +503,7 @@ next:
           dex
           bmi exit
           jmp loop
+
 .endproc
 
 .data
@@ -551,7 +550,7 @@ l00:
           ;; 
           ;; == X coords ===
           ;; 
-          lda #50
+          lda #51
           sta de_checky
           ;; check collisions at different x positions
           lda #50 - 8                   ; 1 line left the bounding box

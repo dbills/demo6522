@@ -9,7 +9,7 @@
 FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
 
-.export fl_init, fl_draw_all, fl_update_all, fl_send_bomber
+.export fl_init, fl_draw_all, fl_update_all, fl_send_bomber, fl_collision
 .exportzp fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber
 
 .data
@@ -143,6 +143,15 @@ tile0R:
           sta fl_bomber_tile
           sta fl_bomber_tile2
 
+          rts
+.endproc
+
+;;; check for collision with a flyer
+;;; IN:
+;;;   pl_x,pl_y: point to check
+;;; OUT:
+;;;   de_hit: true if collision
+.proc fl_collision
           rts
 .endproc
 

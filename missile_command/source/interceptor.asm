@@ -135,7 +135,6 @@ loop:                                   ; do {
           lda line_data_indices,x
           beq  next                     ; inactive
           li_setz_lstore
-          ;; todo: replace with macro instead of expensive JSR
           jsr li_render_pixel
           beq erase
 next:     

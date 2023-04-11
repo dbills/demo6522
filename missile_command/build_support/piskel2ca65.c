@@ -120,7 +120,7 @@ void generate(const char * name,
          row < rows && (rows_to_show[frame]==-1 ||
                         row_counter < rows_to_show[frame]);
          ++row,++row_counter) {
-      printf("  ;; %2d|", row);
+      printf("  ;;%c%2d|", row==(rows/2)?'+':' ', row);
       unsigned int dword = 0;
       bool solid_fill = false;
       for (int col = 0; col < columns; col++) {

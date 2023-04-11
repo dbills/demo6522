@@ -17,7 +17,7 @@
 ;;; End Debugging macros
 
 .export de_queue, de_init, de_test, de_draw, de_hit,de_draw_all,de_update_all
-.export de_update, de_erase, de_rand
+.export de_erase, de_rand
 .import explosion_frame_skip_offsets
 
 ;;; i_detonation_frame = -1 => don't draw, but erase
@@ -97,7 +97,6 @@ detonation_cy:       .res slots
 detonation_cy2:      .res slots
 .export screen_column
 screen_column:      .res slots
-i_detonation_count: .res 1
 de_hit:  .res 1
 fm:      .res 1
 .code
@@ -232,13 +231,6 @@ loop:
           rts
 .endproc
 
-.proc     de_update_all
-          ldx #(slots-1)
-.ifndef DISABLE_ANIMATION
-          ;; skip for now while we test collisions
-          jsr de_update
-.endif
-.endproc
 ;;; x = explosion to update
 ;;; note: there is a sequence of animation 'frames' to
 ;;; show, that sequence is stored at explosion_frame_table.
@@ -249,7 +241,6 @@ loop:
             lda i_detonation_frame,x
             cmp #$fe                     ;-2
             beq inactive
-            inc i_detonation_count
             ;; copy for double buffering
             sta i_detonation_frame2,x
             lda detonation_cy,x
@@ -365,9 +356,7 @@ done:
             rts
 .endmacro
 
-.proc       de_update
-            lda #0
-            sta i_detonation_count
+.proc       de_update_all
             iterate_detonations jsr update_detonation
             rts
 .endproc

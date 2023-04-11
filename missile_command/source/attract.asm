@@ -37,7 +37,7 @@ skip:
 noscroll:
             sc_bcolor PURPLE
             ;; not time critical
-            jsr de_update
+            jsr de_update_all
 
             jmp loop
             rts

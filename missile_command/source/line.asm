@@ -311,6 +311,8 @@ s8:
 ;;; OUT:
 ;;;   line_data_indices: set to 0 for all lines
 ;;;   Y: unchanged
+;;;   pl_x, pl_y coord of last pixel drawn
+;;; 
 .proc     li_init
           ldx #MAX_LINES-1
           lda #0

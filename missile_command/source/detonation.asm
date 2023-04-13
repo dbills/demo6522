@@ -67,7 +67,7 @@ sz_explosion_frame_table = (* - explosion_frame_table)
 .endmacro
 .bss
 ;;; size of array of on screen detonations
-slots = 20
+slots = 15
 ;;; pointer to the list of rendering routines for this detonation
 ;;; there is a set of routines for each possible preshifted bit
 ;;; pattern of detonation
@@ -266,36 +266,37 @@ inactive:
 ;;; OUT:
 .proc       update_detonation_data
 active:
-            lda i_detonation_frame,x
-            tay                         ;index into explosion_frame_table
-            ;; animation frame offset: y=7-frame number
+          lda i_detonation_frame,x
+          tay                         ;index into explosion_frame_table
+          ;; animation frame offset: y=7-frame number
           lda explosion_frame_table,y
           tay
           lda explosion_frame_skip_offsets,y
-            ;; calculate the current Y coordinate to draw at
-            ;; it's differenct for every frame, as frame are different
-            ;; heights
-            clc
-            adc detonation_y,x
-            sta detonation_cy,x
-            ;; for each frame, there is a rendering/drawing functions.
-            ;; detonation_table points to the correct set of those functions
-            ;; for our preshifted animation images.
-            ;; ptr_0 = detonation_table[x]
-            lda detonation_tableL,x
-            sta ptr_0
-            lda detonation_tableH,x
-            sta ptr_0+1
-            ;; detonation_proc[x] = detonation_table[explosion_frame]
-            lda explosion_frame_table,y
-            asl                         ;*2 to access table of words
-            tay
-            lda (ptr_0),y
-            sta detonation_procL,x
-            iny
-            lda (ptr_0),y
-            sta detonation_procH,x
-            rts
+          ;; calculate the current Y coordinate to draw at
+          ;; it's differenct for every frame, as frame are different
+          ;; heights
+          clc
+          adc detonation_y,x
+          sta detonation_cy,x
+          ;; for each frame, there is a rendering/drawing functions.
+          ;; detonation_table points to the correct set of those functions
+          ;; for our preshifted animation images.
+          ;; ptr_0 = detonation_table[x]
+          lda detonation_tableL,x
+          sta ptr_0
+          lda detonation_tableH,x
+          sta ptr_0+1
+          ;; detonation_proc[x] = detonation_table[explosion_frame]
+          lda explosion_frame_table,y
+          asl                         ;*2 to access table of words
+          tay
+          lda (ptr_0),y
+          sta detonation_procL,x
+          iny
+          lda (ptr_0),y
+          sta detonation_procH,x
+          ;; check for collisions with flyers
+          rts
 .endproc
 ;;; Erase a detonation ( vblank/time critical )
 ;;; self-modifying code for dynamic jmp vector

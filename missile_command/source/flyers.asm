@@ -5,6 +5,7 @@
 .include "system.inc"
 .include "jstick.inc"
 .include "sound.inc"
+.include "detonation.inc"
 
 FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
@@ -151,7 +152,38 @@ tile0R:
 ;;;   pl_x,pl_y: point to check
 ;;; OUT:
 ;;;   de_hit: true if collision
+.zeropage
+fl_collision_origin:   .res 1
+.code
 .proc fl_collision
+          savex
+
+          lda fl_bomber_tile
+          asl
+          asl
+          asl
+          sec
+          sbc fl_bomber_x
+          sta fl_collision_origin
+          ;; check 4 points
+          sbc #16
+          sta de_checkx
+          sta _pl_x
+          ;; y coord
+          lda fl_bomber_y
+          clc
+          adc #8
+          sta _pl_y
+          sta de_checky
+
+          jsr de_check
+          lda de_hit
+          beq done
+          jsr de_queue
+          lda #FL_OFF_SCREEN
+          sta fl_bomber_tile
+done:     
+          resx
           rts
 .endproc
 
@@ -300,12 +332,16 @@ done:
           lda fl_bomber_move            ;direction?
           bne left                      ;if left move left
           move_right                    ;else move right
+          jsr fl_collision
           rts
 left:          
-          move_left
+          ;move_left TESTING
+          jsr fl_collision
 next:     
           rts
 .endproc
+
+
 
 .macro fl_flyer_height
           lda zp_lvl
@@ -327,7 +363,8 @@ next:
           lda zp_cnt2
           clc
           adc #$05
-          sta fl_next_bomber
+          ;; temp for testing, commented out
+          ;sta fl_next_bomber
 
           ;so_bomber_out
 
@@ -341,7 +378,9 @@ next:
           iny                           ;fl_bomber_type=1
 bomber:   
           sty fl_bomber_type
-          and #1
+          ;; temp for testing, force it to right to left
+          ;and #1
+          lda #0
           sta fl_bomber_move
           bne left
           ;; left to right
@@ -351,7 +390,9 @@ right:
           ;; send out a flyer from right to left
           rts
 left:     
-          lda #23
+          ;lda #23
+          ;for testing, put in middle and don't move
+          lda #11
           sta fl_bomber_tile
           lda #7
           sta fl_bomber_x

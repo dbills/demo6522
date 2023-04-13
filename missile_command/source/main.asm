@@ -117,8 +117,8 @@ loop:
           ta_update
           ;; end of time critical?
           mu_update 
-          jsr fl_update_all
           jsr de_update_all
+          jsr fl_update_all
           ;; animate player missiles
           jsr in_update
           ;; animate enemy missiles

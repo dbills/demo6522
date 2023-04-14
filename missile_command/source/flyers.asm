@@ -28,12 +28,13 @@ ksat1_shiftH: .byte  >(ksat_1_shift0),>(ksat_1_shift1),>(ksat_1_shift2),>(ksat_1
 ;.segment "CASS"
 .zeropage
 fl_next_bomber:     .res 1
-fl_bomber_x:        .res 1              ;0 - 7 in tile
+fl_bomber_x:        .res 1              ;0 - 7 in tile, from the left
 fl_bomber_x2:       .res 1              ;old location to erase
 fl_bomber_y:        .res 1              ;y location on screen
 fl_bomber_move:     .res 1              ;movement direction 0=right 1=left
 ;;; type of flyer: 0=bomber, 1=ksat0, 2=ksat1
 fl_bomber_type:     .res 1              ;0=sat else bomber
+;;; the right most tile of the sprite
 fl_bomber_tile:     .res 1
 fl_bomber_tile2:    .res 1
 fl_savex:           .res 1
@@ -148,41 +149,88 @@ tile0R:
 .endproc
 
 ;;; check for collision with a flyer
+;;; 
 ;;; IN:
 ;;;   pl_x,pl_y: point to check
 ;;; OUT:
 ;;;   de_hit: true if collision
 .zeropage
-fl_collision_origin:   .res 1
+fl_collision_wingtip_x:  .res 1
+;;; bottom of wingtip
+fl_collision_wingtip_y:  .res 1
+fl_collision_tailfin_x:  .res 1
 .code
 .proc fl_collision
           savex
 
           lda fl_bomber_tile
+          sec
+          sbc #2
           asl
           asl
           asl
           sec
-          sbc fl_bomber_x
-          sta fl_collision_origin
+          clc
+          adc fl_bomber_x
           ;; check 4 points
-          sbc #16
+nosecone:
           sta de_checkx
           sta _pl_x
+          adc #8
+          sta fl_collision_wingtip_x
+          adc #3
+          sta fl_collision_tailfin_x
           ;; y coord
           lda fl_bomber_y
           clc
           adc #8
           sta _pl_y
           sta de_checky
+          adc #8
+          sta fl_collision_wingtip_y
 
           jsr de_check
           lda de_hit
+          beq tailfin
+          jmp fl_destroy_flyer
+tailfin:   
+          ;; y is the same, only update x
+          lda fl_collision_tailfin_x
+          sta de_checkx
+          sta _pl_x
+          jsr de_check
+          lda de_hit
+          beq wingtip_bottom
+          jmp fl_destroy_flyer
+wingtip_bottom:   
+          lda fl_collision_wingtip_x
+          sta _pl_x
+          sta de_checkx
+          lda fl_collision_wingtip_y
+          sta de_checky
+          sta _pl_y
+          jsr de_check
+          lda de_hit
+          beq wingtip_top
+          jmp fl_destroy_flyer
+wingtip_top:   
+          ;; x is the same, only update y
+          lda fl_bomber_y
+          sta de_checky
+          sta _pl_y
+          jsr de_check
+          lda de_hit
           beq done
+          jmp fl_destroy_flyer
+done:     
+          resx
+          rts
+.endproc
+
+.proc fl_destroy_flyer
           jsr de_queue
           lda #FL_OFF_SCREEN
           sta fl_bomber_tile
-done:     
           resx
           rts
 .endproc
@@ -335,7 +383,7 @@ done:
           jsr fl_collision
           rts
 left:          
-          ;move_left TESTING
+          move_left
           jsr fl_collision
 next:     
           rts
@@ -363,8 +411,7 @@ next:
           lda zp_cnt2
           clc
           adc #$05
-          ;; temp for testing, commented out
-          ;sta fl_next_bomber
+          sta fl_next_bomber
 
           ;so_bomber_out
 
@@ -378,9 +425,7 @@ next:
           iny                           ;fl_bomber_type=1
 bomber:   
           sty fl_bomber_type
-          ;; temp for testing, force it to right to left
-          ;and #1
-          lda #0
+          and #1
           sta fl_bomber_move
           bne left
           ;; left to right
@@ -390,9 +435,7 @@ right:
           ;; send out a flyer from right to left
           rts
 left:     
-          ;lda #23
-          ;for testing, put in middle and don't move
-          lda #11
+          lda #23
           sta fl_bomber_tile
           lda #7
           sta fl_bomber_x

@@ -178,20 +178,26 @@ detonation_div = 128
 ;;; IN:
 ;;; OUT:
 ;;;   frame_cnt: incremented by 1
-.macro      sc_update_frame
+.macro    sc_update_frame
           lda zp_cnt1
           clc
           adc #1
-          beq wrapped
           bne not_wrapped
-wrapped:  
           inc zp_cnt2
 not_wrapped:        
           sta zp_cnt1
-            and #%00001111
+          and #%00001111
 ;          and #%00000111                
           sta frame_cnt
           and #%00000111                
           sta zp_cnt3
+;;           ;; update the 0-3 counter
+;;           lda zp_3cnt
+;;           sec
+;;           sbc #1                        ;-1
+;;           bpl no_wrap3                  ;>0?
+;;           lda #2                        ;reset counter
+;; no_wrap3:                               ;store it
+;;           sta zp_3cnt
 .endmacro
 .endif

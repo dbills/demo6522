@@ -107,7 +107,7 @@ iloop:
           lda #XMAX/2
           sta target_x
           ta_draw
-          jsr fl_send_bomber
+          ;jsr fl_send_bomber
 loop:
           waitv
           sc_update_frame                  ;update frame counter

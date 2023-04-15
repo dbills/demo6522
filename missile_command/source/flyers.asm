@@ -32,6 +32,7 @@ fl_bomber_x:        .res 1              ;0 - 7 in tile, from the left
 fl_bomber_x2:       .res 1              ;old location to erase
 fl_bomber_y:        .res 1              ;y location on screen
 fl_bomber_move:     .res 1              ;movement direction 0=right 1=left
+fl_bomber_delay:    .res 1              ;movement delay bomber=3 ksat=2
 ;;; type of flyer: 0=bomber, 1=ksat0, 2=ksat1
 fl_bomber_type:     .res 1              ;0=sat else bomber
 ;;; the right most tile of the sprite
@@ -39,6 +40,9 @@ fl_bomber_tile:     .res 1
 fl_bomber_tile2:    .res 1
 fl_savex:           .res 1
 fl_savea:           .res 1
+fl_deltax:          .res 1
+fl_collision_delay: .res 1
+fl_bomber_speed:    .res 1              ;frame speed for bomber
 
 ;;; Arcade flyer performance table.  Arcade height is 230
 ;;; --------------------------------------------------------------------------
@@ -145,24 +149,21 @@ tile0R:
           sta fl_bomber_tile
           sta fl_bomber_tile2
 
+          lda #1
+          sta fl_deltax
+
+          lda #0
+          sta fl_collision_delay
+
           rts
 .endproc
 
-;;; check for collision with a flyer
+;;; Calculate the x position of the current bomber
 ;;; 
 ;;; IN:
-;;;   pl_x,pl_y: point to check
 ;;; OUT:
-;;;   de_hit: true if collision
-.zeropage
-fl_collision_wingtip_x:  .res 1
-;;; bottom of wingtip
-fl_collision_wingtip_y:  .res 1
-fl_collision_tailfin_x:  .res 1
-.code
-.proc fl_collision
-          savex
-
+;;;   A: x position of current flyer
+.macro calc_bomber_x
           lda fl_bomber_tile
           sec
           sbc #2
@@ -172,7 +173,39 @@ fl_collision_tailfin_x:  .res 1
           sec
           clc
           adc fl_bomber_x
-          ;; check 4 points
+.endmacro
+;;; check for collision with a flyer (bomber)
+;;; 
+;;; IN:
+;;;   pl_x,pl_y: point to check
+;;; OUT:
+;;;   de_hit: true if collision
+.zeropage
+fl_ksat_right_x:       
+fl_collision_wingtip_x:  .res 1
+;;; bottom of wingtip
+fl_ksat_bottom_y:      
+fl_collision_wingtip_y:  .res 1
+fl_collision_tailfin_x:  .res 1
+.code
+.proc fl_collision
+          lda fl_collision_delay
+          beq ok_to_check
+          sec
+          sbc #1
+          sta fl_collision_delay
+          beq remove_flyer
+          rts
+remove_flyer:       
+          lda #FL_OFF_SCREEN
+          sta fl_bomber_tile
+          rts
+ok_to_check:        
+          savex
+          calc_bomber_x
+          ldy fl_bomber_type
+          beq fl_collision_ksat
+          ;;check 4 points of bomber      
 nosecone:
           sta de_checkx
           sta _pl_x
@@ -225,12 +258,57 @@ wingtip_top:
 done:     
           resx
           rts
+fl_collision_ksat:
+          ;; upper left
+          sta de_checkx
+          sta _pl_x
+          clc
+          adc #14
+          sta fl_ksat_right_x
+          ;; y coord
+          lda fl_bomber_y
+          sta _pl_y
+          sta de_checky
+          clc
+          adc #14
+          sta fl_ksat_bottom_y
+          ;; top left
+          jsr de_check
+          lda de_hit
+          beq top_right
+          jmp fl_destroy_flyer
+top_right:   
+          lda fl_ksat_right_x
+          sta de_checkx
+          sta _pl_x
+          jsr de_check
+          lda de_hit
+          beq bot_right
+          jmp fl_destroy_flyer
+bot_right:   
+          lda fl_ksat_bottom_y
+          sta _pl_y
+          sta de_checky
+          jsr de_check
+          lda de_hit
+          beq bot_left
+          jmp fl_destroy_flyer
+bot_left: 
+          lda fl_bomber_x
+          sta de_checkx
+          sta _pl_x
+          jsr de_check
+          lda de_hit
+          beq done
+          jmp fl_destroy_flyer
 .endproc
 
 .proc fl_destroy_flyer
           jsr de_queue
-          lda #FL_OFF_SCREEN
-          sta fl_bomber_tile
+          lda #0
+          sta fl_deltax
+          lda #20
+          sta fl_collision_delay
           resx
           rts
 .endproc
@@ -264,6 +342,27 @@ frame1:
           sy_dynajump ksat1_shiftL, ksat1_shiftH ;rts
           
 .endproc
+
+;;; Z=0 if should move
+.macro    fl_skipper
+.local done
+          lda frame_cnt
+          and #3
+          ldy fl_bomber_type
+          beq done
+          
+done:     
+          cmp #0
+          ;; lda frame_cnt
+          ;; and #3
+;;           lda zp_3cnt
+;;           ldy fl_bomber_type
+;;           beq check
+;;           lda frame_cnt
+;;           and #3
+;; check:   
+;;           cmp #0
+.endmacro
 ;;; Draw any flyers that are currently on screen
 ;;; erase at old position, draw at new
 ;;; IN:
@@ -272,8 +371,7 @@ frame1:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc fl_draw_all
-          lda frame_cnt                 ;fliers only move once 3 frames
-          and #3
+          fl_skipper
           bne done
           ;; on screen?
           lda fl_bomber_tile2           ;255-25 | 25-25, offscreen if either value
@@ -323,7 +421,7 @@ done:
 
           lda fl_bomber_x
           sec 
-          sbc #1
+          sbc fl_deltax
           bmi dec_tile
           sta fl_bomber_x
           jmp done
@@ -347,7 +445,7 @@ done:
 
           lda fl_bomber_x
           clc 
-          adc #1
+          adc fl_deltax
           cmp #8
           beq inc_tile
           sta fl_bomber_x
@@ -366,8 +464,7 @@ done:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc fl_update_all
-          lda frame_cnt                 ;fliers only move once 4 frames
-          and #3
+          fl_skipper                    ;skip if not correct frame
           bne next
           ;; move current location to old location
           lda fl_bomber_tile
@@ -380,11 +477,10 @@ done:
           lda fl_bomber_move            ;direction?
           bne left                      ;if left move left
           move_right                    ;else move right
-          jsr fl_collision
-          rts
+          jmp fl_collision              ;includes rts
 left:          
           move_left
-          jsr fl_collision
+          jmp fl_collision              ;includes rts
 next:     
           rts
 .endproc
@@ -412,6 +508,9 @@ next:
           clc
           adc #$05
           sta fl_next_bomber
+          ;; restore left/right move increment
+          lda #1
+          sta fl_deltax
 
           ;so_bomber_out
 
@@ -425,7 +524,7 @@ next:
           iny                           ;fl_bomber_type=1
 bomber:   
           sty fl_bomber_type
-          and #1
+          and #1                        ;reuse random number 
           sta fl_bomber_move
           bne left
           ;; left to right

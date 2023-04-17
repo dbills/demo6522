@@ -22,7 +22,7 @@
 .include "mushroom.inc"
 .include "playfield.inc"
 
-.export icbm_genwave,icbm_update
+.export icbm_genwave,icbm_update, sm_update_all, sm_draw_all, sm_send
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
 
 ;;; height above a city that icbm targets
@@ -32,6 +32,7 @@ city_centerline = 9
 .data
 ;;; generate a delay to slow icbm advance
 counter:  .byte 12
+
 .code
 ;;; Draw one pixel for all enemy icbms active
 ;;; There is one array line line data for both icbm and player interceptors
@@ -137,6 +138,20 @@ loop:
           ;; Y = random city on exit
           rts
 .endproc
+
+;;; Choose a random atmospheric entry point
+;;; define incoming icbm left, right edge at 5 pixels
+;;; OUT:
+.macro random_entry_point
+          lda #XMAX - 10                ;10 from right
+          sta sy_rand
+          jsr rand_n
+          clc
+          adc #5                        ;shift 5 from left
+          sta z_x1                      ; icbm x origin
+          lda #0                        ; icbm y origin
+          sta z_y1
+.endmacro
 ;;; Creates the line definitions for 
 ;;; a attack wave
 ;;; todo: there are multiple waves per level
@@ -152,17 +167,9 @@ loop:
           ldx #MAX_LINES
 loop:     
           dex
-          li_setz_lstore
-          ;; define incoming icbm left, right edge at 5 pixels
-          lda #XMAX - 10                ;10 from right
-          sta sy_rand
-          jsr rand_n
-          clc
-          adc #5                        ;shift 5 from left
-          sta z_x1                      ; icbm x origin
-          lda #10                       ; icbm y origin
-          sta z_y1
+          random_entry_point
           ;; pick a target city
+          li_setz_lstore
           jsr random_city
           tya                           ; store target city in line_data[0]
           ldy #0                        ; "
@@ -172,22 +179,104 @@ loop:
           bne loop
           rts
 .endproc
-;;; Generate an attack wave
-;;; IN:
-;;;   arg1: does this and that
-;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
-.proc icbm_genwave1
-          ;; set line pointer and index in X
-          mov #line_data01,z_lstore
-          ldx #1
-;          li_lineto #10,#10,#89,#155
-          lda #1                        ; select city 0
-          ldy #0                        ; "
-          sta (z_lstore),y              ; store target city data in line buffer
+
+;;; smart bombs
+.bss
+oldx:     .res 1
+oldy:     .res 1
+curx:     .res 1
+cury:     .res 1
+sm_tx:    .res 1                        ;target x
+sm_ty:    .res 1                        ;target y
+sm_city:  .res 1
+sm_dx:    .res 1
+sm_dy:    .res 1
+sm_err:   .res 1
+.code
+
+.proc sm_send
+          lda #2                        ;city 2
+          sta sm_city
           city_location
-          sta z_x2
-          li_lineto #XMAX-1,#0,z_x2,#165
+          sta sm_tx
+
+          lda #pl_city_basey
+          sec
+          sbc #detonation_height
+          sta sm_ty
+
+          lda #0
+          sta oldx
+          sta oldy
+          sta curx
+          sta cury
+
+          jmp sm_calc_slope
+.endproc
+
+.proc sm_calc_slope
+          delta curx,sm_tx,#1
+          sta sm_dx
+          
+          delta cury,sm_ty,#2
+          sta sm_dy
+          sta sm_err
+          rts
+.endproc
+
+.proc sm_draw_all
+          lda frame_cnt
+          and #3
+          bne done
+          lda oldx
+          sta _pl_x
+          lda oldy
+          sta _pl_y
+          jsr sc_plot 
+
+          lda curx
+          sta _pl_x
+          lda cury
+          sta _pl_y
+          jsr sc_plot 
+done:     
+          rts
+.endproc
+
+
+.proc sm_update_all
+          lda frame_cnt                 ;draw this frame?
+          and #3
+          bne done
+          lda #255                      ;smart bomb is active
+          cmp cury
+          beq done
+          ;; copy double buffering variables 
+          lda curx
+          sta oldx
+          lda cury
+          sta oldy
+          ;; movement logic
+          lda sm_err
+          sec 
+          sbc sm_dx
+          bpl movey
+movex:    
+          inc curx
+          clc
+          adc sm_dy                     ;reset sm_err
+movey:    
+          sta sm_err
+          lda cury
+          cmp sm_ty
+          beq target_reached
+          clc
+          adc #1
+          sta cury
+done:     
+          rts       
+target_reached:     
+          lda #255
+          sta cury
           rts
 .endproc

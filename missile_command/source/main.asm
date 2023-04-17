@@ -108,17 +108,20 @@ iloop:
           sta target_x
           ta_draw
           ;jsr fl_send_bomber
+          jsr sm_send
 loop:
           waitv
           sc_update_frame                  ;update frame counter
           sc_bcolor BLACK
           jsr fl_draw_all
           jsr de_draw_all
+          jsr sm_draw_all
           ta_update
           ;; end of time critical?
           mu_update 
           jsr de_update_all
           jsr fl_update_all
+          jsr sm_update_all
           ;; animate player missiles
           jsr in_update
           ;; animate enemy missiles

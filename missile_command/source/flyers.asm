@@ -87,8 +87,8 @@ fl_range_t:
 ;;; will have no effect
 ;;;
 ;;; todo: rename to sp_setup_draw_right
-.export setup_from_right
-.proc setup_from_right
+.macro setup_from_right
+.local tile0L,tile1L,tile2L,tile1R,tile0R,done,ROM
 ROM=$8000                               ;no-op write to address
           ;; load pointers to rom to effectively be a no-op
           ;; high bytes only ( should be all that's needed )
@@ -121,8 +121,7 @@ tile2L:
           sta sp_col2
           lda pltbl+1,y
           sta sp_col2+1
-
-          rts
+          bne done
 
 tile1R:    
           lda pltbl-2,y
@@ -135,8 +134,8 @@ tile0R:
           lda pltbl-3,y
           sta sp_col0+1
 
-          rts
-.endproc
+done:     
+.endmacro
 ;;; <description>
 ;;; IN:
 ;;;   arg1: does this and that
@@ -307,7 +306,7 @@ bot_left:
           jsr de_queue
           lda #0
           sta fl_deltax
-          lda #20
+          lda #19
           sta fl_collision_delay
           resx
           rts
@@ -343,25 +342,19 @@ frame1:
           
 .endproc
 
-;;; Z=0 if should move
-.macro    fl_skipper
+;;; branch to _1 if this frame should not move the bomer
+.macro    fl_skipper _1
 .local done
+          ldy fl_bomber_type
+          bne check
+          lda zp_3cnt
+          bne _1
+          beq done
+check:   
           lda frame_cnt
           and #3
-          ldy fl_bomber_type
-          beq done
-          
+          bne _1
 done:     
-          cmp #0
-          ;; lda frame_cnt
-          ;; and #3
-;;           lda zp_3cnt
-;;           ldy fl_bomber_type
-;;           beq check
-;;           lda frame_cnt
-;;           and #3
-;; check:   
-;;           cmp #0
 .endmacro
 ;;; Draw any flyers that are currently on screen
 ;;; erase at old position, draw at new
@@ -370,9 +363,11 @@ done:
 ;;; OUT:
 ;;;   foo: is updated
 ;;;   X is clobbered
+.proc fl_draw_all_done
+          rts
+.endproc
 .proc fl_draw_all
-          fl_skipper
-          bne done
+          fl_skipper fl_draw_all_done
           ;; on screen?
           lda fl_bomber_tile2           ;255-25 | 25-25, offscreen if either value
           cmp #FL_OFF_SCREEN
@@ -380,7 +375,7 @@ done:
           ;; erase old location
           asl                           ;*2
           tay
-          jsr setup_from_right
+          setup_from_right
 
           ldy fl_bomber_y
           lda fl_bomber_x2
@@ -396,7 +391,7 @@ draw:
           ;; draw at new location
           asl                           ;*2
           tay
-          jsr setup_from_right
+          setup_from_right
           ldy fl_bomber_y
           lda fl_bomber_x
           stx fl_savex
@@ -415,16 +410,12 @@ done:
 ;;;   X is clobbered
 .macro    move_left
 .local done,dec_tile
-          lda fl_bomber_tile
-          cmp #FL_OFF_SCREEN
-          blte done
-
           lda fl_bomber_x
           sec 
           sbc fl_deltax
           bmi dec_tile
           sta fl_bomber_x
-          jmp done
+          bpl done
 dec_tile: 
           dec fl_bomber_tile
           lda #7
@@ -439,17 +430,13 @@ done:
 ;;;   X is clobbered
 .macro move_right
 .local done,inc_tile
-          lda fl_bomber_tile
-          cmp #FL_OFF_SCREEN
-          blte done
-
           lda fl_bomber_x
           clc 
           adc fl_deltax
           cmp #8
           beq inc_tile
           sta fl_bomber_x
-          jmp done
+          bne done
 inc_tile: 
           inc fl_bomber_tile
           lda #0
@@ -464,13 +451,12 @@ done:
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc fl_update_all
-          fl_skipper                    ;skip if not correct frame
-          bne next
+          fl_skipper next                   ;skip if not correct frame
           ;; move current location to old location
           lda fl_bomber_tile
           sta fl_bomber_tile2
           cmp #FL_OFF_SCREEN
-          beq next                      ;not active, don't update
+          blte next                     ;not active, don't update
           lda fl_bomber_x               ;double buffer location
           sta fl_bomber_x2
           ;; update current location
@@ -484,8 +470,6 @@ left:
 next:     
           rts
 .endproc
-
-
 
 .macro fl_flyer_height
           lda zp_lvl

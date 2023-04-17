@@ -1,8 +1,8 @@
 TODO:
 
 * change the screen column pointer table to tableL,tableH method.  This will clean up the code and
-  allow us to actually store the column in thing like the mushroom code where we have mu_screen_col
-  as a variable; but it's no really the screen column
+  allow us to actually store the column in things like the mushroom code where we have mu_screen_col
+  as a variable; but it's not really the screen column
 
   It will also be faster
 
@@ -10,16 +10,18 @@ TODO:
 
 * implement 8.8 speed coding
 
-* move the inside_x to the last check
-  then you can check for left/right byte
-  and do the conditional right there, 
-  can I change the data structure so it doesn't care
-  sbc #8
-  bcs byte1
-byte1:
-  
-  ldy byte_offset
-  lda (ptr_0),y
-  
+* delay before secondary explosion occurs
 
-IDEA: use the existing shape definition, it's already broken out into two separate arrays
+smart bombs
+
+standard line plotting with avoidance by calling de_check in front of the path
+when a decision to move is made, we need to recalc the path from the new course ( that's going
+to be expensive )
+
+ current location *
+                    
+               destination   +
+
+
+can move up to 3 pixels in any direction
+desty - currenty

@@ -75,20 +75,6 @@ _line_h=1
 
 .endif
 
-;;; Get the current x,y value of a line that is active, i.e. is in process
-;;; of being drawn 
-;;; IN:
-;;;   X: index of line
-;;;   xarg: label to store x location of line
-;;;   yarg: label to store y location of line
-;;; 
-;;; OUT:
-;;;   xarg: x location of line
-;;;   yarg: y location of line
-.macro li_get_coord
-          ;; TDB - perhaps it's easier to do the collision check 
-          ;; after the line is drawn?
-.endmacro
 ;;; Erase and deactive a line
 ;;; IN:
 ;;;   X: line to erase
@@ -109,4 +95,38 @@ _line_h=1
           sta line_data_indices,x        
           lda long_axis_start_values,x   
           sta long_axis_current_values,x 
+.endmacro
+
+;;; Distance beteen _1 and _2
+;;; IN:
+;;;   _1: axis value
+;;;   _2: axis value
+;;;   value: a value to return in Y
+;;; OUT:
+;;; Y = value if _2 < _1
+;;;         0 if _2 > _1
+;;; A =return abs(_2 - _1) in distance
+.macro    delta _1, _2, value
+.local normal, done
+          lda _2
+          sec
+          sbc _1
+          bcs normal
+          ;; x2 was < x1
+          eor #$ff
+          ;; we need to add 1 to finish our little 2's complement
+          ;; stunt and get to x1-x2 -- and we also
+          ;; need to add +1 to dx, so:
+          ;; clc implied (or we wouldn't be here)
+          adc #2
+          ldy value                     ;output return value
+          bne done                      ;bra done
+normal:
+          ;; C is already set if we directly branch here
+          ;; and this performs the +1
+          ;; otherwise it's not and this does nothing
+          ;; which is fine
+          adc #0
+          ldy #0                        ;no return value
+done:     
 .endmacro

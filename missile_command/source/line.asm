@@ -81,39 +81,6 @@ line_offsetsH:
 .endrep
 
 .code
-;;; Distance beteen _1 and _2
-;;; IN:
-;;;   _1: axis value
-;;;   _2: axis value
-;;;   value: a value to return in Y
-;;; OUT:
-;;; Y = value if _2 < _1
-;;;         0 if _2 > _1
-;;; A =return abs(_2 - _1) in distance
-.macro    delta _1, _2, value
-.local normal, done
-          lda _2
-          sec
-          sbc _1
-          bcs normal
-          ;; x2 was < x1
-          eor #$ff
-          ;; we need to add 1 to finish our little 2's complement
-          ;; stunt and get to x1-x2 -- and we also
-          ;; need to add +1 to dx, so:
-          ;; clc implied (or we wouldn't be here)
-          adc #2
-          ldy value                     ;output return value
-          bne done                      ;bra done
-normal:
-          ;; C is already set if we directly branch here
-          ;; and this performs the +1
-          ;; otherwise it's not and this does nothing
-          ;; which is fine
-          adc #0
-          ldy #0                        ;no return value
-done:     
-.endmacro
 ;;; Generate line data
 ;;; IN: z_x1, z_x2, z_y1, z_y2,z_lstore
 ;;;   coords are closed interval
@@ -141,7 +108,7 @@ done:
 .proc     li_genline
           lda #0                        ;z_err=0
           sta z_err
-          ;; the delta macro calls effectively build 3 bit number
+          ;; the delta macro calls build a 3 bit number
           ;; we check which way the line runs left or right, up or down
           ;; by subtracting endponts, and then determine slope by dy - dx
           ;; we end up with a # from 0-7 for the type/class of line to draw
@@ -228,7 +195,7 @@ s8:
 ;;; 
 ;;; The class of functions(macros) G represents are rendering functions, and
 ;;; G could be, for example, a function to draw a single pixel of a line to
-;;; the scree,or G could be a function to generate precalculated line data into
+;;; the screen,or G could be a function to generate precalculated line data into
 ;;; a buffer
 ;;; 
 ;;; IN:

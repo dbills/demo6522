@@ -33,6 +33,25 @@ done:
             sta dst+1
 .endif
 .endmacro
+.macro      sub16 subtrahend, minuend
+.if (.match (.left (1, {subtrahend}), #))
+          lda minuend
+          sec
+          sbc #<(.right (.tcount ({subtrahend})-1, {subtrahend}))
+          sta minuend
+          lda minuend+1
+          sbc #>(.right (.tcount ({subtrahend})-1, {subtrahend}))
+          sta minuend+1
+.else
+          lda minuend
+          sec
+          sbc subtrahend
+          sta minuend
+          lda minuend+1
+          sbc minuend+1
+          sta minuend+1
+.endif
+.endmacro
 .macro      add src, dst
 .if (.match (.left (1, {src}), #))
             lda #<(.right (.tcount ({src})-1, {src}))

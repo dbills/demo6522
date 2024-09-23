@@ -105,8 +105,8 @@ _line_h=1
 ;;; OUT:
 ;;; Y = value if _2 < _1
 ;;;         0 if _2 > _1
-;;; A =return abs(_2 - _1) in distance
-.macro    delta _1, _2, value
+;;; A = return abs(_2 - _1) in distance
+.macro    li_delta _1, _2, value
 .local normal, done
           lda _2
           sec

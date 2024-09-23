@@ -21,15 +21,37 @@
 .include "playfield.inc"
 .include "mushroom.inc"
 .include "playfield.inc"
+.include "m16.mac"
 
-.export icbm_genwave,icbm_update, sm_update_all, sm_draw_all, sm_send
+.export icbm_genwave,icbm_update, sm_update_all, sm_draw_all, sm_send, sm_init
 .import  queue_offsetsL_interceptor, queue_offsetsH_interceptor
+
 
 ;;; height above a city that icbm targets
 detonation_height = 5
 ;;; distance from left of city to it's centerline where icbms target
 city_centerline = 9
 .data
+ic_icbm_cnt:                            ;icbms per level
+.byte 12,15,18,12,16
+.byte 14,17,10,13,16
+.byte 19,12,14,16,18
+.byte 14,17,19,22 
+ic_icbm_dlyH:                            ;frame per icbm move
+.word $04, $02, $01, $01, $0
+.word $0060, $0040, $0020, $0010, $000a
+.word    $0,    $0,    $0,     $0,    0
+.word     0,     0,     0,      0
+ic_icbm_dlyL:                            ;frame per icbm move
+.word $d0, $e0, $c0, $07, $A0
+.word $60, $40, $20, $10, $0a
+.word  $5,  $4,  $2,  $1,   0
+.word   0,   0,   0,   0
+ic_smart_cnt:                           ;smart bombs per level
+.byte 0,0,0,0,0
+.byte 1,1,2,3,4
+.byte 4,5,5,6,6
+.byte 7,7,7,7
 ;;; generate a delay to slow icbm advance
 counter:  .byte 12
 
@@ -189,10 +211,23 @@ cury:     .res 1
 sm_tx:    .res 1                        ;target x
 sm_ty:    .res 1                        ;target y
 sm_city:  .res 1
-sm_dx:    .res 1
+sm_dx:    .res 1                        ;delta between smart missile start and target
 sm_dy:    .res 1
 sm_err:   .res 1
+sm_frame: .res 2
+sm_speed: .res 2                        ;8.8 speed for this level
 .code
+
+.proc sm_init
+          ldy zp_lvl
+          lda ic_icbm_dlyL,y
+          sta sm_speed
+          sta sm_frame
+          lda ic_icbm_dlyH,y
+          sta sm_speed+1
+          sta sm_frame+1
+          rts
+.endproc
 
 .proc sm_send
           lda #2                        ;city 2
@@ -215,19 +250,18 @@ sm_err:   .res 1
 .endproc
 
 .proc sm_calc_slope
-          delta curx,sm_tx,#1
+          li_delta curx,sm_tx,#1
           sta sm_dx
           
-          delta cury,sm_ty,#2
+          li_delta cury,sm_ty,#2
           sta sm_dy
           sta sm_err
           rts
 .endproc
 
 .proc sm_draw_all
-          lda frame_cnt
-          and #3
-          bne done
+          sub16 #$100,sm_frame           ;substract 1.00 from sm_frame
+          bpl done
           lda oldx
           sta _pl_x
           lda oldy
@@ -242,12 +276,13 @@ sm_err:   .res 1
 done:     
           rts
 .endproc
-
+;;; 8.8 fixed point
 
 .proc sm_update_all
-          lda frame_cnt                 ;draw this frame?
-          and #3
-          bne done
+          lda sm_frame+1                ;do we update this frame?
+          bpl done
+          ;; update frame
+          add sm_speed, sm_frame
           lda #255                      ;smart bomb is active
           cmp cury
           beq done
@@ -257,6 +292,20 @@ done:
           lda cury
           sta oldy
           ;; movement logic
+          ;; check for detonation
+          lda cury
+          clc
+          adc #3
+          sta de_checky
+          lda curx                      ;check 3 pixels farther down
+          sta de_checkx
+          jsr de_check
+          lda de_hit
+          beq regular_move
+          ;; evasion
+          dec cury
+          rts
+regular_move:       
           lda sm_err
           sec 
           sbc sm_dx
@@ -264,7 +313,7 @@ done:
 movex:    
           inc curx
           clc
-          adc sm_dy                     ;reset sm_err
+          adc sm_dy                     ;A=0 reset sm_err
 movey:    
           sta sm_err
           lda cury

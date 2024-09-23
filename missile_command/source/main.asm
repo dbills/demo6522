@@ -62,6 +62,7 @@
           jsr pl_init
           jsr mu_init
           jsr fl_init
+          jsr sm_init
 .ifdef TESTS
           jsr unit_tests
 forever:  jmp forever

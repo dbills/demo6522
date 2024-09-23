@@ -9,8 +9,8 @@
 ;;; line* routines put the 'line instructions' in ram
 ;;; render* routines take a line instruction set and
 ;;; place on the screen
-;;; dx: delta x, the x length of a line
-;;; dy: delta y, the y length of a line
+;;; dx: li_delta x, the x length of a line
+;;; dy: li_delta y, the y length of a line
 ;;; lstore: pointer to location to read or write line data
 ;;; x1,x2,y1,y2: the 2 respective endpoints of a line
 ;;; NOTE: please see line.txt for
@@ -108,21 +108,21 @@ line_offsetsH:
 .proc     li_genline
           lda #0                        ;z_err=0
           sta z_err
-          ;; the delta macro calls build a 3 bit number
+          ;; the li_delta macro calls build a 3 bit number
           ;; we check which way the line runs left or right, up or down
           ;; by subtracting endponts, and then determine slope by dy - dx
           ;; we end up with a # from 0-7 for the type/class of line to draw
-          delta z_y1,z_y2,#1
+          li_delta z_y1,z_y2,#1
           sta z_dy
           tya
           ora z_err
           sta z_err
-          delta z_x1,z_x2,#2
+          li_delta z_x1,z_x2,#2
           sta z_dx
           tya
           ora z_err
           sta z_err
-          delta z_dx,z_dy,#4
+          li_delta z_dx,z_dy,#4
           tya
           ora z_err
           ;; A now has 0-7 to indicate one of the 8 line types

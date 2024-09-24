@@ -32,12 +32,11 @@ ptr_string: .res 2
 sp_col2:                                ;sprite screen column 2
 ptr_4:      .res 2
 frame_cnt:  .res 1
-;;; 16 bit counter
-zp_cnt1:    .res 1                      ;4 bit counter
-zp_cnt2:    .res 1                      ;16bit counter high
-zp_cnt3:    .res 1                      ;3 bit counter
+zp_cnt1:    .res 1                      ;16bit frame counter low
+zp_cnt2:    .res 1                      ;16bit frame counter high
+zp_cnt3:    .res 1                      ;3 bit counter ( 0-7 )
 zp_3cnt:    .res 1                      ;0-3 counter
 zp_lvl:     .res 1                      ;game level
 scratch1:   .res 1
-zb_icbm:   .res 1                      ; icbm iterator
+zb_icbm:    .res 1                      ; icbm iterator
 .CODE

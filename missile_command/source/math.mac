@@ -22,16 +22,16 @@
 .endmacro
 
 .macro    add_w _1,_2
-          clc                     ;ensure carry is clear
-          lda [_1]+0             ;add the two least significant bytes
-          adc [_2]+0             ;
-          sta [_1]+0             ;... and store the result
-          lda [_1]+1             ;add the two most significant bytes
-          adc [_2]+1             ;... and any propagated carry bit
-          sta [_1]+1             ;... and store the result    clc
-          .endmacro
+          clc                  ;ensure carry is clear
+          lda _1+0             ;add the two least significant bytes
+          adc _2+0             ;
+          sta _1+0             ;... and store the result
+          lda _1+1             ;add the two most significant bytes
+          adc _2+1             ;... and any propagated carry bit
+          sta _1+1             ;... and store the result    clc
+.endmacro
 
-          .macro sub _1,_2
+.macro sub _1,_2
           sec
           lda _1
           sbc _2
@@ -41,7 +41,7 @@
           .macro modulo8 _1
           lda #%00000111
           and _1
-          .endmacro
+.endmacro
           ;; move _1 to _2
           ;; subtracting byte 3
           .macro sub_wbw _1,_2,_3

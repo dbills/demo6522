@@ -1,5 +1,5 @@
 .include "system.mac"
-.export _sleep, rand_8, i_rand, stack
+.export _sleep, rand_8, sy_random, stack
 
 .data
 seedlo:    .res 1
@@ -22,14 +22,14 @@ loop:
 ;;; IN:
 ;;; OUT:
 ;;;   A: random number
-.proc     i_rand
+.proc     sy_random
 loop:
           lda VICRASTER
           beq loop
-          cmp #41
+          cmp #13
           beq loop
           sta seedlo
-          lda #41
+          lda #13
           sta seedhi
           rts
 .endproc

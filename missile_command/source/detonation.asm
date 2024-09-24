@@ -19,17 +19,30 @@
 .export de_queue, de_init, de_test, de_draw, de_hit,de_draw_all,de_update_all
 .export de_erase, de_rand
 .import explosion_frame_skip_offsets
-
-;;; i_detonation_frame = -1 => don't draw, but erase
+;;; 
+;;; i_detonation_frame = frame number
+;;;                    plus special values
+;;;                    = -1 => don't draw, but erase
 ;;;                    = -2 => don't draw or erase
-;;; or, put another way:
-;;; Let A = i_frame, B = i_frame2
-;;;  0  1  =>  -1  0  =>  -2  -1
-;;;  A  B       A  B       A   B
-;;; ----------------------------
-;;;   T0         T1          T2
+;;; 
+;;; iframe moves to iframe2 ( this is the general pattern for
+;;;   double buffering indices )
+;;; 
+;;; In a diagram:
+;;; 
+;;; Let A = i_frame
+;;;     B = i_frame2
+;;; 
+;;;   A| B|  A| B|  A| B|
+;;;  --+--+---+--+------+
+;;;   0| 1| -1| 0| -2|-1|
+;;; 
+;;; ---------------------->   time
+;;;  T0      T1     T2
 ;;;
 ;;; T0 = drawing the last frame of an animation
+;;;      the current frame ( iframe ) is 0, the last frame drawn
+;;;      ( i_frame2 ) was 1
 ;;; T1 = drawing nothing, but erasing the last frame
 ;;; T2 = drawing nothing, erasing nothing
 .linecont

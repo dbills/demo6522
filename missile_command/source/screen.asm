@@ -25,6 +25,11 @@ loop:
           rts
 .endproc
 
+;;; <description>
+;;; IN:
+;;;   _plx_x, _pl_y
+;;; OUT:
+;;;   X,A,Y clobbered
 .proc     sc_plot
           sc_plotm lda _pl_x
           rts

@@ -48,7 +48,7 @@ z_iline:     .res 1
           q3_shallow
 .endenum
 
-;;; generate storage for MAX_LINES
+;;; Generate storage for MAX_LINES
 ;;; with a label starting at line_data00
 ;;; byte line_data[LINEMAX][MAX_LINES]
 ;;; recall the C language is row-major order

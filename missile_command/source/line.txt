@@ -23,7 +23,7 @@ Let steep = slope > 1
 Let forwardx = x2 > x1
 Let forwardy = y2 > y1
 
-Recall the cartesian coordinate system:
+The cartesian coordinate system:
 
  2|1
 --+--
@@ -48,7 +48,7 @@ Let short-axis = min(dx, dy)
 
 Consider the line [1,1] to [2,10]
 This is what we call a steep line, as the slope is > 1
-The 'long axis' for this line is the Y, and short-axis X
+The 'long axis' for this line is the Y, and short-axis X.
 Lines are stored in memory as a collection of short-axis values
 The number of values is the total length of the long-axis
 For our line example above, the buffer would be 10 byte long

@@ -1,4 +1,7 @@
 TODO:
+* base explosion needs to destroy missiles
+* Working on launching 2 icbms
+Why are they always targetting the same city/
 
 * change the screen column pointer table to tableL,tableH method.  This will clean up the code and
   allow us to actually store the column in things like the mushroom code where we have mu_screen_col

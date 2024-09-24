@@ -21,6 +21,11 @@ ok:
           ;; city 0,1,2 = offset 1
           ;; city 3,4,5 = offset 5
           tay
+          ;; check if explosion is queued
+          lda mu_frame_num,y
+          bne not_queued
+          rts
+not_queued:         
           lda #0                        ;start at frame 0
           sta mu_frame_num,y
 

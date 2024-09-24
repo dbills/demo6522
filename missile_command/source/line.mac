@@ -52,16 +52,14 @@ _line_h=1
   ltype_steep_forward
   ltype_steep_reverse
 .endenum
-.define MAX_LINES 9
-;;; the lines array is partitioned into two parts
-;;; one for interceptors(missiles) and one for icbms
-;;; MAX_MISSILES is delimiter, to the left is missiles
-;;; to the right are icbm.  The arcade only allowed 8 player missiles
-;;; at a time.
+.define MAX_LINES 16
+;;; The lines array is partitioned into two part: one for interceptors(missiles)
+;;; and one for icbms.  MAX_MISSILES is delimiter, to the left is missiles, to
+;;; the right are icbm.  The arcade only allowed 8 of each at a time.
 .define MAX_MISSILES 8
 
 ;;; set z_lstore pointer to label linedataX
-;;; where X is contents of X register
+;;; i.e: z_lstore = &linedata[X];
 ;;; IN:
 ;;;   X: which line to set z_lstore to point to
 ;;; OUT:

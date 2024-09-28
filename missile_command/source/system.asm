@@ -1,5 +1,5 @@
 .include "system.mac"
-.export _sleep, rand_8, sy_random, stack
+.export sy_sleep, rand_8, sy_random, stack
 
 .bss
 seedlo:   .res 1
@@ -10,8 +10,7 @@ stack:    .res 1
 ;;; Wait for a bit
 ;;; IN:
 ;;;   X: 60s of second to wait
-;;; OUT:
-.proc _sleep
+.proc sy_sleep
 loop:
           waitv
           dex

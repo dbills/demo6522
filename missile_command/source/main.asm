@@ -27,6 +27,7 @@
 .include "mushroom.inc"
 .include "flyers.inc"
 .include "attract.inc"
+.include "level.inc"
 
 .ifdef TESTS
 .include "unit_tests.inc"          
@@ -70,6 +71,7 @@ forever:  jmp forever
           jsr ic_genwave
 .export blargo
 blargo:   
+          jsr le_next_level
           jsr main_loop                 
 ;;; indidual tests, uncomment and run here 
 ;;; where the proper initialization has been done 

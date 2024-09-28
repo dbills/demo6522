@@ -125,10 +125,15 @@ iloop:
           cmp #100
           bne iloop
 .endmacro
+
 .macro sleep t
           saveall
+          .if (.match (.left (1, {t}), #))
           ldx #t
-          jsr _sleep
+          .else
+          ldx t
+          .endif
+          jsr sy_sleep
           resall
 .endmacro
 ;;; these macro may simplify branch statement

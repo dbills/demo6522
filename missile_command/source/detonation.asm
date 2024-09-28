@@ -13,11 +13,8 @@
 .include "dbgscreen.inc"
 .include "text.inc"
 
-;;; Debugging macros
-;DISABLE_ANIMATION = 1
-;;; End Debugging macros
-
-.export de_queue, de_init, de_draw, de_hit,de_draw_all,de_update_all
+.export de_queue, de_init, de_draw, de_draw_all,de_update_all
+.exportzp de_hit
 .export de_erase, de_rand, cw3_s, cw3_e
 .import explosion_frame_skip_offsets
 ;;; 
@@ -79,7 +76,9 @@ sz_explosion_frame_table = (* - explosion_frame_table)
 .macro explosion_y_offset_from_frame frame
             7 - frame
 .endmacro
-.bss
+
+.segment "CASS"
+
 ;;; size of array of on screen detonations
 slots = 15
 ;;; pointer to the list of rendering routines for this detonation
@@ -96,30 +95,32 @@ detonation_procH:    .res slots
 detonation_proc2L:   .res slots
 detonation_proc2H:   .res slots
 ;;; when frame is < 0, then this detonation is not active
-.zeropage
-guard1
 i_detonation_frame:  .res slots
 i_detonation_frame2: .res slots
-guard2
-.bss
 ;;; Y,X coordinates of upper left ( not center ) of explosion
 ;;; see detonation_xoff, detonation_yoff for distance to center
+guard1
 detonation_y:        .res slots
+guard2
 detonation_x:        .res slots
+;;; 
+;;; time critical storage. Space is tight, we'll put a few here that
+;;; we think we can afford
+;;; 
+.zeropage
 ;;; Y coordinate to render the current frame at, taking
-;;; into account the individual frame's offset.  Sprites data
+;;; into account the individual frame's offset. Sprites data
 ;;; is stored economically - we don't store empty bytes
 ;;; so the Y start row changes as the height of the detonation 
 ;;;  ( perhaps I should waste some memory to simplify the code?? )
-detonation_cy:       .res slots
-detonation_cy2:      .res slots
-.export screen_column
+detonation_cy:      .res slots
+detonation_cy2:     .res slots
 screen_column:      .res slots
-de_hit:  .res 1
+de_hit:             .res 1              ; output from de_check
+.code
 ;;; 
 ;;; Detonation init
 ;;; 
-.code
 .proc     de_init
           ldx #slots-1
 loop:

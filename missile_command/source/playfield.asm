@@ -7,7 +7,7 @@
 .include "playfield.mac"
 .include "shape_draw.inc"
 
-.export pl_draw_cities, pl_city_x_positions, pl_init
+.export pl_draw_cities, pl_city_x_positions, pl_init, pl_draw_city
 .export pl_m9,pl_m8,pl_m7,pl_m6,pl_m5,pl_m4,pl_m3,pl_m2,pl_m1,pl_m0
 
 missile_base_width = 16
@@ -45,12 +45,17 @@ pl_city_x_positions:
 ;;; IN:
 ;;;   Y: screen column *2 to draw city in
 ;;; OUT:
-;;;   foo: is updated
-;;;   X is clobbered
 .proc draw_city
           ;ldy #2
           sp_setup_draw
           ldy #YMAX-12
+          jsr mcity0_shift0
+          rts
+.endproc
+
+.proc pl_draw_city
+          sp_setup_draw
+          ldy s_y
           jsr mcity0_shift0
           rts
 .endproc

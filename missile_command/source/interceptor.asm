@@ -12,12 +12,13 @@
 .include "detonation.inc"
 
 .export in_init, in_launch, in_update, remove_routineL,remove_routineH, cw1_s, cw1_e
+.export in_mcount
 .importzp _pl_x,_pl_y
 
 base_x = XMAX/2
 base_y = YMAX-16
 
-.bss
+.segment "CASS"
 in_mcount:          .res 1
 .data
 ;;; function for updating the missile base at center of screen
@@ -98,7 +99,7 @@ empty:
           rts
 .endproc
 ;;; Erase crosshair centered at pl_x, pl_y
-;;; sprites are drawn  from the upper left
+;;; sprites are drawn from the upper left
 ;;; so we need to derive upper left coord
 ;;; to the players current crosshair location
 ;;; IN:

@@ -6,7 +6,7 @@
 .include "system.inc"
 .include "screen.mac"
 
-.export te_draw, text_x, text_y, _debug_number, te_printf_, te_clear_line
+.export te_draw, text_x, text_y, _debug_number, te_printf_, te_clear_line, te_number
 .export te_scratch_A, te_scratch_X, te_scratch_Y
 ;;; 7 pixel tall letters
 .define TEXT_HEIGHT 7
@@ -53,9 +53,9 @@ OFFSET      .set OFFSET + 7
 ;;; Draw a text string 
 ;;; IN:
 ;;;   s_x, s_y: upper left origin of text to draw
+;;;   ptr_string: text to print
 ;;; OUT:
 ;;;   s_x: advanced to end of text
-;;;   X is clobbered
 .proc       te_draw
             lda #0
             sta string_offset
@@ -241,6 +241,17 @@ show_word:
 .endproc
 
 .proc printf_param
+.endproc
+;;; Display a single number between 0-9 at s_x, s_y
+;;; IN:
+;;;   A = number
+;;; OUT:
+;;;   s_x is moved to the right
+.proc     te_number
+          letter_pointer _NUMBERS, ptr_0
+          jsr sp_draw_unshifted
+          add8 #TEXT_WIDTH, s_x
+          rts
 .endproc
 ;;; IN: A = number to display
             ;; lda #TEXT_HEIGHT

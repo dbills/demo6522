@@ -1,18 +1,12 @@
 TODO:
 * base explosion needs to destroy missiles
-* Working on launching 2 icbms
-Why are they always targetting the same city/
-
 * change the screen column pointer table to tableL,tableH method.  This will clean up the code and
   allow us to actually store the column in things like the mushroom code where we have mu_screen_col
   as a variable; but it's not really the screen column
-
   It will also be faster
-
 * leave a crosshair mark when an ABM is fired
 
 * implement 8.8 speed coding
-
 * delay before secondary explosion occurs
 
 smart bombs
@@ -28,8 +22,3 @@ to be expensive )
 
 can move up to 3 pixels in any direction
 desty - currenty
-* debugging stray pointer
-Something put FFE0 in .sp_col1, during the flyer code
-the pltbl is undamaged, but would be damaged at 1B
-which is the .sp_col1,Y where Y = $3B ( 112)
-what loaded sp_col1 with that? or was it, itself, damaged?

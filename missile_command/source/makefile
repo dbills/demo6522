@@ -1,13 +1,9 @@
-# C1541=c:\winvice3\c1541 -attach disk1.d64 -write a.p00 a
-C1541=/mnt/c/winvice3/c1541.exe
-EXE=a
-MAIN=source/main.asm
 FLAGS=-I./headers/ -I./data/ -I./source/
 CA65FIX= sed  -e 's/^\([^(]*\)[(]\([0-9]*\)[)]:/\1:\2:0:/'
 tests:
 	cd testing && make
 
-OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o flyers.o detonation.o bigletter.o math.o attract.o icbm.o mushroom.o shape_draw.o new_explosion.o unit_tests.o level.o
+OBJS=main.o zerop.o jstick.o shapes.o line.o target.o text.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o flyers.o detonation.o bigletter.o math.o attract.o icbm.o mushroom.o shape_draw.o new_explosion.o unit_tests.o level.o
 
 SOURCE=$(OBJS:.o=.asm)
 
@@ -34,6 +30,7 @@ port: graphics extra_graphics
 	for i in $(SOURCE);do ../build_support/assemble.sh $$i asm exit 1;done
 # link
 	cd obj;cl65 -o ../a.p00 -tvic20 -Ln ../vlabels.txt -m a.map -C ../linker.cfg --listing --add-source --debug $(OBJS)
+	sort -k2 vlabels.txt > /tmp/slabels.txt
 	cd obj;perl ../../build_support/mapfile.pl a.map > a.lst
 	@grep ^BSS obj/a.map | awk '{print $$3}' > /tmp/end.txt
 	@printf "ibase=16\n%s\n"  `cat /tmp/end.txt` | bc > /tmp/end2.txt
@@ -43,6 +40,8 @@ port: graphics extra_graphics
           sum a.p00 > /tmp/new_golden.txt && diff /tmp/golden.txt /tmp/new_golden.txt;\
         fi
 	cp a.p00 a2200.p00
+	c1541 -attach disk.d64 -delete "a.p00" 
+	c1541 -attach disk.d64 -write "a.p00"
 # generate debugger script
 	../build_support/debug_script.sh
 

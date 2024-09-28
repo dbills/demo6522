@@ -28,3 +28,8 @@ to be expensive )
 
 can move up to 3 pixels in any direction
 desty - currenty
+* debugging stray pointer
+Something put FFE0 in .sp_col1, during the flyer code
+the pltbl is undamaged, but would be damaged at 1B
+which is the .sp_col1,Y where Y = $3B ( 112)
+what loaded sp_col1 with that? or was it, itself, damaged?

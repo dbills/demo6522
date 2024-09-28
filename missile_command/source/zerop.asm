@@ -14,7 +14,7 @@
 pltbl:      .REPEAT SCRCOLS
             .res 2
 .ENDREPEAT
-pltbl_end:          
+pltbl_end = * - 1
 sp_col0:                                ;sprite screen column 0
 ptr_0:      .res 2                      ;plot used
 sp_col1:                                ;sprite screen column 1

@@ -93,7 +93,10 @@ fl_range_t:
 ROM=$8000                               ;no-op write to address
           ;; load pointers to rom to effectively be a no-op
           ;; high bytes only ( should be all that's needed )
-          lda >ROM
+          ;; set to FD00, don't care about low-byte
+          ;; worst case FDFF + FF = FEFE
+          ;; should all be non-writable
+          lda #$FE
           sta sp_col0+1
           sta sp_col1+1
           sta sp_col2+1

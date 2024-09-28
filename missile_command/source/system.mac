@@ -20,6 +20,22 @@ HZ30        = $8235           ; 1/30th
 HZ60        = $411A           ; 1/60th
 HZ16        = $f424           ; 1/16th
 
+;;; guard bytes used in winvice
+guard_size = 1
+.macro      guard1
+.export gb1, gb2
+gb1:      
+.res guard_size
+gb2 = * - 1
+.res 1    
+.endmacro
+.macro      guard2
+.export gb3, gb4
+gb3:      
+.res guard_size
+gb4 = * - 1
+.res 1    
+.endmacro
 .macro      savey
             tya
             pha

@@ -96,9 +96,12 @@ detonation_procH:    .res slots
 detonation_proc2L:   .res slots
 detonation_proc2H:   .res slots
 ;;; when frame is < 0, then this detonation is not active
-;.zeropage
+.zeropage
+guard1
 i_detonation_frame:  .res slots
 i_detonation_frame2: .res slots
+guard2
+.bss
 ;;; Y,X coordinates of upper left ( not center ) of explosion
 ;;; see detonation_xoff, detonation_yoff for distance to center
 detonation_y:        .res slots

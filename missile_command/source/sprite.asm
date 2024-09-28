@@ -12,18 +12,18 @@ target_x:   .res 1
 target_y:   .res 1
 .bss
 ;;; could these be bss?
-.data
+.bss
 left_byte:  .byte 0
 right_byte: .byte 0
 shift:      .byte 0
 sp_height:  .byte 0
 scratch:    .byte 0
 .code
-            ;; IN: shift - amount to shift to right
-            ;;     A - source byte
-            ;; OUT:
-            ;;   left_byte
-            ;;   right_byte
+;;; IN: shift - amount to shift to right
+;;;     A - source byte
+;;; OUT:
+;;;   left_byte
+;;;   right_byte
 .proc       create_sprite_line
             sta left_byte
             lda #0
@@ -40,16 +40,16 @@ done:
 .endproc
 .macro      calculate_adjusted_sprite_source
 .endmacro
-            ;; preshifted sprite drawing
-            ;; s_x: X coordinate
-            ;; s_y: Y coordinate
-            ;; input:
-            ;;   ptr_0: point to sprite source data
-            ;; output:
-            ;;   ptr_0 pointer to CHRAM column left tile
-            ;;   ptr_1 pointer to CHRAM column right tile
-            ;;   ptr_2 adjusted pointer to sprite source
-            ;;         s.t. ptr_2 + s_y = sprite_source data
+;;; preshifted sprite drawing
+;;; s_x: X coordinate
+;;; s_y: Y coordinate
+;;; input:
+;;;   ptr_0: point to sprite source data
+;;; output:
+;;;   ptr_0 pointer to CHRAM column left tile
+;;;   ptr_1 pointer to CHRAM column right tile
+;;;   ptr_2 adjusted pointer to sprite source
+;;;         s.t. ptr_2 + s_y = sprite_source data
 .macro      calculate_hires_pointers _x, _y
             sub_wbw ptr_0,_y,ptr_2
             lda _x

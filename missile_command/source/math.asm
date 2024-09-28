@@ -1,5 +1,5 @@
-.export factor1,factor2,mul8
-.data
+.export factor1, factor2, mul8
+.bss
 factor1:     .res 1
 factor2:    .res 1
 .code

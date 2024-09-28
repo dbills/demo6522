@@ -30,4 +30,5 @@
 ;;; error codes for the debug screen
 .define E_SPRITE_COL_ODD #1
 .define E_MUSHROOM_RANGE #2
+.define E_FL_RANGE #3
 

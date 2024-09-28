@@ -11,7 +11,8 @@ FL_BWITH = 11                           ;bomber sprite width
 FL_OFF_SCREEN = SCRCOLS + 2             ;off screen to right
 
 .export fl_init, fl_draw_all, fl_update_all, fl_send_bomber, fl_collision
-.exportzp fl_bomber_x, fl_bomber_x2, fl_bomber_y, fl_bomber_move, fl_bomber_tile, fl_next_bomber
+.export cw2_s, cw2_e
+.exportzp fl_next_bomber
 
 .data
 
@@ -31,7 +32,7 @@ fl_next_bomber:     .res 1
 fl_bomber_x:        .res 1              ;0 - 7 in tile, from the left
 fl_bomber_x2:       .res 1              ;old location to erase
 fl_bomber_y:        .res 1              ;y location on screen
-fl_bomber_move:     .res 1              ;movement direction 0=right 1=left
+fl_bomber_dir:     .res 1              ;movement direction 0=right 1=left
 fl_bomber_delay:    .res 1              ;movement delay bomber=3 ksat=2
 ;;; type of flyer: 0=bomber, 1=ksat0, 2=ksat1
 fl_bomber_type:     .res 1              ;0=sat else bomber
@@ -41,7 +42,7 @@ fl_bomber_tile2:    .res 1
 fl_savex:           .res 1
 fl_savea:           .res 1
 fl_deltax:          .res 1
-fl_collision_delay: .res 1
+fl_collision_delay: .res 1              ;pause before erasing after destruction
 fl_bomber_speed:    .res 1              ;frame speed for bomber
 
 ;;; Arcade flyer performance table.  Arcade height is 230
@@ -71,9 +72,9 @@ fl_range_t:
 .code
 ;;; Y = rightmost tile * 2 of sprite 
 ;;; i.e. 0 would draw the shift=7, third column of our 16x16 sprites on the 
-;;; the barely left part of the screen
-;;; for example if the sprite's pixel location was 0-7
-;;; then the rightmost tile ( stored in X ) would be 0
+;;; the barely left part of the screen. I.e: a one pixel strip of the shape.
+;;; For example if the sprite's pixel location was 0-7
+;;; then the rightmost tile # ( stored in X ) would be screen-column 0 
 ;;; Let P = pixel pos
 ;;;                           tile in X      
 ;;;    off screen            0 <- pixel 0
@@ -144,16 +145,15 @@ done:
 ;;;   X is clobbered
 .proc fl_init
           lda #FL_OFF_SCREEN
-
           sta fl_bomber_tile
           sta fl_bomber_tile2
-
-          lda #1
-          sta fl_deltax
-
+          ;; zeroes
           lda #0
           sta fl_collision_delay
-
+          sta fl_bomber_x
+          sta fl_bomber_x2
+          sta fl_deltax
+          ;; end zeroes
           rts
 .endproc
 
@@ -318,12 +318,13 @@ bot_left:
 ;;;   X: shift to render
 ;;;   Y: y coordinate
 ;;; OUT:
+cw2_s:    
 .proc fl_render
 .ifdef CHECKED_BUILD
           sta fl_savea
           cpx #8
-          bgte ok
-          abort 'E',55
+          bcc ok
+          abort 'E',E_FL_RANGE
 ok:       
           lda fl_savea
 .endif
@@ -341,6 +342,7 @@ frame1:
           sy_dynajump ksat1_shiftL, ksat1_shiftH ;rts
           
 .endproc
+cw2_e:    
 
 ;;; branch to _1 if this frame should not move the bomer
 .macro    fl_skipper _1
@@ -361,7 +363,6 @@ done:
 ;;; IN:
 ;;;   X: the flyer to draw 0 or 1
 ;;; OUT:
-;;;   foo: is updated
 ;;;   X is clobbered
 .proc fl_draw_all_done
           rts
@@ -370,6 +371,7 @@ done:
           fl_skipper fl_draw_all_done
           ;; on screen?
           lda fl_bomber_tile2           ;255-25 | 25-25, offscreen if either value
+          ;; ??? does this work because of signed byte ???
           cmp #FL_OFF_SCREEN
           blte draw                      ;nothing to erase
           ;; erase old location
@@ -387,7 +389,7 @@ done:
 draw:     
           lda fl_bomber_tile
           cmp #FL_OFF_SCREEN
-          blte done                      ;nothing to draw
+          blte done2                    ;nothing to draw
           ;; draw at new location
           asl                           ;*2
           tay
@@ -399,6 +401,9 @@ draw:
           jsr fl_render
           ldx fl_savex                  ;restore x
 done:     
+          rts
+done2:    
+          so_bomber_gone
           rts
 .endproc
 
@@ -422,7 +427,7 @@ dec_tile:
           sta fl_bomber_x
 done:     
 .endmacro
-;;; Move right
+;;; Move a flyer to the right
 ;;; IN:
 ;;;   arg1: does this and that
 ;;; OUT:
@@ -438,9 +443,9 @@ done:
           sta fl_bomber_x
           bne done
 inc_tile: 
-          inc fl_bomber_tile
           lda #0
           sta fl_bomber_x
+          inc fl_bomber_tile
 done:     
 .endmacro
 
@@ -460,7 +465,7 @@ done:
           lda fl_bomber_x               ;double buffer location
           sta fl_bomber_x2
           ;; update current location
-          lda fl_bomber_move            ;direction?
+          lda fl_bomber_dir            ;direction?
           bne left                      ;if left move left
           move_right                    ;else move right
           jmp fl_collision              ;includes rts
@@ -477,7 +482,7 @@ next:
           and #%111
           tax                           ;x=level s.t. level < 8
           jsr rand_8
-          and #%11111                    ;0-31
+          and #%11111                   ;0-31
           ;; height = FL_BASE_Y + rand(32) + fl_range_t[current_level]
           clc 
           adc #FL_BASE_Y
@@ -496,7 +501,7 @@ next:
           lda #1
           sta fl_deltax
 
-          ;so_bomber_out
+          so_bomber_out
 
           ;; set height from table
           fl_flyer_height
@@ -508,11 +513,13 @@ next:
           iny                           ;fl_bomber_type=1
 bomber:   
           sty fl_bomber_type
-          and #1                        ;reuse random number 
-          sta fl_bomber_move
+          ;and #1                        ;reuse random number 
+          lda #0
+          sta fl_bomber_dir
           bne left
           ;; left to right
 right:    
+          ;; A=0
           sta fl_bomber_tile
           sta fl_bomber_x
           ;; send out a flyer from right to left

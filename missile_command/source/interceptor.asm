@@ -11,7 +11,7 @@
 .include "playfield.inc"
 .include "detonation.inc"
 
-.export in_init, in_launch, in_update, remove_routineL,remove_routineH
+.export in_init, in_launch, in_update, remove_routineL,remove_routineH, cw1_s, cw1_e
 .importzp _pl_x,_pl_y
 
 base_x = XMAX/2
@@ -32,6 +32,7 @@ remove_routineH:
 ;;; Initialize and interceptor module
 ;;; IN:
 ;;; OUT:
+cw1_s:    
 .proc     in_init
           jsr in_reload
           ldx #MAX_MISSILES-1
@@ -50,8 +51,13 @@ loop:
 .endproc
 
 .proc in_remove
+          cpx #10
+          bcc ok
+          brk
+ok:       
           sy_dynajump2 "remove_routine"
 .endproc
+cw1_e:    
 ;;; launch an interceptor from the missile base
 ;;; to the players current crosshair location
 ;;; IN:

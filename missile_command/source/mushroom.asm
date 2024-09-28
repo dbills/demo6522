@@ -7,7 +7,7 @@
 .include "playfield.inc"
 .include "mushroom.mac"
 
-.export mu_test, mu_init, mu_frame_num, mu_screen_col, mu_draw
+.export mu_test, mu_init, mu_frame_num, mu_screen_col, mu_draw, cw4_s, cw4_e
 
 .bss
 mu_screen_col:         .res MU_MAX
@@ -34,10 +34,11 @@ loop:
 ;;;   X: frame of animation to draw
 ;;; OUT:
 ;;;
+cw4_s:    
 .proc mu_draw
           sy_dynajump mushroom_frames_shift0L, mushroom_frames_shift0H
 .endproc
-
+cw4_e:    
 ;;; ==========================================================================
 
 .define test_city 6

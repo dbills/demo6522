@@ -3,13 +3,18 @@
 .include "jstick.inc"
 .include "sound.mac"
 .export so_isr, so_test, so_init, so_missile, so_i_empty, so_bomber_note
-
+.export so_pad1,so_pad2, so_splosion, so_noise_seed
+;.zeropage
 .bss
+so_pad1:     
 so_counter1:        .res 1
 so_counter2:        .res 1
 i_missile_sound:    .res 1
 so_i_empty:         .res 1
 so_bomber_note:     .res 1
+so_splosion:        .res 1
+so_noise_seed:      .res 1
+so_pad2:     
 .data
 missile_away_table:
 .byte 200
@@ -56,17 +61,16 @@ table_sz = * - missile_away_table
 .code
 
 ;;; Sound interupt service routine
+;;; registers are saved because we are using kernel routine
 ;;; IN:
 ;;; OUT:
-;;;   all sound table indicies updated
+;;;   all sound table indices updated
 .proc     so_isr
-          sei
           ;; increment timing counters
           inc so_counter1
           bne not_wrapped
           inc so_counter2
 not_wrapped:        
-
           ;; run interceptor sounds
           ldx i_missile_sound
           bne _1
@@ -93,7 +97,7 @@ _3:
           beq _4
           cmp #240                      ;non-inclusive upper bound
           bne note_in_sequence
-          ;; note is at end of sequence, reset to beginngin
+          ;; note is at end of sequence, reset to begin
           lda #SO_BOMBER_START
           ;; note is in the sequence
 note_in_sequence:
@@ -103,6 +107,30 @@ note_in_sequence:
           adc #3
           sta so_bomber_note
 _4:       
+          lda so_splosion
+          beq _5
+          ;; try to make an explosion sound while
+          ;; not disrupting noise register too much
+          ;; as we are decrementing, the transition from 
+          ;; 1 -> 0 turns the sound off, and stops it
+          and #1
+          beq splosion_on
+splosion_off:       
+          lda #8
+          sta 36874
+          bne splosion_finish
+splosion_on:    
+          lda so_splosion
+          eor $9004                     ;vicraster
+          clc
+          adc #90
+          and #%10011111
+          sta 36874
+          ;; finish splosion
+splosion_finish:    
+          dec so_splosion
+          ;; placeholder for next sound effect ...
+_5:       
 done:     
           jmp MINISR
 .endproc
@@ -125,6 +153,7 @@ done:
           sta so_i_empty                ;empty sound off
           sta i_missile_sound           ;missile sound off
           sta so_bomber_note            ;bomber sound effect off
+          sta so_splosion
           lda #8                        ;volume
           sta 36878
 

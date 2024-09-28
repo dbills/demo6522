@@ -8,6 +8,7 @@
 .include "screen.inc"
 .include "shapes.mac"
 .include "colors.equ"
+.include "sound.inc"
 
 .include "dbgscreen.inc"
 .include "text.inc"
@@ -16,8 +17,8 @@
 ;DISABLE_ANIMATION = 1
 ;;; End Debugging macros
 
-.export de_queue, de_init, de_test, de_draw, de_hit,de_draw_all,de_update_all
-.export de_erase, de_rand
+.export de_queue, de_init, de_draw, de_hit,de_draw_all,de_update_all
+.export de_erase, de_rand, cw3_s, cw3_e
 .import explosion_frame_skip_offsets
 ;;; 
 ;;; i_detonation_frame = frame number
@@ -95,6 +96,7 @@ detonation_procH:    .res slots
 detonation_proc2L:   .res slots
 detonation_proc2H:   .res slots
 ;;; when frame is < 0, then this detonation is not active
+;.zeropage
 i_detonation_frame:  .res slots
 i_detonation_frame2: .res slots
 ;;; Y,X coordinates of upper left ( not center ) of explosion
@@ -111,11 +113,10 @@ detonation_cy2:      .res slots
 .export screen_column
 screen_column:      .res slots
 de_hit:  .res 1
-fm:      .res 1
+;;; 
+;;; Detonation init
+;;; 
 .code
-
-.code
-
 .proc     de_init
           ldx #slots-1
 loop:
@@ -129,7 +130,6 @@ loop:
           bpl loop
           lda #0
           sta de_hit
-          sta fm
           rts
 .endproc
 ;;; Queue a detonation animation centered
@@ -183,6 +183,8 @@ available:
           jsr update_detonation_data
           lda #$ff                    ;-1
           sta i_detonation_frame2,x
+          ;; queue an explosion sound effect
+          so_detonation
           rts
 .endproc
 rmax = YMAX-32
@@ -209,23 +211,24 @@ done:
             rts
 .endproc
 
-.import wait_v
-.proc       de_test
-          lda #9
-          sta _pl_y
-          lda #7
-          sta _pl_x
-          jsr de_queue
+;;.export de_test
+;; .import wait_v
+;; .proc       de_test
+;;           lda #9
+;;           sta _pl_y
+;;           lda #7
+;;           sta _pl_x
+;;           jsr de_queue
 
-          ldx #slots-1      
-loop:     
-          jsr erase_detonation
-          jsr draw_detonation
-          jsr update_detonation
-          jsr j_wfire
-          jmp loop
-          rts     
-.endproc
+;;           ldx #slots-1      
+;; loop:     
+;;           jsr erase_detonation
+;;           jsr draw_detonation
+;;           jsr update_detonation
+;;           jsr j_wfire
+;;           jmp loop
+;;           rts     
+;; .endproc
 
 ;;; Erase and draw detonations ( splosions! )
 ;;; 
@@ -316,6 +319,7 @@ active:
 ;;; IN:
 ;;;   X: detonation to erase
 ;;; OUT:
+cw3_s:    
 .proc       erase_detonation
 jmp_operand = jmp0 + 1
             lda i_detonation_frame2,x
@@ -353,6 +357,7 @@ jmp0:
 done:
             rts
 .endproc
+cw3_e:    
 
 .macro      iterate_detonations routine
             .local loop,next,done
@@ -415,7 +420,6 @@ done:
 ;;; OUT:
 ;;;   X is clobbered
 .zeropage
-;;; todo: these, of course, should be moved to ZP for speed
 x_intersect:        .res 1
 y_intersect:        .res 1
 de_checkx:          .res 1
@@ -470,7 +474,6 @@ inside_y:
           ;; explosion animation frame being displayed
           ldy i_detonation_frame,x      ;index into frame table
           lda explosion_frame_table,y   ;which image (0-7) is displayed
-          sta fm
           tay
           ;; now load the collision map for that image
           lda collision_tableL,y

@@ -1,4 +1,27 @@
-.include "screen.inc"
+head	1.1;
+access;
+symbols;
+locks
+	dane:1.1; strict;
+comment	@;; @;
+
+
+1.1
+date	2024.09.25.00.32.20;	author dane;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@.include "screen.inc"
 .include "zerop.inc"
 .include "m16.mac"
 .include "text.inc"
@@ -65,8 +88,6 @@ long_axis_lengths:        .res MAX_LINES
 line_data_indices:        .res MAX_LINES
 ;;; short axis point?
 long_axis_current_values: .res MAX_LINES
-;;; scratch variable
-line_index:         .res 1
 .data
 ;;; low, high bytes for line data
 ;;; E.g. line00 = (line_offsetsL[0] << 8) + line_offsetsH[0]
@@ -205,61 +226,60 @@ s8:
 ;;;                macro to run
 ;;;   X: index of line
 .macro    _general_render_template render_type
-.local s0,s1,s2,s3,s4,s5,s6,s7,s8,done
+.local s0,s1,s2,s3,s4,s5,s6,s7,s8
           lda line_types,x
 s0:
           cmp #z_line_type::q1_steep
           bne s1
 ;          dbgmsg 'A',#1
           render_type forward, forward, steep
-          jmp done
+          rts
 s1:
           cmp #z_line_type::q4_steep
           bne s2
 ;          dbgmsg 'B',#1
           render_type forward,reverse,steep
-          jmp done
+          rts
 s2:
           cmp #z_line_type::q2_steep
           bne s3
 ;          dbgmsg 'C',#1
           render_type reverse,forward,steep
-          jmp done
+          rts
 s3:
           cmp #z_line_type::q3_steep
           bne s4
 ;          dbgmsg 'D',#1
           render_type reverse,reverse,steep
-          jmp done
+          rts
 s4:
           cmp #z_line_type::q1_shallow
           bne s5
 ;          dbgmsg 'E',#1
           render_type forward,forward,shallow
-          jmp done
+          rts
 s5:
           cmp #z_line_type::q4_shallow
           bne s6
 ;          dbgmsg 'F',#1
           render_type forward,reverse,shallow
-          jmp done
+          rts
 s6:
           cmp #z_line_type::q2_shallow
           bne s7
 ;          dbgmsg 'G',#1
           render_type reverse,forward,shallow
-          jmp done
+          rts
 s7:
           cmp #z_line_type::q3_shallow
           bne s8
 ;          dbgmsg 'H',#1
           render_type reverse,reverse,shallow
-          jmp done
+          rts
 s8:
           sta debugb
           dbgmsg 'Q', debugb
-          ;jmp done
-done:     
+          rts
 .endmacro
 
 .proc li_full_render
@@ -275,24 +295,24 @@ done:
 ;;;   _pl_y: to coord of pixel just plotted
 .proc li_render_pixel
           _general_render_template render_partial_line
-          rts
 .endproc
 ;;; Erase and deactive a partially drawn line
 ;;; IN:
 ;;;   X: line to erase
 ;;; 
 ;;; OUT:
+.bss 
+line_index:         .res 1
+.data
 .proc li_deactivate_partial
           lda line_data_indices,x
           sta line_index           
           li_reset_line               
 loop:     
-          _general_render_template render_partial_line
+          jsr li_render_pixel
           lda line_data_indices,x
           cmp line_index
-          beq done
-          jmp loop
-done:     
+          bne loop
           ;; deactivate line
           lda #0
           sta line_data_indices,x
@@ -315,3 +335,4 @@ loop:
           bpl loop
           rts
 .endproc
+@

@@ -38,7 +38,7 @@
 ;;; if we have the slots for them. If we don't this might be less.
 ;;; We decide to launch a wave when the highest missile is below a certain
 ;;; height.
-wave_size = 3
+wave_size = 2
 trigger_height = 80
 ;;; height above a city that icbm targets
 detonation_height = 5
@@ -66,8 +66,8 @@ ic_smart_cnt:                                     ;smart bombs per level
 .zeropage
 delay_i:  .res 2                                  ;level specific delay
 delay:    .res 2                                  ;current counter value
-.bss
-icbm_cnt: .res 1
+icbm_cnt:           .res 1
+icbm_height:        .res 1
 .code
 
 ;;; <description>
@@ -93,6 +93,29 @@ icbm_cnt: .res 1
           sta delay+1
           rts
 .endproc
+
+;;; update store to compare, if compare is less then store
+.macro    store_if_lesser store, compare
+          .local done
+          lda compare
+          cmp store
+          ;; if compare - store > 0 then compare > store
+          ;; 10 - 8 > 0 => C=1
+          bcs done
+          sta store
+done:     
+.endmacro
+;;; if highest icbm is low enough, launch another wave
+;;; top of sky is 0
+;;; is height > trigger_height then launch
+.macro    send_next_wave height, trigger
+          .local done
+          lda height
+          cmp trigger
+          bcc done
+          jsr ic_genwave
+done:     
+.endmacro
 ;;; Draw one pixel for all enemy icbms active
 ;;; There is one array of line data for both icbm and player interceptors
 ;;; The first N are interceptors, the last N are icbms.
@@ -104,6 +127,8 @@ icbm_cnt: .res 1
 ;;;   foo: is updated
 ;;;   X is clobbered
 .proc     ic_update
+          lda #200
+          sta icbm_height
           ;; update and check delay
           lda delay
           sec
@@ -135,24 +160,16 @@ loop:
           li_setz_lstore
           jsr li_render_pixel
           beq reached_target
+
+          ;; set icbm_highest if less than _pl_y
+          store_if_lesser icbm_height, _pl_y
+not_greater:        
           de_collision _pl_x, _pl_y
           lda de_hit
           beq next
           ;; icbm was destroyed by a detonation
-          ;; save its current location - we erase to this point in scratch1
-          lda line_data_indices,x
-          sta scratch1               
-          li_reset_line               
-          ;; erase it, up to where it is - we can't use li_deactive here
-          ;; because the line isn't full
-erase_loop:
-          jsr li_render_pixel
-          lda line_data_indices,x
-          cmp scratch1
-          bne erase_loop
-          ;; deactivate line
-          lda #0
-          sta line_data_indices,x
+          ;; perform partial erase on what was drawn so far
+          jsr li_deactivate_partial
           ;; queue (another) detonation, pl_x,pl_y already set
           savex
           jsr de_queue
@@ -161,6 +178,9 @@ next:
           inx
           jmp loop
 done:     
+          ;; send next wave is highest icbm is low enough in sky
+          ;; or active count
+          send_next_wave icbm_height, #trigger_height
           rts
 reached_target:     
           li_deactivate

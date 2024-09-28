@@ -1,6 +1,6 @@
 .include "screen.inc"
 .include "zerop.mac"
-.exportzp ptr_0, ptr_1, ptr_2, ptr_3, pltbl, save_y, ptr_string, sleep_t
+.exportzp ptr_0, ptr_1, ptr_2, ptr_3, pltbl, pltbl_end, save_y, ptr_string, sleep_t
 .exportzp debugb,ptr_4,sp_col0,sp_col1,sp_col2,frame_cnt, scratch1, zb_icbm
 .exportzp zp_cnt1,zp_cnt2,zp_cnt3,zp_lvl,zp_3cnt
 ;;; place me last in the 'main' includes
@@ -13,7 +13,8 @@
 .ZEROPAGE
 pltbl:      .REPEAT SCRCOLS
             .res 2
-            .ENDREPEAT
+.ENDREPEAT
+pltbl_end:          
 sp_col0:                                ;sprite screen column 0
 ptr_0:      .res 2                      ;plot used
 sp_col1:                                ;sprite screen column 1
@@ -27,7 +28,7 @@ s_src:      .res 1
 ;;; mysterious padding
 ;;; because something is
 ;;; attacking zero page?
-unused:     .res 3
+;unused:     .res 3
 ptr_string: .res 2
 sp_col2:                                ;sprite screen column 2
 ptr_4:      .res 2

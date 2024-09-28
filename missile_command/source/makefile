@@ -7,7 +7,7 @@ CA65FIX= sed  -e 's/^\([^(]*\)[(]\([0-9]*\)[)]:/\1:\2:0:/'
 tests:
 	cd testing && make
 
-OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o detonation.o bigletter.o math.o scroller.o attract.o icbm.o mushroom.o shape_draw.o new_explosion.o flyers.o unit_tests.o
+OBJS=main.o jstick.o shapes.o line.o target.o text.o zerop.o screen.o sprite.o timer.o dbgscreen.o playfield.o interceptor.o sound.o system.o flyers.o detonation.o bigletter.o math.o attract.o icbm.o mushroom.o shape_draw.o new_explosion.o unit_tests.o level.o
 
 SOURCE=$(OBJS:.o=.asm)
 
@@ -43,6 +43,8 @@ port: graphics extra_graphics
           sum a.p00 > /tmp/new_golden.txt && diff /tmp/golden.txt /tmp/new_golden.txt;\
         fi
 	cp a.p00 a2200.p00
+# generate debugger script
+	../build_support/debug_script.sh
 
 # make a golden checksum, useful before clerical refactorings like
 # renaming stuff

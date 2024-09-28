@@ -6,3 +6,4 @@ detonation_graphics.asm
 screen_draw.asm
 mushroom_draw.asm
 shape_draw.asm
+dbg.txt

@@ -1,5 +1,7 @@
+.include "system.inc"
 SO_BOMBER_START = 180
 
+;;; out of missiles
 .macro    so_empty
           lda #245
           sta 36876
@@ -17,4 +19,11 @@ SO_BOMBER_START = 180
           lda #0
           sta so_bomber_note
           sta 36875
+.endmacro
+
+.macro    so_detonation
+          lda #128
+          sta so_splosion
+          jsr rand_8
+          sta so_noise_seed
 .endmacro

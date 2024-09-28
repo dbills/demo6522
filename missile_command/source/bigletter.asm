@@ -5,25 +5,31 @@
 .include "m16.mac"
 .include "math.inc"
 
-.export bigx,bigy,bigplot,bigletter,bigstring,mcommand
+.export bigx, bigy, bigplot, bigletter, bigstring, bi_mcommand
 .data
-message1:    .byte 13,9,19,19,9,12,5,0
-message2:   .byte 3,15,13,13,1,14,4,0
-lwidth:     .byte 3
+;;; custom character set codes:
+;;; ---------------------------
+;;;  abcdefghijklmnopqrstuv
+;;; $123456789abcdef1111111
+;;; $               0123456
+message1: .byte   13,    9,   19,  19,   9, 12,    5, 0
+message2: .byte  $03,  $0f,  $0e, $14, $12, $0f, $0c, 0
+lwidth:   .byte 3
+.segment "BSS"
+bigx:     .res 1
+bigy:     .res 1
+counter1: .res 1
+counter2: .res 1
+charrow:  .res 1
 .bss
-bigx:         .res 1
-bigy:         .res 1
-counter1:      .res 1
-counter2:      .res 1
-charrow:    .res 1
 bigwidth = 7
 left_offset = ( (XMAX / 3) / 2 )- ( ( bigwidth * 7 ) / 2 )
 .zeropage
-chrom1:     .res 2
-msg1:       .res 2
+chrom1:   .res 2
+msg1:     .res 2
 .code
 
-.proc       mcommand
+.proc       bi_mcommand
             lda #left_offset
             sta bigx
             lda #11

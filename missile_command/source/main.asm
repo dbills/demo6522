@@ -21,19 +21,18 @@
 .include "shapes.inc"
 .include "playfield.inc"
 .include "interceptor.inc"
-;.include "queue.inc"
 .include "sound.inc"
 .include "detonation.inc"
 .include "icbm.inc"
 .include "mushroom.inc"
 .include "flyers.inc"
+.include "attract.inc"
 
 .ifdef TESTS
 .include "unit_tests.inc"          
 .endif
 
-;          jmp demo
-          .CODE
+.code
 .proc     demo
           sei
           ;; load countdown value into via 2, timer1 latch
@@ -42,7 +41,8 @@
           mov #so_isr, $0314
           cli
           jsr sc_pltbl                   ;init plotting table
-          jsr sc_chrset                  ;init character set
+          ;; init character set ( clears screen if called later )
+          jsr sc_chrset
           jsr sc_hires                   ;init hi-res screen
           jsr i_joy                      ;init joystick
           jsr sy_random                  ;init random numbers
@@ -53,44 +53,37 @@
           sc_bcolor BLUE
           sc_scolor CYAN
 
-          jsr ta_init
-          jsr db_init
-          jsr so_init
-          jsr in_init
-          jsr li_init
-          jsr de_init
-          jsr pl_init
-          jsr mu_init
-          jsr fl_init
-          jsr sm_init
-          jsr ic_init
+          jsr main_init
+
 .ifdef TESTS
           jsr unit_tests
 forever:  jmp forever
 .endif
-          ;jsr so_test
-          jsr pl_draw_cities
-          ;; jsr bigplot
-          ;; lda #1
-          ;; sta bigx
-          ;; sta bigy
-          ;jsr bigletter
-          ;jsr bigstring
-          ;;jsr mcommand
 
+          jsr at_attract
+          ;; we get here after trigger
+          jsr main_init
+          ;; clear screen
+          jsr sc_chrset
+
+          jsr pl_draw_cities           
           jsr ic_genwave
-
+.export blargo
+blargo:   
           jsr main_loop                 
-
+;;; indidual tests, uncomment and run here 
+;;; where the proper initialization has been done 
+;;; 
+          ;jsr so_test
           ;jsr line_tests
           ;jsr de_test
           ;jsr fl_test
-
           ;jsr mu_test
+;;; 
+;;; end individual tests
+;;; 
 loop:     jmp loop
           ;jsr line_tests
-.import attract
-            ;jsr attract
 
           rts
 .endproc
@@ -103,13 +96,14 @@ iloop:
           rts
 .endproc
 
+.export main_loop
 .proc     main_loop
           lda #YMAX/2
           sta target_y
           lda #XMAX/2
           sta target_x
           ta_draw
-          ;jsr fl_send_bomber
+          jsr fl_send_bomber
           jsr sm_send
 loop:
           waitv
@@ -137,3 +131,17 @@ loop:
           rts
 .endproc
 
+.proc     main_init
+          jsr ta_init
+          jsr db_init
+          jsr so_init
+          jsr in_init
+          jsr li_init
+          jsr de_init
+          jsr pl_init
+          jsr mu_init
+          jsr fl_init
+          jsr sm_init
+          jsr ic_init
+          rts
+.endproc

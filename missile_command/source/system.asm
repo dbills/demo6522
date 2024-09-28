@@ -1,10 +1,10 @@
 .include "system.mac"
 .export _sleep, rand_8, sy_random, stack
 
-.data
-seedlo:    .res 1
-seedhi:    .res 1
-stack:    .res 1
+.bss
+seedlo:   .res 1
+seedhi:   .res 1
+stack:    .res 1                                  
 .code
 
 ;;; Wait for a bit
